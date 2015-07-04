@@ -1,0 +1,102 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{84C9C0E8-DA2D-46D9-8809-1F2B8D5C6535}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>DummyOrm</RootNamespace>
+    <AssemblyName>DummyOrm</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="CommandBuilders\CommandBuilder.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Meta\ColumnMeta.cs" />
+    <Compile Include="Meta\DbMeta.cs" />
+    <Compile Include="QueryBuilders\Select\SelectQueryBuilder.cs" />
+    <Compile Include="QueryBuilders\Where\Expressions\BinaryExpression.cs" />
+    <Compile Include="QueryBuilders\Where\ExpressionBuilders\BinaryExpressionBuilder.cs" />
+    <Compile Include="QueryBuilders\Where\Expressions\ColumnExpression.cs" />
+    <Compile Include="QueryBuilders\Where\Expressions\InExpression.cs" />
+    <Compile Include="QueryBuilders\Where\ExpressionBuilders\InExpressionBuilder.cs" />
+    <Compile Include="QueryBuilders\Where\IWhereExpression.cs" />
+    <Compile Include="QueryBuilders\Where\IWhereExpressionBuilder.cs" />
+    <Compile Include="QueryBuilders\Where\Evaluator.cs" />
+    <Compile Include="QueryBuilders\Where\IWhereExpressionVisitor.cs" />
+    <Compile Include="QueryBuilders\Where\Expressions\LikeExpression.cs" />
+    <Compile Include="QueryBuilders\Where\ExpressionBuilders\LikeExpressionBuilder.cs" />
+    <Compile Include="QueryBuilders\Where\Expressions\LogicalExpression.cs" />
+    <Compile Include="QueryBuilders\Where\ExpressionBuilders\LogicalExpressionBuilder.cs" />
+    <Compile Include="QueryBuilders\Where\Expressions\NotExpression.cs" />
+    <Compile Include="QueryBuilders\Where\ExpressionBuilders\NotExpressionBuilder.cs" />
+    <Compile Include="QueryBuilders\Where\Expressions\NullExpression.cs" />
+    <Compile Include="QueryBuilders\Where\Expressions\ValueExpression.cs" />
+    <Compile Include="QueryBuilders\Where\WhereExpressionBuilder.cs" />
+    <Compile Include="QueryBuilders\Where\WhereExpressionExtensions.cs" />
+    <Compile Include="QueryBuilders\Where\WhereExpressionVisitor.cs" />
+    <Compile Include="QueryBuilders\Where\WhereSqlCommandBuilder.cs" />
+    <Compile Include="Repository\CustomPocoMapper.cs" />
+    <Compile Include="Repository\IPocoMapper.cs" />
+    <Compile Include="Repository\IPocoReader.cs" />
+    <Compile Include="Repository\IQuery.cs" />
+    <Compile Include="Repository\IRepository.cs" />
+    <Compile Include="Repository\ISelectQueryReader.cs" />
+    <Compile Include="Repository\MultiPocoMapper.cs" />
+    <Compile Include="Repository\Page.cs" />
+    <Compile Include="Repository\PageMapper.cs" />
+    <Compile Include="Repository\DynamicPocoMapper.cs" />
+    <Compile Include="Repository\PocoReader.cs" />
+    <Compile Include="Repository\Repository.cs" />
+    <Compile Include="Repository\RepositoryQuery.cs" />
+    <Compile Include="Repository\TupleMapper.cs" />
+    <Compile Include="Sql\Column.cs" />
+    <Compile Include="Sql\Join.cs" />
+    <Compile Include="Sql\JoinType.cs" />
+    <Compile Include="Sql\OrderBy.cs" />
+    <Compile Include="QueryBuilders\Select\SelectQuery.cs" />
+    <Compile Include="Meta\TableMeta.cs" />
+    <Compile Include="QueryBuilders\Where\IWhereSqlCommandBuilder.cs" />
+    <Compile Include="QueryBuilders\Where\SqlOperator.cs" />
+    <Compile Include="Sql\SqlCommand.cs" />
+    <Compile Include="Sql\SqlCommandMeta.cs" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

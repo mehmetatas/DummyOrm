@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.30723.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DummyOrm", "DummyOrm\DummyOrm.csproj", "{84C9C0E8-DA2D-46D9-8809-1F2B8D5C6535}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DummyOrm.ConsoleApp", "DummyOrm.ConsoleApp\DummyOrm.ConsoleApp.csproj", "{6CA508DA-D80A-4DBE-89D0-40C6D4252660}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{84C9C0E8-DA2D-46D9-8809-1F2B8D5C6535}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{84C9C0E8-DA2D-46D9-8809-1F2B8D5C6535}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{84C9C0E8-DA2D-46D9-8809-1F2B8D5C6535}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{84C9C0E8-DA2D-46D9-8809-1F2B8D5C6535}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6CA508DA-D80A-4DBE-89D0-40C6D4252660}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6CA508DA-D80A-4DBE-89D0-40C6D4252660}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6CA508DA-D80A-4DBE-89D0-40C6D4252660}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6CA508DA-D80A-4DBE-89D0-40C6D4252660}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
