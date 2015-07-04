@@ -5,6 +5,10 @@ using System.Data;
 
 namespace DummyOrm.Repository
 {
+    /// <summary>
+    /// Adapter: DataReader -> IEnumerable
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public class PocoReader<T> : IPocoReader<T>
     {
         private readonly IEnumerator<T> _enumerator;

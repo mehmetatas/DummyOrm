@@ -1,5 +1,5 @@
 using System.Data;
-using DummyOrm.QueryBuilders.Select;
+using DummyOrm.Sql.QueryBuilders.Select;
 
 namespace DummyOrm.Repository
 {

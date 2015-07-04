@@ -14,7 +14,8 @@ namespace DummyOrm.ConsoleApp
         static void Main(string[] args)
         {
             DbMeta.Instance.Register<User>()
-                .Register<Post>();
+                .Register<Post>()
+                .Register<Like>();
 
             using (_repo = CreateRepo())
             {
@@ -31,11 +32,70 @@ namespace DummyOrm.ConsoleApp
                 //Include();
                 //Tuple();
                 //PageTuple();
-                TopTuple();
+                //TopTuple();
+                //GetById();
+                //InsertAssociationEntity();
+                //GetByIdAssociationEntity();
+                //UpdateAssociationEntity();
+                DeleteAssociationEntity();
             }
 
             Console.WriteLine("OK!");
             Console.ReadLine();
+        }
+
+        private static void DeleteAssociationEntity()
+        {
+            var like = new Like
+            {
+                PostId = 1,
+                UserId = 2,
+                LikedDate = DateTime.Now
+            };
+
+            _repo.Insert(like);
+
+            like = _repo.GetById<Like>(new Like { PostId = 1, UserId = 2 });
+            _repo.Delete(like);
+            like = _repo.GetById<Like>(new Like { PostId = 1, UserId = 2 });
+            Console.WriteLine(like == null);
+        }
+
+        private static void UpdateAssociationEntity()
+        {
+            var like = _repo.GetById<Like>(new Like { PostId = 1, UserId = 1 });
+            var time = DateTime.Now;
+            like.LikedDate = DateTime.Now;
+            _repo.Update(like);
+            like = _repo.GetById<Like>(new Like { PostId = 1, UserId = 1 });
+
+            Console.WriteLine(time);
+            Console.WriteLine(like.LikedDate);
+        }
+
+        private static void GetByIdAssociationEntity()
+        {
+            var like = _repo.GetById<Like>(new Like { PostId = 1, UserId = 1 });
+            Console.WriteLine(like.PostId); 
+            Console.WriteLine(like.UserId);
+        }
+
+        private static void InsertAssociationEntity()
+        {
+            var like = new Like
+            {
+                PostId = 1,
+                UserId = 1,
+                LikedDate = DateTime.Now
+            };
+
+            _repo.Insert(like);
+        }
+
+        private static void GetById()
+        {
+            var post = _repo.GetById<Post>(1);
+            Console.WriteLine(post.Id);
         }
 
         private static void TopTuple()

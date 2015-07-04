@@ -1,7 +1,9 @@
 ﻿using System;
-using DummyOrm.CommandBuilders;
+using System.Linq;
 using DummyOrm.Meta;
-using DummyOrm.QueryBuilders.Select;
+using DummyOrm.Repository.PocoMappers;
+using DummyOrm.Sql.QueryBuilders;
+using DummyOrm.Sql.QueryBuilders.Select;
 using DummyOrm.Sql;
 using System.Data;
 
@@ -22,11 +24,11 @@ namespace DummyOrm.Repository
 
             if (tableMeta.AssociationTable)
             {
-                ExecuteNonQuery(entity, CommandBuilder.Insert);
+                ExecuteNonQuery(entity, SimpleCommandBuilder.Insert);
             }
             else
             {
-                var res = ExecuteScalar(entity, CommandBuilder.Insert);
+                var res = ExecuteScalar(entity, SimpleCommandBuilder.Insert);
                 var idProp = tableMeta.IdColumn.Property;
                 idProp.SetValue(entity, Convert.ChangeType(res, idProp.PropertyType));
             }
@@ -34,12 +36,24 @@ namespace DummyOrm.Repository
 
         public int Update(object entity)
         {
-            return ExecuteNonQuery(entity, CommandBuilder.Update);
+            return ExecuteNonQuery(entity, SimpleCommandBuilder.Update);
         }
 
         public int Delete(object entity)
         {
-            return ExecuteNonQuery(entity, CommandBuilder.Delete);
+            return ExecuteNonQuery(entity, SimpleCommandBuilder.Delete);
+        }
+
+        public T GetById<T>(object id)
+        {
+            var cmd = id.GetType() == typeof(T)
+                ? SimpleCommandBuilder.Select.Build(id)
+                : SimpleCommandBuilder.Select.BuildById<T>(id);
+
+            var dbCmd = BuildCommand(cmd);
+            var mapper = DynamicPocoMapper.For<T>();
+            var reader = new PocoReader<T>(dbCmd.ExecuteReader(), mapper);
+            return reader.FirstOrDefault();
         }
 
         public IQuery<T> Select<T>()
@@ -47,13 +61,13 @@ namespace DummyOrm.Repository
             return new RepositoryQuery<T>(this, new QueryBuilder<T>());
         } 
 
-        private int ExecuteNonQuery(object entity, CommandBuilder cmdBuilder)
+        private int ExecuteNonQuery(object entity, ISimpleCommandBuilder cmdBuilder)
         {
             var cmd = BuildCommand(entity, cmdBuilder);
             return cmd.ExecuteNonQuery();
         }
 
-        private object ExecuteScalar(object entity, CommandBuilder cmdBuilder)
+        private object ExecuteScalar(object entity, ISimpleCommandBuilder cmdBuilder)
         {
             var cmd = BuildCommand(entity, cmdBuilder);
             return cmd.ExecuteScalar();
@@ -68,7 +82,7 @@ namespace DummyOrm.Repository
             return dbCmd.ExecuteReader();
         }
 
-        private IDbCommand BuildCommand(object entity, CommandBuilder cmdBuilder)
+        private IDbCommand BuildCommand(object entity, ISimpleCommandBuilder cmdBuilder)
         {
             var cmd = cmdBuilder.Build(entity);
 

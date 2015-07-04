@@ -1,5 +1,5 @@
-using DummyOrm.CommandBuilders;
-using DummyOrm.QueryBuilders.Select;
+using DummyOrm.Sql.QueryBuilders;
+using DummyOrm.Sql.QueryBuilders.Select;
 using DummyOrm.Sql;
 using System;
 using System.Collections;
@@ -47,7 +47,7 @@ namespace DummyOrm.Meta
                     Table = tableMeta,
                     ColumnName = prop.Name,
                     Property = prop,
-                    Identity = true,
+                    Identity = prop.Name.EndsWith("Id"),
                     AutoIncrement = false,
                     Column = new Column
                     {
@@ -79,10 +79,10 @@ namespace DummyOrm.Meta
             {
                 _columns.Add(column.Property, column);
             }
-            
+
             _tables.Add(type, tableMeta);
 
-            CommandBuilder.RegisterAll(type);
+            SimpleCommandBuilder.RegisterAll(type);
 
             return this;
         }
@@ -94,7 +94,7 @@ namespace DummyOrm.Meta
 
         public ColumnMeta GetColumn(PropertyInfo prop)
         {
-            return (ColumnMeta) _columns[prop];
+            return (ColumnMeta)_columns[prop];
         }
     }
 

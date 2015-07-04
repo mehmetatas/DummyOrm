@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
-using DummyOrm.QueryBuilders.Select;
+using DummyOrm.Sql.QueryBuilders.Select;
+using DummyOrm.Repository.PocoMappers;
 
 namespace DummyOrm.Repository
 {
@@ -116,7 +117,8 @@ namespace DummyOrm.Repository
         {
             _queryBuilder.Page(page, pageSize);
             var reader = ExecuteReader();
-            return PageMapper.Map<T>(reader, DynamicPocoMapper.For<T>(), page, pageSize);
+            var mapper = DynamicPocoMapper.For<T>();
+            return mapper.Page<T>(reader, page, pageSize);
         }
 
         public T ReadFirst()
@@ -146,7 +148,8 @@ namespace DummyOrm.Repository
         {
             _queryBuilder.Page(page, pageSize);
             var reader = ExecuteReader();
-            return PageMapper.Map<Tuple<T1, T2>>(reader, new TupleMapper<T1, T2>(_query.OutputMappings), page, pageSize);
+            var mapper = new TupleMapper<T1, T2>(_query.OutputMappings);
+            return mapper.Page<Tuple<T1, T2>>(reader, page, pageSize);
         }
 
         public Tuple<T1, T2> ReadFirst<T1, T2>()
