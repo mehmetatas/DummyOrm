@@ -13,7 +13,7 @@ namespace DummyOrm.Sql.QueryBuilders.Where.ExpressionVisitors
     public class WhereSqlCommandBuilder : IWhereExpressionVisitor, IWhereSqlCommandBuilder
     {
         private readonly StringBuilder _sql = new StringBuilder();
-        private readonly IDictionary<string, object> _parameters = new Dictionary<string, object>();
+        private readonly IDictionary<string, SqlCommandParameter> _parameters = new Dictionary<string, SqlCommandParameter>();
 
         public void Visit(LogicalExpression e)
         {
@@ -74,7 +74,12 @@ namespace DummyOrm.Sql.QueryBuilders.Where.ExpressionVisitors
 
             var paramName = String.Format("wp{0}", _parameters.Count);
             _sql.AppendFormat("@{0}", paramName);
-            _parameters.Add(paramName, e.Value);
+            _parameters.Add(paramName, new SqlCommandParameter
+            {
+                Name = paramName,
+                Value = e.Value,
+                Type = e.Value.GetType()
+            });
         }
 
         public void Visit(NullExpression e)

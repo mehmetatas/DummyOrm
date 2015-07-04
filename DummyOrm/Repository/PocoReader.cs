@@ -27,7 +27,7 @@ namespace DummyOrm.Repository
         {
             return GetEnumerator();
         }
-
+        
         class PocoMapperEnumerator : IEnumerator<T>
         {
             private readonly IDataReader _dataReader;

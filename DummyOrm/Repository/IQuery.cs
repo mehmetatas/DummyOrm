@@ -25,12 +25,12 @@ namespace DummyOrm.Repository
         IQuery<T> Where<T1, T2, T3, T4, T5>(Expression<Func<T1, T2, T3, T4, T5, bool>> filter);
         
         T ReadFirst();
-        IEnumerable<T> Read();
+        IList<T> Read();
         Page<T> Top(int top);
         Page<T> Page(int page, int pageSize);
 
         Tuple<T1, T2> ReadFirst<T1, T2>();
-        IEnumerable<Tuple<T1, T2>> Read<T1, T2>();
+        IList<Tuple<T1, T2>> Read<T1, T2>();
         Page<Tuple<T1, T2>> Top<T1, T2>(int top);
         Page<Tuple<T1, T2>> Page<T1, T2>(int page, int pageSize);
     }

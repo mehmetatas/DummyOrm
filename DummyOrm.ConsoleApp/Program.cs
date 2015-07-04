@@ -27,6 +27,7 @@ namespace DummyOrm.ConsoleApp
                 //SelectNullable();
                 //WhereIsNull();
                 //InsertSelectByteArray();
+                //InsertNullByteArray();
                 //Top();
                 //Page();
                 //Include();
@@ -76,7 +77,7 @@ namespace DummyOrm.ConsoleApp
         private static void GetByIdAssociationEntity()
         {
             var like = _repo.GetById<Like>(new Like { PostId = 1, UserId = 1 });
-            Console.WriteLine(like.PostId); 
+            Console.WriteLine(like.PostId);
             Console.WriteLine(like.UserId);
         }
 
@@ -141,7 +142,7 @@ namespace DummyOrm.ConsoleApp
                 .Include<User>()
                 .Exclude(p => p.Data)
                 .Read<Post, User>();
-            
+
             foreach (var tuple in tuples)
             {
                 Console.WriteLine("{0} by {1}", tuple.Item1.Title,
@@ -207,6 +208,18 @@ namespace DummyOrm.ConsoleApp
             Console.WriteLine(post.Data.Length);
         }
 
+        private static void InsertNullByteArray()
+        {
+            var post = new Post
+            {
+                UserId = 1,
+                CreateDate = DateTime.Now,
+                Data = null
+            };
+
+            _repo.Insert(post);
+        }
+
         private static void WhereIsNull()
         {
             var posts = _repo.Select<Post>()
@@ -239,7 +252,8 @@ namespace DummyOrm.ConsoleApp
                 UpdateDate = DateTime.Now,
                 AccessLevel = AccessLevel.Public,
                 Title = "Title",
-                CreateDate = DateTime.Now
+                CreateDate = DateTime.Now,
+                Data = new byte[] { 1 }
             });
         }
 

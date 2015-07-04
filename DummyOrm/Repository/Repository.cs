@@ -58,7 +58,7 @@ namespace DummyOrm.Repository
 
         public IQuery<T> Select<T>()
         {
-            return new RepositoryQuery<T>(this, new QueryBuilder<T>());
+            return new RepositoryQuery<T>(this, new SelectQueryBuilder<T>());
         } 
 
         private int ExecuteNonQuery(object entity, ISimpleCommandBuilder cmdBuilder)
@@ -100,10 +100,11 @@ namespace DummyOrm.Repository
             {
                 var dbParam = dbCmd.CreateParameter();
                 dbParam.ParameterName = parameter.Key;
-                dbParam.Value = parameter.Value;
+                dbParam.Value = parameter.Value.Value;
+                dbParam.DbType = parameter.Value.DbType;
                 dbCmd.Parameters.Add(dbParam);
 
-                Console.WriteLine("{0}: {1}", parameter.Key, parameter.Value);
+                Console.WriteLine("{0}: {1}", parameter.Key, parameter.Value.Value);
             }
 
             return dbCmd;

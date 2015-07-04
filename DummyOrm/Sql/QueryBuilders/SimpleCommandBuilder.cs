@@ -89,9 +89,18 @@ namespace DummyOrm.Sql.QueryBuilders
             {
                 var cmdMeta = (SqlCommandMeta)_commands[typeof(T)];
 
-                return new SqlCommand(cmdMeta.CommandText, new Dictionary<string, object>
+                var paramName = cmdMeta.ParameterMeta.First().Key;
+
+                return new SqlCommand(cmdMeta.CommandText, new Dictionary<string, SqlCommandParameter>
                 {
-                    { cmdMeta.ParameterMeta.First().Key, id }
+                    {
+                        paramName, new SqlCommandParameter
+                        {
+                            Name = paramName,
+                            Value = id,
+                            Type = id.GetType()
+                        }
+                    }
                 });
             }
         }

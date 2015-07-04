@@ -8,7 +8,7 @@ namespace DummyOrm.Sql.QueryBuilders.Where
 {
     public static class WhereExpressionExtensions
     {
-        public static void AppendTo(this IWhereExpression where, StringBuilder sql, IDictionary<string, object> parameters)
+        public static void AppendTo(this IWhereExpression where, StringBuilder sql, IDictionary<string, SqlCommandParameter> parameters)
         {
             if (where == null)
             {

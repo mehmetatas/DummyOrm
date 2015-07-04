@@ -1,3 +1,5 @@
+using System;
+
 namespace DummyOrm.Sql.QueryBuilders.Where.Expressions
 {
     public class ValueExpression : IWhereExpression

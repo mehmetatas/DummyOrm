@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using DummyOrm.Meta;
@@ -18,7 +19,12 @@ namespace DummyOrm.Sql.QueryBuilders
 
         public SqlCommand CreateCommand(object entity)
         {
-            var parameters = ParameterMeta.ToDictionary(kv => kv.Key, kv => kv.Value.Property.GetValue(entity) ?? DBNull.Value);
+            var parameters = ParameterMeta.ToDictionary(kv => kv.Key, kv => new SqlCommandParameter
+            {
+                Name = kv.Key,
+                Value = kv.Value.Property.GetValue(entity) ?? DBNull.Value,
+                Type = kv.Value.Property.PropertyType
+            });
             return new SqlCommand(CommandText, parameters);
         }
 

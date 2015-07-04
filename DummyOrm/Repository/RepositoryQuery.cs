@@ -8,13 +8,17 @@ using DummyOrm.Repository.PocoMappers;
 
 namespace DummyOrm.Repository
 {
+    /// <summary>
+    /// Adaptor: ISelectQueryBuilder -> IQuery
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public class RepositoryQuery<T> : IQuery<T>
     {
-        private readonly IQueryBuilder<T> _queryBuilder; 
+        private readonly ISelectQueryBuilder<T> _queryBuilder;
         private readonly ISelectQueryReader _reader;
         private SelectQuery _query;
 
-        public RepositoryQuery(ISelectQueryReader reader, IQueryBuilder<T> queryBuilder)
+        public RepositoryQuery(ISelectQueryReader reader, ISelectQueryBuilder<T> queryBuilder)
         {
             _reader = reader;
             _queryBuilder = queryBuilder;
@@ -109,16 +113,18 @@ namespace DummyOrm.Repository
             _queryBuilder.Top(top + 1);
             var items = Read().ToList();
             var totalCount = items.Count;
-            
+
             return new Page<T>(1, top, totalCount, items.Take(top));
         }
 
         public Page<T> Page(int page, int pageSize)
         {
             _queryBuilder.Page(page, pageSize);
-            var reader = ExecuteReader();
-            var mapper = DynamicPocoMapper.For<T>();
-            return mapper.Page<T>(reader, page, pageSize);
+            using (var reader = ExecuteReader())
+            {
+                var mapper = DynamicPocoMapper.For<T>();
+                return mapper.Page<T>(reader, page, pageSize);
+            }
         }
 
         public T ReadFirst()
@@ -127,12 +133,16 @@ namespace DummyOrm.Repository
             return Read().FirstOrDefault();
         }
 
-        public IEnumerable<T> Read()
+        public IList<T> Read()
         {
-            var reader = ExecuteReader();
-            return _query.IsSimpleMapping
-                ? new PocoReader<T>(reader, DynamicPocoMapper.For<T>())
-                : new PocoReader<T>(reader, new CustomPocoMapper(_query.OutputMappings));
+            using (var reader = ExecuteReader())
+            {
+                var pocoReader = _query.IsSimpleMapping
+                    ? new PocoReader<T>(reader, DynamicPocoMapper.For<T>())
+                    : new PocoReader<T>(reader, new CustomPocoMapper(_query.OutputMappings));
+
+                return pocoReader.ToList();
+            }
         }
 
         public Page<Tuple<T1, T2>> Top<T1, T2>(int top)
@@ -147,9 +157,11 @@ namespace DummyOrm.Repository
         public Page<Tuple<T1, T2>> Page<T1, T2>(int page, int pageSize)
         {
             _queryBuilder.Page(page, pageSize);
-            var reader = ExecuteReader();
-            var mapper = new TupleMapper<T1, T2>(_query.OutputMappings);
-            return mapper.Page<Tuple<T1, T2>>(reader, page, pageSize);
+            using (var reader = ExecuteReader())
+            {
+                var mapper = new TupleMapper<T1, T2>(_query.OutputMappings);
+                return mapper.Page<Tuple<T1, T2>>(reader, page, pageSize);
+            }
         }
 
         public Tuple<T1, T2> ReadFirst<T1, T2>()
@@ -158,10 +170,13 @@ namespace DummyOrm.Repository
             return Read<T1, T2>().FirstOrDefault();
         }
 
-        public IEnumerable<Tuple<T1, T2>> Read<T1, T2>()
+        public IList<Tuple<T1, T2>> Read<T1, T2>()
         {
-            var reader = ExecuteReader();
-            return new PocoReader<Tuple<T1, T2>>(reader, new TupleMapper<T1, T2>(_query.OutputMappings));
+            using (var reader = ExecuteReader())
+            {
+                var pocoReader = new PocoReader<Tuple<T1, T2>>(reader, new TupleMapper<T1, T2>(_query.OutputMappings));
+                return pocoReader.ToList();
+            }
         }
 
         private IDataReader ExecuteReader()

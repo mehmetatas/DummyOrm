@@ -33,7 +33,7 @@ namespace DummyOrm.Sql.QueryBuilders.Select
 
         public SqlCommand ToSqlCommand()
         {
-            var parameters = new Dictionary<string, object>();
+            var parameters = new Dictionary<string, SqlCommandParameter>();
 
             var sql = new StringBuilder("SELECT ");
 
