@@ -11,6 +11,10 @@ using DummyOrm.Utils;
 
 namespace DummyOrm.Sql.QueryBuilders.Select
 {
+    /// <summary>
+    /// Adapter: 
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public class SelectQueryBuilder<T> : ISelectQueryBuilder<T>
     {
         private readonly TableMeta _tableMeta;
@@ -88,7 +92,7 @@ namespace DummyOrm.Sql.QueryBuilders.Select
             var columnMetas = props.Any()
                 ? props.Select(prop => DbMeta.Instance.GetColumn(prop.GetPropertyInfo()))
                 : DbMeta.Instance.GetTable<TOther>().Columns;
-
+            
             foreach (var columnMeta in columnMetas)
             {
                 IncludeColumn(columnMeta);
@@ -227,10 +231,31 @@ namespace DummyOrm.Sql.QueryBuilders.Select
 
         private void IncludeColumn(ColumnMeta columnMeta)
         {
-            _includeColumns.Add(columnMeta.Column);
-            if (!_outputMappings.ContainsKey(columnMeta.Column.Alias))
+            if (columnMeta.IsRefrence)
             {
-                _outputMappings.Add(columnMeta.Column.Alias, columnMeta);
+                var refTable = DbMeta.Instance.GetTable(columnMeta.Property.PropertyType);
+                _joins.Add(new Join
+                {
+                    Type = JoinType.Inner,
+                    Column1 = refTable.IdColumn.Column,
+                    Column2 = columnMeta.Column
+                });
+                foreach (var column in refTable.Columns)
+                {
+                    _includeColumns.Add(column.Column);
+                    if (!_outputMappings.ContainsKey(column.Column.Alias))
+                    {
+                        _outputMappings.Add(column.Column.Alias, column);
+                    }
+                }
+            }
+            else
+            {
+                _includeColumns.Add(columnMeta.Column);
+                if (!_outputMappings.ContainsKey(columnMeta.Column.Alias))
+                {
+                    _outputMappings.Add(columnMeta.Column.Alias, columnMeta);
+                }
             }
         }
     }

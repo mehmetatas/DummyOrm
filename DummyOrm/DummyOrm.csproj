@@ -67,7 +67,7 @@
     <Compile Include="Sql\QueryBuilders\Where\WhereExpressionExtensions.cs" />
     <Compile Include="Sql\QueryBuilders\Where\ExpressionVisitors\WhereExpressionVisitor.cs" />
     <Compile Include="Sql\QueryBuilders\Where\ExpressionVisitors\WhereSqlCommandBuilder.cs" />
-    <Compile Include="Repository\PocoMappers\CustomPocoMapper.cs" />
+    <Compile Include="Repository\PocoMappers\SinglePocoMapper.cs" />
     <Compile Include="Repository\IPocoMapper.cs" />
     <Compile Include="Repository\IPocoReader.cs" />
     <Compile Include="Repository\IQuery.cs" />

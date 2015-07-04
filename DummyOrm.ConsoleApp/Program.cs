@@ -23,6 +23,7 @@ namespace DummyOrm.ConsoleApp
                 //Update();
                 //Delete();
                 //SelectById();
+                //Select();
                 //InsertNullable();
                 //SelectNullable();
                 //WhereIsNull();
@@ -30,7 +31,7 @@ namespace DummyOrm.ConsoleApp
                 //InsertNullByteArray();
                 //Top();
                 //Page();
-                //Include();
+                Include();
                 //Tuple();
                 //PageTuple();
                 //TopTuple();
@@ -38,7 +39,7 @@ namespace DummyOrm.ConsoleApp
                 //InsertAssociationEntity();
                 //GetByIdAssociationEntity();
                 //UpdateAssociationEntity();
-                DeleteAssociationEntity();
+                //DeleteAssociationEntity();
             }
 
             Console.WriteLine("OK!");
@@ -102,7 +103,7 @@ namespace DummyOrm.ConsoleApp
         private static void TopTuple()
         {
             var tuplePage = _repo.Select<Post>()
-                .Join<User>((user, post) => user.Id == post.UserId)
+                .Join<User>((user, post) => user.Id == post.User.Id)
                 .Include<User>(u => u.Username)
                 .Include(p => p.Title)
                 .Where<User>(u => u.Id == 1)
@@ -120,7 +121,7 @@ namespace DummyOrm.ConsoleApp
         private static void PageTuple()
         {
             var tuplePage = _repo.Select<Post>()
-                .Join<User>((user, post) => user.Id == post.UserId)
+                .Join<User>((user, post) => user.Id == post.User.Id)
                 .Include<User>(u => u.Username)
                 .Include(p => p.Title)
                 .Where<User>(u => u.Id == 1)
@@ -138,7 +139,7 @@ namespace DummyOrm.ConsoleApp
         private static void Tuple()
         {
             var tuples = _repo.Select<Post>()
-                .LeftJoin<User>((user, post) => user.Id == post.UserId)
+                .LeftJoin<User>((user, post) => user.Id == post.User.Id)
                 .Include<User>()
                 .Exclude(p => p.Data)
                 .Read<Post, User>();
@@ -155,12 +156,14 @@ namespace DummyOrm.ConsoleApp
         private static void Include()
         {
             var post = _repo.Select<Post>()
-                .Include(p => p.Id, p => p.Title)
+                .Include(p => p.Id, p => p.Title, p => p.User)
                 .ReadFirst();
 
             Console.WriteLine(post.Id);
             Console.WriteLine(post.HtmlContent);
             Console.WriteLine(post.Title);
+            Console.WriteLine(post.User != null);
+            Console.WriteLine(post.User.Id);
         }
 
         private static void Page()
@@ -174,6 +177,7 @@ namespace DummyOrm.ConsoleApp
             Console.WriteLine(posts.PageCount);
             Console.WriteLine(posts.Items.Length);
             Console.WriteLine(posts.Items[0].Id);
+            Console.WriteLine(posts.Items[0].User.Id);
         }
 
         private static void Top()
@@ -192,7 +196,7 @@ namespace DummyOrm.ConsoleApp
         {
             var post = new Post
             {
-                UserId = 1,
+                User = new User { Id = 1 },
                 CreateDate = DateTime.Now,
                 Data = new byte[] { 1, 2, 3, 4 }
             };
@@ -212,7 +216,7 @@ namespace DummyOrm.ConsoleApp
         {
             var post = new Post
             {
-                UserId = 1,
+                User = new User { Id = 1 },
                 CreateDate = DateTime.Now,
                 Data = null
             };
@@ -248,7 +252,7 @@ namespace DummyOrm.ConsoleApp
         {
             _repo.Insert(new Post
             {
-                UserId = 1,
+                User = new User { Id = 1 },
                 UpdateDate = DateTime.Now,
                 AccessLevel = AccessLevel.Public,
                 Title = "Title",
@@ -257,13 +261,20 @@ namespace DummyOrm.ConsoleApp
             });
         }
 
-        private static void SelectById()
+        private static void Select()
         {
-            var user = _repo.Select<User>()
-                .Where(u => u.Id == 2)
+            var post = _repo.Select<Post>()
+                .Where(p => p.Id == 2)
                 .ReadFirst();
 
-            Console.WriteLine(user.Username);
+            Console.WriteLine(post.User.Id);
+        }
+
+        private static void SelectById()
+        {
+            var post = _repo.GetById<Post>(2);
+
+            Console.WriteLine(post.User.Id);
         }
 
         private static void Delete()
@@ -273,34 +284,25 @@ namespace DummyOrm.ConsoleApp
 
         private static void Update()
         {
-            var user = new User
+            var post = new Post
             {
-                Id = 3,
-                Username = "taga UPDATED",
-                Email = "taga@mail.com",
-                Type = UserType.Admin,
-                Status = UserStatus.AwaitingActivation,
-                JoinDate = DateTime.Now,
-                Fullname = "Taga",
-                FacebookId = "987654321",
-                Password = "123456"
+                Id = 2,
+                CreateDate = DateTime.Now,
+                User = new User
+                {
+                    Id = 4
+                }
             };
 
-            _repo.Update(user);
+            _repo.Update(post);
         }
 
         private static void Insert()
         {
-            _repo.Insert(new User
+            _repo.Insert(new Post
             {
-                Username = "taga",
-                Email = "taga@mail.com",
-                Type = UserType.Admin,
-                Status = UserStatus.AwaitingActivation,
-                JoinDate = DateTime.Now,
-                Fullname = "Taga",
-                FacebookId = "987654321",
-                Password = "123456"
+                CreateDate = DateTime.Now,
+                User = new User { Id = 3 }
             });
         }
 

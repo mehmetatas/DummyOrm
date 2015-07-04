@@ -6,7 +6,7 @@ namespace DummyOrm.ConsoleApp.Entities
     public class Post
     {
         public virtual long Id { get; set; }
-        public virtual long UserId { get; set; }
+        public virtual User User { get; set; }
         public virtual DateTime CreateDate { get; set; }
         public virtual DateTime? PublishDate { get; set; }
         public virtual DateTime? UpdateDate { get; set; }

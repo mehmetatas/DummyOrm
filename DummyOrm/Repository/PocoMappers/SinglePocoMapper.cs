@@ -4,9 +4,9 @@ using DummyOrm.Meta;
 
 namespace DummyOrm.Repository.PocoMappers
 {
-    public class CustomPocoMapper : MultiPocoMapper
+    public class SinglePocoMapper : MultiPocoMapper
     {
-        public CustomPocoMapper(IDictionary<string, ColumnMeta> outputMappings) : base(outputMappings)
+        public SinglePocoMapper(IDictionary<string, ColumnMeta> outputMappings) : base(outputMappings)
         {
         }
 

@@ -19,7 +19,7 @@ namespace DummyOrm.Sql
 
     public class SqlCommandParameter
     {
-        private static IDictionary<Type, DbType> TypeMap = new Dictionary<Type, DbType>
+        public static readonly IDictionary<Type, DbType> TypeMap = new Dictionary<Type, DbType>
         {
             { typeof(string), DbType.String },
             { typeof(byte[]), DbType.Binary },

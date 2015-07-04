@@ -22,8 +22,8 @@ namespace DummyOrm.Sql.QueryBuilders
             var parameters = ParameterMeta.ToDictionary(kv => kv.Key, kv => new SqlCommandParameter
             {
                 Name = kv.Key,
-                Value = kv.Value.Property.GetValue(entity) ?? DBNull.Value,
-                Type = kv.Value.Property.PropertyType
+                Value = kv.Value.GetValue(entity) ?? DBNull.Value,
+                Type = kv.Value.GetParamType()
             });
             return new SqlCommand(CommandText, parameters);
         }
@@ -133,7 +133,7 @@ namespace DummyOrm.Sql.QueryBuilders
 
             var sql = new StringBuilder()
                 .Append("SELECT ")
-                .Append(String.Join(",", columns.Select(c => c.QuotedName)))
+                .Append(String.Join(",", columns.Select(c => String.Format("{0} {1}", c.Column.Fullname, c.Column.Alias))))
                 .Append(" FROM ")
                 .Append(table.QuotedName);
 

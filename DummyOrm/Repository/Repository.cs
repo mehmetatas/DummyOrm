@@ -50,10 +50,13 @@ namespace DummyOrm.Repository
                 ? SimpleCommandBuilder.Select.Build(id)
                 : SimpleCommandBuilder.Select.BuildById<T>(id);
 
+            var tableMapping = DbMeta.Instance.GetTable<T>();
+            var outputMappings = tableMapping.Columns.ToDictionary(c => c.Column.Alias, c => c);
+
             var dbCmd = BuildCommand(cmd);
-            var mapper = DynamicPocoMapper.For<T>();
-            var reader = new PocoReader<T>(dbCmd.ExecuteReader(), mapper);
-            return reader.FirstOrDefault();
+            var mapper = new SinglePocoMapper(outputMappings);
+            var pocoReader = new PocoReader<T>(dbCmd.ExecuteReader(), mapper);
+            return pocoReader.FirstOrDefault();
         }
 
         public IQuery<T> Select<T>()

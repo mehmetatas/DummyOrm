@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
+using DummyOrm.Sql.QueryBuilders;
 using DummyOrm.Sql.QueryBuilders.Select;
 using DummyOrm.Repository.PocoMappers;
 
@@ -122,7 +123,7 @@ namespace DummyOrm.Repository
             _queryBuilder.Page(page, pageSize);
             using (var reader = ExecuteReader())
             {
-                var mapper = DynamicPocoMapper.For<T>();
+                var mapper = new SinglePocoMapper(_query.OutputMappings);
                 return mapper.Page<T>(reader, page, pageSize);
             }
         }
@@ -137,9 +138,7 @@ namespace DummyOrm.Repository
         {
             using (var reader = ExecuteReader())
             {
-                var pocoReader = _query.IsSimpleMapping
-                    ? new PocoReader<T>(reader, DynamicPocoMapper.For<T>())
-                    : new PocoReader<T>(reader, new CustomPocoMapper(_query.OutputMappings));
+                var pocoReader = new PocoReader<T>(reader, new SinglePocoMapper(_query.OutputMappings));
 
                 return pocoReader.ToList();
             }

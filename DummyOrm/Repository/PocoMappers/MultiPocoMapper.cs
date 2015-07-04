@@ -73,9 +73,21 @@ namespace DummyOrm.Repository.PocoMappers
                 propType = propType.GetGenericArguments()[0];
             }
 
-            value = propType.IsEnum
-                ? Enum.ToObject(propType, value)
-                : Convert.ChangeType(value, propType);
+            var colMeta = DbMeta.Instance.GetColumn(prop);
+
+            if (colMeta.IsRefrence)
+            {
+                var refTable = DbMeta.Instance.GetTable(prop.PropertyType);
+                var refObj = Activator.CreateInstance(refTable.Type);
+                refTable.IdColumn.Property.SetValue(refObj, value);
+                value = refObj;
+            }
+            else
+            {
+                value = propType.IsEnum
+                       ? Enum.ToObject(propType, value)
+                       : Convert.ChangeType(value, propType);
+            }
 
             return value;
         }

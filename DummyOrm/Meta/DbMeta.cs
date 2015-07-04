@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using DummyOrm.Sql.QueryBuilders;
 using DummyOrm.Sql.QueryBuilders.Select;
 using DummyOrm.Sql;
@@ -32,7 +33,7 @@ namespace DummyOrm.Meta
 
             var props =
                 type.GetProperties()
-                    .Where(p => p.PropertyType.IsValueType ||
+                    .Where(p => !typeof(IEnumerable).IsAssignableFrom(p.PropertyType) ||
                                 p.PropertyType == typeof(string) ||
                                 p.PropertyType == typeof(byte[]))
                     .ToList();
@@ -41,42 +42,55 @@ namespace DummyOrm.Meta
 
             tableMeta.AssociationTable = idProp == null;
 
-            if (tableMeta.AssociationTable)
+            var columns = new List<ColumnMeta>();
+
+            foreach (var prop in props)
             {
-                tableMeta.Columns = props.Select(prop => new ColumnMeta
+                var isReference = prop.PropertyType.IsClass &&
+                                  prop.PropertyType != typeof(string) &&
+                                  prop.PropertyType != typeof(byte[]);
+
+                var columnMeta = new ColumnMeta
                 {
                     Table = tableMeta,
-                    ColumnName = prop.Name,
                     Property = prop,
-                    Identity = prop.Name.EndsWith("Id"),
-                    AutoIncrement = false,
-                    Column = new Column
-                    {
-                        Table = tableMeta.TableName,
-                        ColumnName = prop.Name
-                    }
-                }).ToArray();
-            }
-            else
-            {
-                tableMeta.Columns = props.Select(prop => new ColumnMeta
+                    ColumnName = prop.Name,
+                    IsRefrence = isReference
+                };
+
+                if (isReference)
                 {
-                    Table = tableMeta,
-                    ColumnName = prop.Name,
-                    Property = prop,
-                    Identity = prop.Name == "Id",
-                    AutoIncrement = prop.Name == "Id",
-                    Column = new Column
-                    {
-                        Table = tableMeta.TableName,
-                        ColumnName = prop.Name
-                    }
-                }).ToArray();
+                    columnMeta.ColumnName += "Id";
+                }
 
-                tableMeta.IdColumn = tableMeta.Columns.First(c => c.ColumnName == "Id");
+                columnMeta.Column = new Column
+                {
+                    Table = tableMeta.TableName,
+                    ColumnName = columnMeta.ColumnName
+                };
+
+                if (tableMeta.AssociationTable)
+                {
+                    columnMeta.Identity = isReference;
+                    columnMeta.AutoIncrement = false;
+                }
+                else
+                {
+                    columnMeta.Identity = columnMeta.ColumnName == "Id";
+                    columnMeta.AutoIncrement = columnMeta.ColumnName == "Id";
+                }
+
+                columns.Add(columnMeta);
             }
 
-            foreach (var column in tableMeta.Columns)
+            tableMeta.Columns = columns.ToArray();
+
+            if (!tableMeta.AssociationTable)
+            {
+                tableMeta.IdColumn = columns.First(c => c.ColumnName == "Id");
+            }
+
+            foreach (var column in columns)
             {
                 _columns.Add(column.Property, column);
             }
