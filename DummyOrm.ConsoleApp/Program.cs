@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Linq.Expressions;
 using DummyOrm.ConsoleApp.Entities;
 using DummyOrm.Execution;
 using DummyOrm.Meta;
@@ -23,15 +24,35 @@ namespace DummyOrm.ConsoleApp
                 .Register<Post>()
                 .Register<Like>();
 
+            ExpressionTest<User>(u => new { u.Id, u.Username });
+
             using (_repo = CreateRepo())
             {
                 // SimpleSelect();
                 // SelectReference();
-                SimpleSelectWhere();
+                //SimpleSelectWhere();
+                //SelectWhereReference();
             }
 
             Console.WriteLine("OK!");
             Console.ReadLine();
+        }
+
+        private static void ExpressionTest<T>(Expression<Func<T, object>> exp)
+        {
+            var args = (exp.Body as NewExpression).Arguments;
+            foreach (var arg in args)
+            {
+                Console.WriteLine((arg as MemberExpression).Member.Name);
+            }
+        }
+
+        private static void SelectWhereReference()
+        {
+            _repo.Select<Like>()
+                .Join(l => l.Post)
+                .Where(l => l.Post.User.Id == 3)
+                .ToList();
         }
 
         private static void SimpleSelectWhere()
@@ -39,7 +60,7 @@ namespace DummyOrm.ConsoleApp
             var posts = _repo.Select<Post>()
                 .Where(p => p.Title.Contains("it"))
                 .ToList();
-            
+
             foreach (var post in posts)
             {
                 Console.WriteLine(post.Title);
