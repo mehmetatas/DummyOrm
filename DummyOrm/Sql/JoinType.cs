@@ -6,13 +6,4 @@ namespace DummyOrm.Sql
         Left,
         Right
     }
-
-    //public enum AggregationType
-    //{
-    //    Sum,
-    //    Min,
-    //    Max,
-    //    Count,
-    //    Average
-    //}
 }

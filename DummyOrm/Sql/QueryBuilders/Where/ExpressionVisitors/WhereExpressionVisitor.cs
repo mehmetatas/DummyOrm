@@ -155,7 +155,7 @@ namespace DummyOrm.Sql.QueryBuilders.Where.ExpressionVisitors
 
             var expressionBuilder = oper == SqlOperator.And || oper == SqlOperator.Or
                 ? new LogicalExpressionBuilder(oper)
-                : (IWhereExpressionBuilder) new BinaryExpressionBuilder(oper);
+                : (IWhereExpressionBuilder)new BinaryExpressionBuilder(oper);
 
             Push(expressionBuilder);
 
@@ -214,7 +214,11 @@ namespace DummyOrm.Sql.QueryBuilders.Where.ExpressionVisitors
                 var columnMeta = DbMeta.Instance.GetColumn((PropertyInfo)memberExpression.Member);
                 _current.Visit(new ColumnExpression
                 {
-                    Column = columnMeta.Column
+                    Column = new Column
+                    {
+                        ColumnName = columnMeta.ColumnName,
+                        Table = columnMeta.Table.TableName
+                    }
                 });
                 return memberExpression;
             }

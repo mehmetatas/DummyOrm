@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Linq;
 using DummyOrm.Meta;
-using DummyOrm.Repository.PocoMappers;
 using DummyOrm.Sql.QueryBuilders;
 using DummyOrm.Sql.QueryBuilders.Select;
 using DummyOrm.Sql;
@@ -9,7 +7,7 @@ using System.Data;
 
 namespace DummyOrm.Repository
 {
-    public class Repository : IRepository, ISelectQueryReader
+    public class Repository : IRepository, ISelectQueryExecutor
     {
         private readonly IDbConnection _conn;
 
@@ -29,8 +27,7 @@ namespace DummyOrm.Repository
             else
             {
                 var res = ExecuteScalar(entity, SimpleCommandBuilder.Insert);
-                var idProp = tableMeta.IdColumn.Property;
-                idProp.SetValue(entity, Convert.ChangeType(res, idProp.PropertyType));
+                tableMeta.IdColumn.SetValue(entity, res);
             }
         }
 
@@ -42,21 +39,6 @@ namespace DummyOrm.Repository
         public int Delete(object entity)
         {
             return ExecuteNonQuery(entity, SimpleCommandBuilder.Delete);
-        }
-
-        public T GetById<T>(object id)
-        {
-            var cmd = id.GetType() == typeof(T)
-                ? SimpleCommandBuilder.Select.Build(id)
-                : SimpleCommandBuilder.Select.BuildById<T>(id);
-
-            var tableMapping = DbMeta.Instance.GetTable<T>();
-            var outputMappings = tableMapping.Columns.ToDictionary(c => c.Column.Alias, c => c);
-
-            var dbCmd = BuildCommand(cmd);
-            var mapper = new SinglePocoMapper(outputMappings);
-            var pocoReader = new PocoReader<T>(dbCmd.ExecuteReader(), mapper);
-            return pocoReader.FirstOrDefault();
         }
 
         public IQuery<T> Select<T>()
@@ -76,7 +58,7 @@ namespace DummyOrm.Repository
             return cmd.ExecuteScalar();
         }
 
-        IDataReader ISelectQueryReader.ExecuteReader(SelectQuery query)
+        IDataReader ISelectQueryExecutor.Execute(SelectQueryMeta query)
         {
             var cmd = query.ToSqlCommand();
 

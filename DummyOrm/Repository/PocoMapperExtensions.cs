@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using DummyOrm.Execution;
 
 namespace DummyOrm.Repository
 {
     public static class PocoMapperExtensions
     {
-        public static Page<T> Page<T>(this IPocoMapper pocoMapper, IDataReader reader, int page, int pageSize)
+        public static Page<T> Page<T>(this IPocoDeserializer pocoMapper, IDataReader reader, int page, int pageSize)
         {
             var items = new List<T>();
             var totalCount = 0;
@@ -14,7 +15,7 @@ namespace DummyOrm.Repository
             while (reader.Read())
             {
                 totalCount = Convert.ToInt32(reader["__ROWCOUNT"]);
-                var item = (T) pocoMapper.Map(reader);
+                var item = (T) pocoMapper.Deserialize(reader);
                 items.Add(item);
             }
 

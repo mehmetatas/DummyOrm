@@ -16,6 +16,5 @@ namespace DummyOrm.ConsoleApp.Entities
         public virtual byte[] Data { get; set; }
 
         public virtual List<Tag> Tags { get; set; }
-        public virtual List<Like> Likes { get; set; }
     }
 }

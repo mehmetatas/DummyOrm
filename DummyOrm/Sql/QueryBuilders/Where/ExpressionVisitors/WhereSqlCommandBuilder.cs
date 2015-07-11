@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
+using DummyOrm.Sql.QueryBuilders.Select.Graph;
 using DummyOrm.Sql.QueryBuilders.Where.Expressions;
 
 namespace DummyOrm.Sql.QueryBuilders.Where.ExpressionVisitors
@@ -12,8 +13,14 @@ namespace DummyOrm.Sql.QueryBuilders.Where.ExpressionVisitors
     /// </summary>
     public class WhereSqlCommandBuilder : IWhereExpressionVisitor, IWhereSqlCommandBuilder
     {
+        private readonly SelectGraph _selectGraph;
         private readonly StringBuilder _sql = new StringBuilder();
         private readonly IDictionary<string, SqlCommandParameter> _parameters = new Dictionary<string, SqlCommandParameter>();
+
+        public WhereSqlCommandBuilder(SelectGraph selectGraph)
+        {
+            _selectGraph = selectGraph;
+        }
 
         public void Visit(LogicalExpression e)
         {
@@ -96,6 +103,24 @@ namespace DummyOrm.Sql.QueryBuilders.Where.ExpressionVisitors
 
         public void Visit(LikeExpression e)
         {
+            e.Column.Accept(this);
+
+            switch (e.Operator)
+            {
+                case SqlOperator.LikeStartsWith:
+                case SqlOperator.LikeContains:
+                case SqlOperator.LikeEndsWith:
+                    _sql.Append(" LIKE ");
+                    break;
+                case SqlOperator.NotLikeStartsWith:
+                case SqlOperator.NotLikeContains:
+                case SqlOperator.NotLikeEndsWith:
+                    _sql.Append(" NOT LIKE ");
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+
             var value = (string)e.Value.Value;
 
             switch (e.Operator)

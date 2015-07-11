@@ -12,14 +12,21 @@ namespace DummyOrm.Meta
         public bool AssociationTable { get; set; }
         public ColumnMeta IdColumn { get; set; }
 
-        public string QuotedName
+        public Func<object> Factory { get; set; }
+
+        public ColumnMeta this[string colName]
         {
-            get { return "[" + TableName + "]"; }
+            get { return Columns.First(c => c.ColumnName == colName); }
         }
 
         public ColumnMeta GetColumn(PropertyInfo propInf)
         {
             return Columns.First(c => c.Property == propInf);
+        }
+
+        public override string ToString()
+        {
+            return TableName;
         }
     }
 }

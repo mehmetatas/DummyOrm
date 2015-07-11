@@ -1,5 +1,6 @@
 using System;
-namespace DummyOrm.Sql
+
+namespace DummyOrm.Sql.QueryBuilders.Where
 {
     public class Column
     {

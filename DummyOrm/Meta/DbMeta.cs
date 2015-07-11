@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using DummyOrm.Execution;
 using DummyOrm.Sql.QueryBuilders;
 using DummyOrm.Sql.QueryBuilders.Select;
 using DummyOrm.Sql;
@@ -28,7 +29,8 @@ namespace DummyOrm.Meta
             var tableMeta = new TableMeta
             {
                 Type = type,
-                TableName = type.Name
+                TableName = type.Name,
+                Factory = PocoFactory.CreateFactory(type)
             };
 
             var props =
@@ -55,7 +57,8 @@ namespace DummyOrm.Meta
                     Table = tableMeta,
                     Property = prop,
                     ColumnName = prop.Name,
-                    IsRefrence = isReference
+                    IsRefrence = isReference,
+                    GetterSetter = GetterSetter.Create(prop)
                 };
 
                 if (isReference)
@@ -63,11 +66,11 @@ namespace DummyOrm.Meta
                     columnMeta.ColumnName += "Id";
                 }
 
-                columnMeta.Column = new Column
-                {
-                    Table = tableMeta.TableName,
-                    ColumnName = columnMeta.ColumnName
-                };
+                //columnMeta.Column = new Column
+                //{
+                //    Table = tableMeta.TableName,
+                //    ColumnName = columnMeta.ColumnName
+                //};
 
                 if (tableMeta.AssociationTable)
                 {
@@ -97,7 +100,7 @@ namespace DummyOrm.Meta
 
             _tables.Add(type, tableMeta);
 
-            SimpleCommandBuilder.RegisterAll(type);
+            //SimpleCommandBuilder.RegisterAll(type);
 
             return this;
         }

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Text;
 using DummyOrm.Meta;
@@ -35,9 +34,9 @@ namespace DummyOrm.Sql.QueryBuilders
 
             var sql = new StringBuilder()
                 .Append("INSERT INTO ")
-                .Append(table.QuotedName)
+                .Append(table.TableName)
                 .Append(" (")
-                .Append(String.Join(",", columns.Where(c => !c.AutoIncrement).Select(c => c.QuotedName)))
+                .Append(String.Join(",", columns.Where(c => !c.AutoIncrement).Select(c => c.ColumnName)))
                 .Append(") VALUES (");
 
             var parameterMeta = new Dictionary<string, ColumnMeta>();
@@ -79,7 +78,7 @@ namespace DummyOrm.Sql.QueryBuilders
 
             var sql = new StringBuilder()
                 .Append("UPDATE ")
-                .Append(table.QuotedName)
+                .Append(table.TableName)
                 .Append(" SET ");
 
             var comma = "";
@@ -88,7 +87,7 @@ namespace DummyOrm.Sql.QueryBuilders
                 var paramName = String.Format("p{0}", parameterMeta.Count);
 
                 sql.Append(comma)
-                    .AppendFormat("{0}=@{1}", column.QuotedName, paramName);
+                    .AppendFormat("{0}=@{1}", column.ColumnName, paramName);
 
                 parameterMeta.Add(paramName, column);
 
@@ -113,7 +112,7 @@ namespace DummyOrm.Sql.QueryBuilders
 
             var sql = new StringBuilder()
                 .Append("DELETE FROM ")
-                .Append(table.QuotedName);
+                .Append(table.TableName);
 
             BuildIdentityWhere(columns, parameterMeta, sql);
 
@@ -133,9 +132,9 @@ namespace DummyOrm.Sql.QueryBuilders
 
             var sql = new StringBuilder()
                 .Append("SELECT ")
-                .Append(String.Join(",", columns.Select(c => String.Format("{0} {1}", c.Column.Fullname, c.Column.Alias))))
+                .Append(String.Join(",", columns.Select(c => String.Format("{0}", c.ColumnName))))
                 .Append(" FROM ")
-                .Append(table.QuotedName);
+                .Append(table.TableName);
 
             BuildIdentityWhere(columns, parameterMeta, sql);
 
@@ -154,7 +153,7 @@ namespace DummyOrm.Sql.QueryBuilders
                 var paramName = String.Format("p{0}", parameterMeta.Count);
 
                 sql.Append(and)
-                    .AppendFormat("{0}=@{1}", column.QuotedName, paramName);
+                    .AppendFormat("{0}=@{1}", column.ColumnName, paramName);
 
                 parameterMeta.Add(paramName, column);
 

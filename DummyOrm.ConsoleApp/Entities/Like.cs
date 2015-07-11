@@ -4,8 +4,8 @@ namespace DummyOrm.ConsoleApp.Entities
 {
     public class Like
     {
-        public virtual long PostId { get; set; }
-        public virtual long UserId { get; set; }
+        public virtual Post Post { get; set; }
+        public virtual User User { get; set; }
         public virtual DateTime LikedDate { get; set; }
     }
 }

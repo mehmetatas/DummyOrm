@@ -1,6 +1,6 @@
+using DummyOrm.Execution;
 using System;
 using System.Reflection;
-using DummyOrm.Sql;
 
 namespace DummyOrm.Meta
 {
@@ -12,25 +12,16 @@ namespace DummyOrm.Meta
         public bool Identity { get; set; }
         public bool AutoIncrement { get; set; }
         public bool IsRefrence { get; set; }
+        public IGetterSetter GetterSetter { private get; set; }
         
-        public Column Column { get; set; }
-
-        public string QuotedName
-        {
-            get { return "[" + ColumnName + "]"; }
-        }
-
         public object GetValue(object entity)
         {
-            var value = Property.GetValue(entity);
-            
-            if (value == null || !IsRefrence)
-            {
-                return value;
-            }
+            return GetterSetter.Get(entity);
+        }
 
-            var refTable = DbMeta.Instance.GetTable(Property.PropertyType);
-            return refTable.IdColumn.GetValue(value);
+        public void SetValue(object entity, object value)
+        {
+            GetterSetter.Set(entity, value);
         }
 
         public Type GetParamType()
@@ -42,6 +33,16 @@ namespace DummyOrm.Meta
 
             var refTable = DbMeta.Instance.GetTable(Property.PropertyType);
             return refTable.IdColumn.GetParamType();
+        }
+
+        public TableMeta GetReferencedTable()
+        {
+            return DbMeta.Instance.GetTable(Property.PropertyType);
+        }
+
+        public override string ToString()
+        {
+            return String.Format("{0}.{1}", Table, ColumnName);
         }
     }
 }
