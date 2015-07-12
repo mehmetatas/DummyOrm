@@ -1,0 +1,20 @@
+﻿using System;
+using System.Collections.Generic;
+
+namespace DummyOrm2.Entities
+{
+    public class Post
+    {
+        public virtual long Id { get; set; }
+        public virtual User User { get; set; }
+        public virtual DateTime CreateDate { get; set; }
+        public virtual DateTime? PublishDate { get; set; }
+        public virtual DateTime? UpdateDate { get; set; }
+        public virtual string Title { get; set; }
+        public virtual string HtmlContent { get; set; }
+        public virtual AccessLevel AccessLevel { get; set; }
+        public virtual byte[] Data { get; set; }
+
+        public virtual List<Tag> Tags { get; set; }
+    }
+}

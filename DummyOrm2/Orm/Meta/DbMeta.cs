@@ -1,16 +1,11 @@
-using System.Collections.Generic;
-using DummyOrm.Execution;
-using DummyOrm.Sql.QueryBuilders;
-using DummyOrm.Sql.QueryBuilders.Select;
-using DummyOrm.Sql;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
-using DummyOrm.Utils;
+using DummyOrm2.Orm.Dynamix;
 
-namespace DummyOrm.Meta
+namespace DummyOrm2.Orm.Meta
 {
     public class DbMeta
     {
@@ -105,24 +100,6 @@ namespace DummyOrm.Meta
         public ColumnMeta GetColumn(PropertyInfo prop)
         {
             return (ColumnMeta)_columns[prop];
-        }
-    }
-
-    public static class DbMetaExtenisons
-    {
-        public static TableMeta GetTable<T>(this DbMeta dbMeta)
-        {
-            return dbMeta.GetTable(typeof(T));
-        }
-
-        public static DbMeta Register<T>(this DbMeta dbMeta)
-        {
-            return dbMeta.Register(typeof(T));
-        }
-
-        public static ColumnMeta GetColumn<T, TProp>(this DbMeta dbMeta, Expression<Func<T, TProp>> propExp)
-        {
-            return dbMeta.GetColumn(propExp.GetPropertyInfo());
         }
     }
 }

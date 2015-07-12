@@ -1,0 +1,109 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{63EA8DDE-DE21-444F-95A2-AF6B1D940B40}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>DummyOrm2</RootNamespace>
+    <AssemblyName>DummyOrm2</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <TargetZone>LocalIntranet</TargetZone>
+  </PropertyGroup>
+  <PropertyGroup>
+    <GenerateManifests>false</GenerateManifests>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Entities\Comment.cs" />
+    <Compile Include="Entities\ConfirmationCode.cs" />
+    <Compile Include="Entities\Enums.cs" />
+    <Compile Include="Entities\FollowUser.cs" />
+    <Compile Include="Entities\Like.cs" />
+    <Compile Include="Entities\Login.cs" />
+    <Compile Include="Entities\Notification.cs" />
+    <Compile Include="Entities\Post.cs" />
+    <Compile Include="Entities\PostTag.cs" />
+    <Compile Include="Entities\PrivateMessage.cs" />
+    <Compile Include="Entities\Tag.cs" />
+    <Compile Include="Entities\Token.cs" />
+    <Compile Include="Entities\User.cs" />
+    <Compile Include="Orm\Db\IDb.cs" />
+    <Compile Include="Orm\Db\IFillQuery.cs" />
+    <Compile Include="Orm\Db\IOrderByQuery.cs" />
+    <Compile Include="Orm\Db\IQuery.cs" />
+    <Compile Include="Orm\Db\IQueryExecution.cs" />
+    <Compile Include="Orm\Db\IWhereQuery.cs" />
+    <Compile Include="Orm\Dynamix\FilterFactory.cs" />
+    <Compile Include="Orm\Dynamix\FilterValues.cs" />
+    <Compile Include="Orm\Dynamix\GetterSetter.cs" />
+    <Compile Include="Orm\Dynamix\IFilter.cs" />
+    <Compile Include="Orm\Dynamix\IFilterValues.cs" />
+    <Compile Include="Orm\Dynamix\IGetterSetter.cs" />
+    <Compile Include="Orm\Dynamix\PocoFactory.cs" />
+    <Compile Include="Orm\Meta\ColumnMeta.cs" />
+    <Compile Include="Orm\Meta\DbMeta.cs" />
+    <Compile Include="Orm\Meta\DbMetaExtenisons.cs" />
+    <Compile Include="Orm\Sql\Select\Column.cs" />
+    <Compile Include="Orm\Sql\Select\SelectQuery.cs" />
+    <Compile Include="Orm\Meta\TableMeta.cs" />
+    <Compile Include="Orm\Sql\Select\Join.cs" />
+    <Compile Include="Orm\Sql\Select\JoinType.cs" />
+    <Compile Include="Orm\Sql\Select\OrderBy.cs" />
+    <Compile Include="Orm\Sql\Select\Page.cs" />
+    <Compile Include="Orm\Sql\Select\Table.cs" />
+    <Compile Include="Orm\Utils.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="Properties\app.manifest" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Orm\Filter\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
