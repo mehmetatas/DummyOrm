@@ -1,3 +1,4 @@
+using System;
 using DummyOrm2.Orm.Meta;
 
 namespace DummyOrm2.Orm.Sql.Select
@@ -6,5 +7,10 @@ namespace DummyOrm2.Orm.Sql.Select
     {
         public TableMeta Meta { get; set; }
         public string Alias { get; set; }
+
+        public override string ToString()
+        {
+            return String.Format("[{0}] {1}", Meta.TableName, Alias);
+        }
     }
 }

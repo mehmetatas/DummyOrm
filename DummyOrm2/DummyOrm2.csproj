@@ -87,6 +87,7 @@
     <Compile Include="Orm\Sql\Select\OrderBy.cs" />
     <Compile Include="Orm\Sql\Select\Page.cs" />
     <Compile Include="Orm\Sql\Select\Table.cs" />
+    <Compile Include="Orm\Sql\SqlCommand.cs" />
     <Compile Include="Orm\Utils.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -95,9 +96,7 @@
     <None Include="App.config" />
     <None Include="Properties\app.manifest" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Orm\Filter\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

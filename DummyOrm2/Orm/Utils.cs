@@ -4,7 +4,6 @@ using System.Collections.ObjectModel;
 using System.Data;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
 
 namespace DummyOrm2.Orm
 {
@@ -65,59 +64,50 @@ namespace DummyOrm2.Orm
 
         public static PropertyInfo GetPropertyInfo<T, TProp>(this Expression<Func<T, TProp>> propExpression)
         {
-            MemberExpression memberExp;
-            if (propExpression.Body is UnaryExpression)
-            {
-                memberExp = (MemberExpression)((UnaryExpression)propExpression.Body).Operand;
-            }
-            else
-            {
-                memberExp = (MemberExpression)propExpression.Body;
-            }
-            return memberExp.Member as PropertyInfo;
+            return propExpression.GetMemberExpression().Member as PropertyInfo;
         }
 
-        public static string GetJoinKey<T, TProp>(this Expression<Func<T, TProp>> propChain)
+        public static PropertyInfo GetPropertyInfo(this LambdaExpression propExpression)
         {
-            var key = new StringBuilder();
+            return propExpression.GetMemberExpression().Member as PropertyInfo;
+        }
 
-            var memberExpression = propChain.Body as MemberExpression;
+        public static MemberExpression GetMemberExpression<T, TProp>(this Expression<Func<T, TProp>> propExpression)
+        {
+            return GetMemberExpression((LambdaExpression) propExpression);
+        }
+
+        public static MemberExpression GetMemberExpression(this LambdaExpression propExpression)
+        {
+            return propExpression.Body is UnaryExpression
+                ? (MemberExpression)((UnaryExpression)propExpression.Body).Operand
+                : (MemberExpression)propExpression.Body;
+        }
+
+        public static List<PropertyInfo> GetPropertyChain(this LambdaExpression propExpression, bool onlyRef = true)
+        {
+            return propExpression.GetMemberExpression().GetPropertyChain(onlyRef);
+        }
+
+        public static List<PropertyInfo> GetPropertyChain<T, TProp>(this Expression<Func<T, TProp>> propExpression, bool onlyRef = true)
+        {
+            return propExpression.GetMemberExpression().GetPropertyChain(onlyRef);
+        }
+
+        public static List<PropertyInfo> GetPropertyChain(this MemberExpression memberExpression, bool onlyRef = true)
+        {
+            var props = new List<PropertyInfo>();
 
             while (memberExpression != null)
             {
-                var propInf = memberExpression.Member as PropertyInfo;
-                if (propInf.IsReferenceProperty())
+                var propInf = (PropertyInfo)memberExpression.Member;
+                if (propInf.IsReferenceProperty() || !onlyRef)
                 {
-                    key.Insert(0, propInf.Name);
-                    key.Insert(0, ".");
+                    props.Insert(0, propInf);
                 }
                 memberExpression = memberExpression.Expression as MemberExpression;
             }
-
-            key.Insert(0, typeof(T).Name);
-
-            return key.ToString();
-        }
-
-        public static List<Type> GetTypeChain<T, TProp>(this Expression<Func<T, TProp>> propChain)
-        {
-            var types = new List<Type>();
-
-            var memberExpression = propChain.Body as MemberExpression;
-
-            while (memberExpression != null)
-            {
-                var propInf = memberExpression.Member as PropertyInfo;
-                if (propInf.IsReferenceProperty())
-                {
-                    types.Insert(0, propInf.PropertyType);
-                }
-                memberExpression = memberExpression.Expression as MemberExpression;
-            }
-
-            types.Insert(0, typeof(T));
-
-            return types;
+            return props;
         }
     }
 }

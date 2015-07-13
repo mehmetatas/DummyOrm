@@ -90,10 +90,16 @@ namespace DummyOrm2.Orm.Dynamix
 
             void IGetterSetter.Set(object obj, object value)
             {
+                if (value == null || value is DBNull)
+                {
+                    return;
+                }
+
                 if (value.GetType() != typeof(TProp))
                 {
                     value = _typeConverter(value);
                 }
+
                 _setter((T)obj, (TProp)value);
             }
         }

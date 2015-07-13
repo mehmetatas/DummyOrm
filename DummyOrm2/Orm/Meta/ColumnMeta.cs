@@ -18,14 +18,19 @@ namespace DummyOrm2.Orm.Meta
         public int DecimalPrecision { get; set; }
         public int StringLength { get; set; }
         public IGetterSetter GetterSetter { get; set; }
-        public TableMeta ReferencedTable { get; set; }
+
+        private TableMeta _referencedTable;
+        public TableMeta ReferencedTable
+        {
+            get { return _referencedTable ?? (_referencedTable = DbMeta.Instance.GetTable(Property.PropertyType)); }
+        }
 
         /// <summary>
         /// this = Like.Post
         /// FROM Like l
         /// JOIN Post p ON l.PostId = p.Id
         /// </summary>
-        public Join CreateJoin(string leftTableAlias)
+        public Join CreateJoin(string key, string leftTableAlias, string rightTableAlias)
         {
             return new Join
             {
@@ -43,7 +48,7 @@ namespace DummyOrm2.Orm.Meta
                     Meta = ReferencedTable.IdColumn,
                     Table = new Table
                     {
-                        Alias = leftTableAlias + "_" + ReferencedTable.IdColumn.ColumnName,
+                        Alias = leftTableAlias + "_" + ReferencedTable.TableName + ReferencedTable.IdColumn.ColumnName,
                         Meta = ReferencedTable
                     }
                 }
