@@ -34,7 +34,8 @@ namespace DummyOrm2.Orm
 
         public static bool IsReferenceProperty(this PropertyInfo propInf)
         {
-            return !TypeMap.ContainsKey(propInf.PropertyType);
+            var type = propInf.PropertyType.AsNonNullable();
+            return !TypeMap.ContainsKey(type) && !type.IsEnum;
         }
 
         public static bool IsColumnProperty(this PropertyInfo propInf)

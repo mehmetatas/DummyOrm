@@ -3,7 +3,6 @@ using System.Reflection;
 using DummyOrm2.Entities;
 using DummyOrm2.Orm.Db;
 using DummyOrm2.Orm.Meta;
-using DummyOrm2.Orm.Sql;
 using System;
 
 namespace DummyOrm2
@@ -21,42 +20,13 @@ namespace DummyOrm2
                 DbMeta.Instance.Register(entityClass);
             }
 
-            var query = new QueryImpl<Notification>();
+            var query = new QueryImpl<Like>();
 
-            query.Join(n => n.FromUser, u => new
-            {
-                u.Fullname,
-                u.Username
-            })
-                .Join(n => n.ToUser, u => new
-                {
-                    u.Fullname,
-                    u.Username
-                })
-                .Join(n => n.Post, p => new
-                {
-                    p.Title
-                })
-                .Include(n => n.Post.User.Username);
-
-            //var query = new QueryImpl<Like>();
-
-            //query.Join(l => l.Post);
-            //query.Include(l => l.Post);
-            //query.Include(l => l.Post.Title);
-            //query.Join(l => l.User);
-            //query.Join(l => l.Post.User);
-            //query.Join(l => l.Post, p => p.Title);
-            //query.Join(l => l.Post, p => new
-            //{
-            //    p.Title,
-            //    p.User.Username
-            //});
-
-            var selectQuery = query.Build();
-            var cmd = new SqlServerSelectSqlCommandBuilderImpl().Build(selectQuery);
-
-            Console.WriteLine(cmd.CommandText);
+            var list = query
+                .Join(l => l.User)
+                .Join(l => l.Post)
+                .Join(l => l.Post.User)
+                .ToList();
 
             Console.ReadLine();
         }

@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 using DummyOrm2.Orm.Meta;
 using DummyOrm2.Orm.Sql;
 using DummyOrm2.Orm.Sql.Select;
@@ -77,7 +77,7 @@ namespace DummyOrm2.Orm.Db
             }
         }
 
-        private void Include(MemberExpression memberExp, List<ColumnMeta> rootChain = null)
+        private void Include(MemberExpression memberExp, IEnumerable<ColumnMeta> rootChain = null)
         {
             var list = rootChain == null
                         ? new List<ColumnMeta>()
@@ -118,7 +118,33 @@ namespace DummyOrm2.Orm.Db
 
         public IList<T> ToList()
         {
-            throw new NotImplementedException();
+            var query = Build();
+            var builder = new SqlServerSelectSqlCommandBuilderImpl();
+            var sqlCmd = builder.Build(query);
+
+            using (var conn = new SqlConnection("Server=localhost;Database=TagKid2;uid=sa;pwd=123456"))
+            {
+                conn.Open();
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = sqlCmd.CommandText;
+
+                    Console.WriteLine(cmd.CommandText);
+
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        var list = new List<T>();
+                        var mapper = _query.CreateDeserializer();
+
+                        while (reader.Read())
+                        {
+                            list.Add((T)mapper.Deserialize(reader));
+                        }
+
+                        return list;
+                    }
+                }
+            }
         }
 
         public Page<T> Page(int page, int pageSize)

@@ -1,4 +1,6 @@
-﻿using DummyOrm2.Orm.Meta;
+﻿using DummyOrm2.Orm.Db;
+using DummyOrm2.Orm.Dynamix;
+using DummyOrm2.Orm.Meta;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +11,7 @@ namespace DummyOrm2.Orm.Sql.Select
     {
         private readonly AliasContext _aliasCtx = new AliasContext();
         private readonly Dictionary<string, Table> _tables = new Dictionary<string, Table>();
+        private readonly Dictionary<string, IEnumerable<ColumnMeta>> _outputMappings = new Dictionary<string, IEnumerable<ColumnMeta>>();
 
         public Table From { get; private set; }
         public IDictionary<string, Column> SelectColumns { get; private set; }
@@ -26,7 +29,8 @@ namespace DummyOrm2.Orm.Sql.Select
 
             foreach (var columnMeta in fromTableMeta.Columns)
             {
-                AddColumn(From, columnMeta);
+                var column = AddColumn(From, columnMeta);
+                _outputMappings.Add(column.Alias, new[] { column.Meta });
             }
         }
 
@@ -74,9 +78,14 @@ namespace DummyOrm2.Orm.Sql.Select
 
         public void AddColumn(IList<ColumnMeta> propChain)
         {
-            var prop = propChain.Last();
+            var colMeta = propChain.Last();
             var table = EnsureJoined(propChain.Take(propChain.Count - 1));
-            AddColumn(table, prop);
+            var column = AddColumn(table, colMeta);
+
+            if (!_outputMappings.ContainsKey(column.Alias))
+            {
+                _outputMappings.Add(column.Alias, propChain);
+            }
         }
 
         private Column AddColumn(Table table, ColumnMeta colMeta)
@@ -149,7 +158,12 @@ namespace DummyOrm2.Orm.Sql.Select
                 leftTable = rightTable;
             }
 
-            return leftTable; 
+            return leftTable;
+        }
+
+        public PocoDeserializer CreateDeserializer()
+        {
+            return new PocoDeserializer(From.Meta.Factory, _outputMappings);
         }
 
         class AliasContext
