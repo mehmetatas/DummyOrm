@@ -81,12 +81,13 @@ namespace DummyOrm2.Orm.Db
                     cmd.Parameters.Add(param);
                 }
 
+#if DEBUG
                 Console.WriteLine(cmd.CommandText);
                 foreach (var param in cmd.Parameters.Cast<IDbDataParameter>())
                 {
                     Console.WriteLine("{0}: {1}", param.ParameterName, param.Value);
                 }
-
+#endif
                 return cmd.ExecuteReader();
             }
         }
