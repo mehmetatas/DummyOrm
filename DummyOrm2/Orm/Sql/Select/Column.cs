@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Reflection;
 using DummyOrm2.Orm.Meta;
 
 namespace DummyOrm2.Orm.Sql.Select
@@ -8,6 +10,7 @@ namespace DummyOrm2.Orm.Sql.Select
         public ColumnMeta Meta { get; set; }
         public string Alias { get; set; }
         public Table Table { get; set; }
+        public IList<PropertyInfo> PropertyChain { get; set; }
 
         public override string ToString()
         {

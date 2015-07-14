@@ -94,6 +94,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="Entities\ClassDiagram1.cd" />
     <None Include="Properties\app.manifest" />
   </ItemGroup>
   <ItemGroup />

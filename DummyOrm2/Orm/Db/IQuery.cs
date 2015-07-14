@@ -9,7 +9,7 @@ using DummyOrm2.Orm.Sql.Select;
 
 namespace DummyOrm2.Orm.Db
 {
-    public interface IQuery<T> : IWhereQuery<T>
+    public interface IQuery<T> : IWhereQuery<T> where T : class, new()
     {
         IQuery<T> Join<TProp>(Expression<Func<T, TProp>> refProp,
             Expression<Func<TProp, object>> include = null) where TProp : class, new();
@@ -17,7 +17,7 @@ namespace DummyOrm2.Orm.Db
         IQuery<T> Include(Expression<Func<T, object>> propExpression);
     }
 
-    public class QueryImpl<T> : IQuery<T>, ISelectQueryBuilder<T>
+    public class QueryImpl<T> : IQuery<T>, ISelectQueryBuilder<T> where T : class, new()
     {
         private readonly SelectQuery<T> _query;
 
@@ -30,20 +30,24 @@ namespace DummyOrm2.Orm.Db
         {
             var propChain = refProp.GetPropertyChain();
 
+            // Build join
             _query.Join(propChain);
 
             if (include == null)
             {
+                // No columns specified Include all properties of joined type
                 Include(refProp.GetMemberExpression());
             }
             else
             {
                 if (include.Body is NewExpression)
                 {
+                    // Include multiple properties
                     Include(include.Body as NewExpression, propChain);
                 }
                 else
                 {
+                    // Include specified property only
                     Include(include.GetMemberExpression(), propChain);
                 }
             }
@@ -81,7 +85,7 @@ namespace DummyOrm2.Orm.Db
 
             list.AddRange(memberExp.GetPropertyChain(false));
             _query.AddColumn(list);
-
+            
             var prop = list.Last();
             var colMeta = DbMeta.Instance.GetColumn(prop);
             if (colMeta.IsRefrence)
@@ -130,7 +134,7 @@ namespace DummyOrm2.Orm.Db
 
         public SelectQuery<T> Build()
         {
-            if (!_query.Columns.Any())
+            if (!_query.SelectColumns.Any())
             {
                 var fromTable = _query.From.Meta;
                 foreach (var columnMeta in fromTable.Columns)

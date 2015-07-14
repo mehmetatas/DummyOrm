@@ -28,12 +28,9 @@ namespace DummyOrm2.Orm.Meta
                 Factory = PocoFactory.CreateFactory(type)
             };
 
-            var props =
-                type.GetProperties()
-                    .Where(p => !typeof(IEnumerable).IsAssignableFrom(p.PropertyType) ||
-                                p.PropertyType == typeof(string) ||
-                                p.PropertyType == typeof(byte[]))
-                    .ToList();
+            var props = type.GetProperties()
+                .Where(p => p.IsColumnProperty())
+                .ToList();
 
             var idProp = props.FirstOrDefault(p => p.Name == "Id");
 
@@ -43,9 +40,7 @@ namespace DummyOrm2.Orm.Meta
 
             foreach (var prop in props)
             {
-                var isReference = prop.PropertyType.IsClass &&
-                                  prop.PropertyType != typeof(string) &&
-                                  prop.PropertyType != typeof(byte[]);
+                var isReference = prop.IsReferenceProperty();
 
                 var columnMeta = new ColumnMeta
                 {

@@ -3,7 +3,7 @@ using DummyOrm2.Orm.Sql.Select;
 
 namespace DummyOrm2.Orm.Db
 {
-    public interface IQueryExecution<T>
+    public interface IQueryExecution<T> where T : class, new()
     {
         T FirstOrDefault();
 

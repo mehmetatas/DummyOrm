@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data;
@@ -33,6 +34,14 @@ namespace DummyOrm2.Orm
         public static bool IsReferenceProperty(this PropertyInfo propInf)
         {
             return !TypeMap.ContainsKey(propInf.PropertyType);
+        }
+
+        public static bool IsColumnProperty(this PropertyInfo propInf)
+        {
+            var propType = propInf.PropertyType;
+            return !typeof(IEnumerable).IsAssignableFrom(propType) ||
+                propType == typeof(string) ||
+                propType == typeof(byte[]);
         }
 
         public static Type AsNonNullable(this Type type)

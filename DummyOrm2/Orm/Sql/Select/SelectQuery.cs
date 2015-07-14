@@ -6,24 +6,29 @@ using System.Reflection;
 
 namespace DummyOrm2.Orm.Sql.Select
 {
-    public class SelectQuery<T>
+    public class SelectQuery<T> where T : class, new()
     {
         private readonly AliasContext _aliasCtx = new AliasContext();
         private readonly Dictionary<string, Table> _tables = new Dictionary<string, Table>();
 
         public Table From { get; private set; }
-        public IDictionary<string, Column> Columns { get; private set; }
+        public IDictionary<string, Column> SelectColumns { get; private set; }
         public IDictionary<string, Join> Joins { get; private set; }
         public List<OrderBy> OrderByColumns { get; private set; }
 
         public SelectQuery()
         {
-            Columns = new Dictionary<string, Column>();
+            SelectColumns = new Dictionary<string, Column>();
             Joins = new Dictionary<string, Join>();
             OrderByColumns = new List<OrderBy>();
 
             var fromTableMeta = DbMeta.Instance.GetTable<T>();
             From = GetOrAddTable(fromTableMeta.TableName, fromTableMeta);
+
+            foreach (var columnMeta in fromTableMeta.Columns)
+            {
+                AddColumn(From, columnMeta);
+            }
         }
 
         private static string GetTableKey(IEnumerable<PropertyInfo> propChain)
@@ -34,6 +39,12 @@ namespace DummyOrm2.Orm.Sql.Select
             foreach (var prop in propChain)
             {
                 var leftCol = DbMeta.Instance.GetColumn(prop);
+
+                if (!leftCol.IsRefrence)
+                {
+                    break;
+                }
+
                 var rightCol = leftCol.ReferencedTable.IdColumn;
 
                 key += u + String.Format("{0}{1}_{2}{3}", leftCol.Table.TableName, leftCol.ColumnName, rightCol.Table.TableName, rightCol.ColumnName);
@@ -64,32 +75,20 @@ namespace DummyOrm2.Orm.Sql.Select
             return table;
         }
 
-        public Column AddColumn(IList<PropertyInfo> propChain)
+        public void AddColumn(IList<PropertyInfo> propChain)
         {
-            var table = EnsureTable(propChain);
             var prop = propChain.Last();
-            return AddColumn(table, prop);
-        }
-
-        private Column AddColumn(Table table, PropertyInfo prop)
-        {
-            var colMeta = DbMeta.Instance.GetColumn(prop);
-
-            if (colMeta.IsRefrence)
-            {
-                colMeta = colMeta.ReferencedTable.IdColumn;
-            }
-
-            return AddColumn(table, colMeta);
+            var table = EnsureJoined(propChain.Take(propChain.Count - 1));
+            AddColumn(table, DbMeta.Instance.GetColumn(prop));
         }
 
         private Column AddColumn(Table table, ColumnMeta colMeta)
         {
             var colAlias = String.Format("{0}_{1}", table.Alias, colMeta.ColumnName);
 
-            if (Columns.ContainsKey(colAlias))
+            if (SelectColumns.ContainsKey(colAlias))
             {
-                return Columns[colAlias];
+                return SelectColumns[colAlias];
             }
 
             var column = new Column
@@ -99,47 +98,58 @@ namespace DummyOrm2.Orm.Sql.Select
                 Table = table
             };
 
-            Columns.Add(colAlias, column);
+            SelectColumns.Add(colAlias, column);
 
             return column;
         }
 
-        public Table Join(IList<PropertyInfo> props)
+        public void Join(IList<PropertyInfo> props)
         {
-            return EnsureTable(props);
+            EnsureJoined(props);
         }
 
-        private Table EnsureTable(IList<PropertyInfo> props)
+        /// <summary>
+        /// Ensures a valid join for the property chain exists in the query and 
+        /// returns the Table object created for the property.
+        /// </summary>
+        /// <param name="props">The props.</param>
+        /// <returns></returns>
+        private Table EnsureJoined(IEnumerable<PropertyInfo> props)
         {
             var leftTable = From;
-
-            for (var i = 0; i < props.Count; i++)
+            var i = 0;
+            foreach (var prop in props)
             {
-                var leftColMeta = DbMeta.Instance.GetColumn(props[i]);
+                var leftColMeta = DbMeta.Instance.GetColumn(prop);
 
                 if (!leftColMeta.IsRefrence)
                 {
-                    continue;
+                    break;
                 }
 
                 var rightTableMeta = leftColMeta.ReferencedTable;
-                var rightTableKey = GetTableKey(props.Take(i + 1));
+                var rightTableKey = GetTableKey(props.Take(++i));
                 var rightTable = GetOrAddTable(rightTableKey, rightTableMeta);
 
-                    var joinKey = String.Format("{0}_{1}", leftTable.Alias, rightTable.Alias);
+                var joinKey = String.Format("{0}_{1}", leftTable.Alias, rightTable.Alias);
 
-                    if (!Joins.ContainsKey(joinKey))
+                if (!Joins.ContainsKey(joinKey))
+                {
+                    var leftColumn = new Column
                     {
-                        var leftColumn = AddColumn(leftTable, leftColMeta);
-                        var rightColumn = AddColumn(rightTable, rightTableMeta.IdColumn);
+                        Table = leftTable,
+                        Meta = leftColMeta
+                    }; // AddColumn(leftTable, leftColMeta);
 
-                        Joins.Add(joinKey, new Join
-                        {
-                            LeftColumn = leftColumn,
-                            RightColumn = rightColumn,
-                            Type = JoinType.Inner
-                        });
-                    }
+                    var rightColumn = AddColumn(rightTable, rightTableMeta.IdColumn);
+
+                    Joins.Add(joinKey, new Join
+                    {
+                        LeftColumn = leftColumn,
+                        RightColumn = rightColumn,
+                        Type = JoinType.Inner
+                    });
+                }
 
                 leftTable = rightTable;
             }
