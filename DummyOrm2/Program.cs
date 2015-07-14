@@ -23,10 +23,21 @@ namespace DummyOrm2
 
             var query = new QueryImpl<Notification>();
 
-            query.Join(n => n.FromUser);
-            query.Join(n => n.ToUser);
-            query.Join(n => n.Post);
-            query.Join(n => n.Post.User);
+            query.Join(n => n.FromUser, u => new
+            {
+                u.Fullname,
+                u.Username
+            })
+                .Join(n => n.ToUser, u => new
+                {
+                    u.Fullname,
+                    u.Username
+                })
+                .Join(n => n.Post, p => new
+                {
+                    p.Title
+                })
+                .Include(n => n.Post.User.Username);
 
             //var query = new QueryImpl<Like>();
 
@@ -46,7 +57,7 @@ namespace DummyOrm2
             var cmd = new SqlServerSelectSqlCommandBuilderImpl().Build(selectQuery);
 
             Console.WriteLine(cmd.CommandText);
-            
+
             Console.ReadLine();
         }
     }

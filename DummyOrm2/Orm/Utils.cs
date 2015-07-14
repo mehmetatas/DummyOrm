@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using System.Data;
 using System.Linq.Expressions;
 using System.Reflection;
+using DummyOrm2.Orm.Meta;
 
 namespace DummyOrm2.Orm
 {
@@ -93,30 +94,30 @@ namespace DummyOrm2.Orm
                 : (MemberExpression)propExpression.Body;
         }
 
-        public static List<PropertyInfo> GetPropertyChain(this LambdaExpression propExpression, bool onlyRef = true)
+        public static List<ColumnMeta> GetPropertyChain(this LambdaExpression propExpression, bool onlyRef = true)
         {
             return propExpression.GetMemberExpression().GetPropertyChain(onlyRef);
         }
 
-        public static List<PropertyInfo> GetPropertyChain<T, TProp>(this Expression<Func<T, TProp>> propExpression, bool onlyRef = true)
+        public static List<ColumnMeta> GetPropertyChain<T, TProp>(this Expression<Func<T, TProp>> propExpression, bool onlyRef = true)
         {
             return propExpression.GetMemberExpression().GetPropertyChain(onlyRef);
         }
 
-        public static List<PropertyInfo> GetPropertyChain(this MemberExpression memberExpression, bool onlyRef = true)
+        public static List<ColumnMeta> GetPropertyChain(this MemberExpression memberExpression, bool onlyRef = true)
         {
-            var props = new List<PropertyInfo>();
+            var chain = new List<ColumnMeta>();
 
             while (memberExpression != null)
             {
                 var propInf = (PropertyInfo)memberExpression.Member;
                 if (propInf.IsReferenceProperty() || !onlyRef)
                 {
-                    props.Insert(0, propInf);
+                    chain.Insert(0, DbMeta.Instance.GetColumn(propInf));
                 }
                 memberExpression = memberExpression.Expression as MemberExpression;
             }
-            return props;
+            return chain;
         }
     }
 }

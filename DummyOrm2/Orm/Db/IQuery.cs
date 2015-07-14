@@ -68,7 +68,7 @@ namespace DummyOrm2.Orm.Db
             return this;
         }
 
-        private void Include(NewExpression newExp, List<PropertyInfo> rootChain = null)
+        private void Include(NewExpression newExp, List<ColumnMeta> rootChain = null)
         {
             var includedProps = newExp.Arguments.Cast<MemberExpression>();
             foreach (var includeProp in includedProps)
@@ -77,22 +77,21 @@ namespace DummyOrm2.Orm.Db
             }
         }
 
-        private void Include(MemberExpression memberExp, List<PropertyInfo> rootChain = null)
+        private void Include(MemberExpression memberExp, List<ColumnMeta> rootChain = null)
         {
             var list = rootChain == null
-                        ? new List<PropertyInfo>()
-                        : new List<PropertyInfo>(rootChain);
+                        ? new List<ColumnMeta>()
+                        : new List<ColumnMeta>(rootChain);
 
             list.AddRange(memberExp.GetPropertyChain(false));
             _query.AddColumn(list);
-            
-            var prop = list.Last();
-            var colMeta = DbMeta.Instance.GetColumn(prop);
+
+            var colMeta = list.Last();
             if (colMeta.IsRefrence)
             {
                 foreach (var columnMeta in colMeta.ReferencedTable.Columns)
                 {
-                    _query.AddColumn(new List<PropertyInfo>(list) { columnMeta.Property });
+                    _query.AddColumn(new List<ColumnMeta>(list) { columnMeta });
                 }
             }
         }
@@ -139,7 +138,7 @@ namespace DummyOrm2.Orm.Db
                 var fromTable = _query.From.Meta;
                 foreach (var columnMeta in fromTable.Columns)
                 {
-                    _query.AddColumn(new[] { columnMeta.Property });
+                    _query.AddColumn(new[] { columnMeta });
                 }
             }
             return _query;

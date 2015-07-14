@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 
 namespace DummyOrm2.Orm.Sql.Select
 {
@@ -31,15 +30,13 @@ namespace DummyOrm2.Orm.Sql.Select
             }
         }
 
-        private static string GetTableKey(IEnumerable<PropertyInfo> propChain)
+        private static string GetTableKey(IEnumerable<ColumnMeta> propChain)
         {
             var u = "";
             var key = "";
 
-            foreach (var prop in propChain)
+            foreach (var leftCol in propChain)
             {
-                var leftCol = DbMeta.Instance.GetColumn(prop);
-
                 if (!leftCol.IsRefrence)
                 {
                     break;
@@ -75,11 +72,11 @@ namespace DummyOrm2.Orm.Sql.Select
             return table;
         }
 
-        public void AddColumn(IList<PropertyInfo> propChain)
+        public void AddColumn(IList<ColumnMeta> propChain)
         {
             var prop = propChain.Last();
             var table = EnsureJoined(propChain.Take(propChain.Count - 1));
-            AddColumn(table, DbMeta.Instance.GetColumn(prop));
+            AddColumn(table, prop);
         }
 
         private Column AddColumn(Table table, ColumnMeta colMeta)
@@ -103,7 +100,7 @@ namespace DummyOrm2.Orm.Sql.Select
             return column;
         }
 
-        public void Join(IList<PropertyInfo> props)
+        public void Join(IList<ColumnMeta> props)
         {
             EnsureJoined(props);
         }
@@ -114,14 +111,12 @@ namespace DummyOrm2.Orm.Sql.Select
         /// </summary>
         /// <param name="props">The props.</param>
         /// <returns></returns>
-        private Table EnsureJoined(IEnumerable<PropertyInfo> props)
+        private Table EnsureJoined(IEnumerable<ColumnMeta> props)
         {
             var leftTable = From;
             var i = 0;
-            foreach (var prop in props)
+            foreach (var leftColMeta in props)
             {
-                var leftColMeta = DbMeta.Instance.GetColumn(prop);
-
                 if (!leftColMeta.IsRefrence)
                 {
                     break;
