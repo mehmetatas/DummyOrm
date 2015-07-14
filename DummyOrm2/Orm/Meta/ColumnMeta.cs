@@ -15,7 +15,7 @@ namespace DummyOrm2.Orm.Meta
         public bool Identity { get; set; }
         public bool AutoIncrement { get; set; }
         public bool IsRefrence { get; set; }
-        public int DecimalPrecision { get; set; }
+        public byte DecimalPrecision { get; set; }
         public int StringLength { get; set; }
         public IGetterSetter GetterSetter { get; set; }
 

@@ -1,4 +1,4 @@
-namespace DummyOrm.Sql.QueryBuilders.Where.Expressions
+namespace DummyOrm2.Orm.Sql.Where.Expressions
 {
     public class ValueExpression : IWhereExpression
     {

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Linq.Expressions;
@@ -98,7 +99,8 @@ namespace DummyOrm2.Orm.Db
 
         public IWhereQuery<T> Where(Expression<Func<T, bool>> filter)
         {
-            throw new NotImplementedException();
+            _query.Where(filter);
+            return this;
         }
 
         public IOrderByQuery<T> OrderBy(Expression<Func<T, object>> props)
@@ -129,7 +131,26 @@ namespace DummyOrm2.Orm.Db
                 {
                     cmd.CommandText = sqlCmd.CommandText;
 
+                    foreach (var sqlParameter in sqlCmd.Parameters)
+                    {
+                        var param = (IDbDataParameter)cmd.CreateParameter();
+
+                        param.ParameterName = sqlParameter.Key;
+                        param.Value = sqlParameter.Value.Value ?? DBNull.Value;
+                        
+                        // TODO: Fix parameter properties
+                        //param.DbType = sqlParameter.Value.ColumnMeta.DbType;
+                        //param.Precision = sqlParameter.Value.ColumnMeta.DecimalPrecision;
+                        //param.Size = sqlParameter.Value.ColumnMeta.StringLength;
+
+                        cmd.Parameters.Add((System.Data.SqlClient.SqlParameter)param);
+                    }
+
                     Console.WriteLine(cmd.CommandText);
+                    foreach (var param in cmd.Parameters.Cast<IDbDataParameter>())
+                    {
+                        Console.WriteLine("{0}: {1}", param.ParameterName, param.Value);
+                    }
 
                     using (var reader = cmd.ExecuteReader())
                     {

@@ -1,16 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 using DummyOrm.ConsoleApp.Entities;
-using DummyOrm.Execution;
 using DummyOrm.Meta;
 using DummyOrm.Repository;
 using System;
 using System.Configuration;
 using System.Data.SqlClient;
-using DummyOrm.Sql;
-using DummyOrm.Sql.QueryBuilders.Select;
 
 namespace DummyOrm.ConsoleApp
 {

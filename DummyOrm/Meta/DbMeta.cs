@@ -1,8 +1,5 @@
 using System.Collections.Generic;
 using DummyOrm.Execution;
-using DummyOrm.Sql.QueryBuilders;
-using DummyOrm.Sql.QueryBuilders.Select;
-using DummyOrm.Sql;
 using System;
 using System.Collections;
 using System.Linq;

@@ -1,7 +1,5 @@
 using System;
 using System.Collections;
-using System.Data;
-using System.Globalization;
 using System.Linq.Expressions;
 
 namespace DummyOrm2.Orm.Db

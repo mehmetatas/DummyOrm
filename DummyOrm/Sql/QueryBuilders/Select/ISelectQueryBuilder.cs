@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq.Expressions;
-using DummyOrm.Execution;
 
 namespace DummyOrm.Sql.QueryBuilders.Select
 {

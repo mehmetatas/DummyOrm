@@ -20,13 +20,18 @@ namespace DummyOrm2
                 DbMeta.Instance.Register(entityClass);
             }
 
+            var userIds = new long[] { 1, 2, 3 };
+
             var query = new QueryImpl<Like>();
 
             var list = query
                 .Join(l => l.User)
                 .Join(l => l.Post)
                 .Join(l => l.Post.User)
+                .Where(l => DateTime.Now.ToUniversalTime().ToLocalTime().ToUniversalTime() > l.User.JoinDate && userIds.Contains(l.User.Id) && l.Post.User.Username.StartsWith("taga".Substring(0, 2)) && l.Post.User.Id != l.User.Id)
                 .ToList();
+
+            Console.WriteLine(list.Count);
 
             Console.ReadLine();
         }

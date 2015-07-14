@@ -1,13 +1,16 @@
-﻿using DummyOrm2.Orm.Db;
+﻿using System.Linq.Expressions;
+using DummyOrm2.Orm.Db;
 using DummyOrm2.Orm.Dynamix;
 using DummyOrm2.Orm.Meta;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using DummyOrm2.Orm.Sql.Where;
+using DummyOrm2.Orm.Sql.Where.ExpressionVisitors;
 
 namespace DummyOrm2.Orm.Sql.Select
 {
-    public class SelectQuery<T> where T : class, new()
+    public class SelectQuery<T> : IWhereExpressionListener where T : class, new()
     {
         private readonly AliasContext _aliasCtx = new AliasContext();
         private readonly Dictionary<string, Table> _tables = new Dictionary<string, Table>();
@@ -16,14 +19,16 @@ namespace DummyOrm2.Orm.Sql.Select
         public Table From { get; private set; }
         public IDictionary<string, Column> SelectColumns { get; private set; }
         public IDictionary<string, Join> Joins { get; private set; }
+        public List<IWhereExpression> WhereExpressions { get; private set; }
         public List<OrderBy> OrderByColumns { get; private set; }
 
         public SelectQuery()
         {
             SelectColumns = new Dictionary<string, Column>();
+            WhereExpressions = new List<IWhereExpression>();
             Joins = new Dictionary<string, Join>();
             OrderByColumns = new List<OrderBy>();
-
+            
             var fromTableMeta = DbMeta.Instance.GetTable<T>();
             From = GetOrAddTable(fromTableMeta.TableName, fromTableMeta);
 
@@ -32,6 +37,66 @@ namespace DummyOrm2.Orm.Sql.Select
                 var column = AddColumn(From, columnMeta);
                 _outputMappings.Add(column.Alias, new[] { column.Meta });
             }
+        }
+
+        Column IWhereExpressionListener.RegisterColumn(IList<ColumnMeta> propChain)
+        {
+            var colMeta = propChain.Last();
+            var table = EnsureJoined(propChain.Take(propChain.Count - 1));
+            return new Column
+            {
+                Meta = colMeta,
+                Table = table
+            };
+        }
+
+        public PocoDeserializer CreateDeserializer()
+        {
+            return new PocoDeserializer(From.Meta.Factory, _outputMappings);
+        }
+
+        public void Where(Expression<Func<T, bool>> filter)
+        {
+            var whereExp = WhereExpressionVisitor.Build(filter, this);
+            WhereExpressions.Add(whereExp);
+        }
+
+        public void AddColumn(IList<ColumnMeta> propChain)
+        {
+            var colMeta = propChain.Last();
+            var table = EnsureJoined(propChain.Take(propChain.Count - 1));
+            var column = AddColumn(table, colMeta);
+
+            if (!_outputMappings.ContainsKey(column.Alias))
+            {
+                _outputMappings.Add(column.Alias, propChain);
+            }
+        }
+
+        private Column AddColumn(Table table, ColumnMeta colMeta)
+        {
+            var colAlias = String.Format("{0}_{1}", table.Alias, colMeta.ColumnName);
+
+            if (SelectColumns.ContainsKey(colAlias))
+            {
+                return SelectColumns[colAlias];
+            }
+
+            var column = new Column
+            {
+                Alias = colAlias,
+                Meta = colMeta,
+                Table = table
+            };
+
+            SelectColumns.Add(column.Alias, column);
+
+            return column;
+        }
+
+        public void Join(IList<ColumnMeta> props)
+        {
+            EnsureJoined(props);
         }
 
         private static string GetTableKey(IEnumerable<ColumnMeta> propChain)
@@ -74,44 +139,6 @@ namespace DummyOrm2.Orm.Sql.Select
             _tables.Add(tableKey, table);
 
             return table;
-        }
-
-        public void AddColumn(IList<ColumnMeta> propChain)
-        {
-            var colMeta = propChain.Last();
-            var table = EnsureJoined(propChain.Take(propChain.Count - 1));
-            var column = AddColumn(table, colMeta);
-
-            if (!_outputMappings.ContainsKey(column.Alias))
-            {
-                _outputMappings.Add(column.Alias, propChain);
-            }
-        }
-
-        private Column AddColumn(Table table, ColumnMeta colMeta)
-        {
-            var colAlias = String.Format("{0}_{1}", table.Alias, colMeta.ColumnName);
-
-            if (SelectColumns.ContainsKey(colAlias))
-            {
-                return SelectColumns[colAlias];
-            }
-
-            var column = new Column
-            {
-                Alias = colAlias,
-                Meta = colMeta,
-                Table = table
-            };
-
-            SelectColumns.Add(colAlias, column);
-
-            return column;
-        }
-
-        public void Join(IList<ColumnMeta> props)
-        {
-            EnsureJoined(props);
         }
 
         /// <summary>
@@ -161,11 +188,6 @@ namespace DummyOrm2.Orm.Sql.Select
             return leftTable;
         }
 
-        public PocoDeserializer CreateDeserializer()
-        {
-            return new PocoDeserializer(From.Meta.Factory, _outputMappings);
-        }
-
         class AliasContext
         {
             private readonly List<string> _aliases = new List<string>();
@@ -186,5 +208,10 @@ namespace DummyOrm2.Orm.Sql.Select
                 return alias;
             }
         }
+    }
+
+    public interface IWhereExpressionListener
+    {
+        Column RegisterColumn(IList<ColumnMeta> propChain);
     }
 }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Reflection;
 using DummyOrm2.Orm.Dynamix;
@@ -48,6 +49,7 @@ namespace DummyOrm2.Orm.Meta
                     Property = prop,
                     ColumnName = prop.Name,
                     IsRefrence = isReference,
+                    DbType = isReference ? DbType.Int64 : prop.PropertyType.GetDbType(),
                     GetterSetter = GetterSetter.Create(prop)
                 };
 
