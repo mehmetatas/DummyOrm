@@ -41,13 +41,7 @@ namespace DummyOrm2.Orm.Sql.Select
 
         Column IWhereExpressionListener.RegisterColumn(IList<ColumnMeta> propChain)
         {
-            var colMeta = propChain.Last();
-            var table = EnsureJoined(propChain.Take(propChain.Count - 1));
-            return new Column
-            {
-                Meta = colMeta,
-                Table = table
-            };
+            return CreateColumn(propChain);
         }
 
         public PocoDeserializer CreateDeserializer()
@@ -59,6 +53,15 @@ namespace DummyOrm2.Orm.Sql.Select
         {
             var whereExp = WhereExpressionVisitor.Build(filter, this);
             WhereExpressions.Add(whereExp);
+        }
+
+        public void OrderBy(IList<ColumnMeta> propChain, bool desc)
+        {
+            OrderByColumns.Add(new OrderBy
+            {
+                Desc = desc,
+                Column = CreateColumn(propChain)
+            });
         }
 
         public void AddColumn(IList<ColumnMeta> propChain)
@@ -186,6 +189,17 @@ namespace DummyOrm2.Orm.Sql.Select
             }
 
             return leftTable;
+        }
+
+        private Column CreateColumn(IList<ColumnMeta> propChain)
+        {
+            var colMeta = propChain.Last();
+            var table = EnsureJoined(propChain.Take(propChain.Count - 1));
+            return new Column
+            {
+                Meta = colMeta,
+                Table = table
+            };
         }
 
         class AliasContext

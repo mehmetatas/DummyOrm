@@ -64,6 +64,18 @@ namespace DummyOrm2.Orm.Sql
                 }
             }
 
+            if (query.OrderByColumns.Any())
+            {
+                cmd.Append("ORDER BY ");
+                var comma = "";
+                foreach (var col in query.OrderByColumns)
+                {
+                    cmd.AppendFormat("{0}{1}.{2} {3}", comma, col.Column.Table.Alias, col.Column.Meta.ColumnName,
+                        col.Desc ? "DESC" : "ASC");
+                    comma = ",";
+                }
+            }
+
             return new SqlCommand
             {
                 CommandText = cmd.ToString().TrimEnd(),

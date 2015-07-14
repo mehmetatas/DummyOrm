@@ -105,12 +105,14 @@ namespace DummyOrm2.Orm.Db
 
         public IOrderByQuery<T> OrderBy(Expression<Func<T, object>> props)
         {
-            throw new NotImplementedException();
+            _query.OrderBy(props.GetPropertyChain(false), false);
+            return this;
         }
 
         public IOrderByQuery<T> OrderByDesc(Expression<Func<T, object>> props)
         {
-            throw new NotImplementedException();
+            _query.OrderBy(props.GetPropertyChain(false), true);
+            return this;
         }
 
         public T FirstOrDefault()

@@ -29,6 +29,8 @@ namespace DummyOrm2
                 .Join(l => l.Post)
                 .Join(l => l.Post.User)
                 .Where(l => DateTime.Now.ToUniversalTime().ToLocalTime().ToUniversalTime() > l.User.JoinDate && userIds.Contains(l.User.Id) && l.Post.User.Username.StartsWith("taga".Substring(0, 2)) && l.Post.User.Id != l.User.Id)
+                .OrderBy(l => l.LikedDate)
+                .OrderByDesc(l => l.Post.User.Username)
                 .ToList();
 
             Console.WriteLine(list.Count);
