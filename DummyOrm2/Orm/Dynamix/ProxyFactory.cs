@@ -4,14 +4,14 @@ using System.Reflection.Emit;
 
 namespace DummyOrm2.Orm.Dynamix
 {
-    public static class FilterFactory
+    public static class ProxyFactory
     {
         private static readonly ModuleBuilder ModuleBuilder;
 
-        static FilterFactory()
+        static ProxyFactory()
         {
             var assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(
-                new AssemblyName("MyORM.Core.Dynamix.Pocos"),
+                new AssemblyName("DummyOrm2.Dynamix"),
                 AssemblyBuilderAccess.Run);
 
             var assemblyName = assemblyBuilder.GetName().Name;
@@ -21,16 +21,16 @@ namespace DummyOrm2.Orm.Dynamix
 
         public static T CreateFilter<T>()
         {
-            var typeName = typeof(T).Name + "Filter";
+            var typeName = typeof(T).Name + "Proxy";
 
             var typeBuilder = ModuleBuilder.DefineType(
-                "DummyOrm2.Dynamix.Filters." + typeName,
+                "DummyOrm2.Dynamix.Proxies." + typeName,
                 TypeAttributes.Public | TypeAttributes.Class,
                 typeof(T),
-                new[] { typeof(IFilter<T>) });
+                new[] { typeof(IProxy) });
 
-            // FilterValues _filter;
-            var filter = typeBuilder.DefineField("_filter", typeof(IFilterValues), FieldAttributes.Private);
+            // IProxyValue _values;
+            var values = typeBuilder.DefineField("_values", typeof(IProxyValues), FieldAttributes.Private);
 
             // Ctor
             var baseCtor = typeof(T).GetConstructor(Type.EmptyTypes);
@@ -44,29 +44,29 @@ namespace DummyOrm2.Orm.Dynamix
             ctorIL.Emit(OpCodes.Ldarg_0);
             ctorIL.Emit(OpCodes.Call, baseCtor);
 
-            var filterCtor = typeof(FilterValues).GetConstructor(Type.EmptyTypes);
+            var filterCtor = typeof(ProxyValues).GetConstructor(Type.EmptyTypes);
 
             ctorIL.Emit(OpCodes.Ldarg_0);
             ctorIL.Emit(OpCodes.Newobj, filterCtor);
-            ctorIL.Emit(OpCodes.Stfld, filter);
+            ctorIL.Emit(OpCodes.Stfld, values);
             ctorIL.Emit(OpCodes.Ret);
 
             // Implement interface
             var methodBuilder = typeBuilder.DefineMethod("GetValues",
                 MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.Virtual,
-                typeof(FilterValues),
+                typeof(ProxyValues),
                 Type.EmptyTypes);
 
             var il = methodBuilder.GetILGenerator();
 
             il.Emit(OpCodes.Ldarg_0);
-            il.Emit(OpCodes.Ldfld, filter);
+            il.Emit(OpCodes.Ldfld, values);
             il.Emit(OpCodes.Ret);
 
             // Override properties 
             var properties = typeof(T).GetProperties();
 
-            var setValueMethod = typeof(FilterValues).GetMethod("SetValue");
+            var setValueMethod = typeof(ProxyValues).GetMethod("SetValue");
 
             foreach (var baseProp in properties)
             {
@@ -103,7 +103,7 @@ namespace DummyOrm2.Orm.Dynamix
                 setterIL.Emit(OpCodes.Call, baseSetter);
 
                 setterIL.Emit(OpCodes.Ldarg_0);
-                setterIL.Emit(OpCodes.Ldfld, filter);
+                setterIL.Emit(OpCodes.Ldfld, values);
                 setterIL.Emit(OpCodes.Ldstr, baseProp.Name);
                 setterIL.Emit(OpCodes.Ldarg_1);
                 setterIL.Emit(OpCodes.Call, setValueMethod);

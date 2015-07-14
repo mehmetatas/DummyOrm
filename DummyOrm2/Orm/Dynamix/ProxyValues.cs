@@ -2,11 +2,11 @@
 
 namespace DummyOrm2.Orm.Dynamix
 {
-    public class FilterValues : IFilterValues
+    public class ProxyValues : IProxyValues
     {
         public IDictionary<string, object> Values { get; private set; }
 
-        public FilterValues()
+        public ProxyValues()
         {
             Values = new Dictionary<string, object>();
         }

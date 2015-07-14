@@ -3,8 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
-using DummyOrm2.Orm.Meta;
 using DummyOrm2.Orm.Sql.Select;
 using DummyOrm2.Orm.Sql.Where.ExpressionBuilders;
 using DummyOrm2.Orm.Sql.Where.Expressions;

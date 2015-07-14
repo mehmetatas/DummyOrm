@@ -1,5 +1,4 @@
 ﻿using System.Linq.Expressions;
-using DummyOrm2.Orm.Db;
 using DummyOrm2.Orm.Dynamix;
 using DummyOrm2.Orm.Meta;
 using System;
@@ -22,13 +21,26 @@ namespace DummyOrm2.Orm.Sql.Select
         public List<IWhereExpression> WhereExpressions { get; private set; }
         public List<OrderBy> OrderByColumns { get; private set; }
 
+        public int Page { get; private set; }
+        public int PageSize { get; private set; }
+
+        public bool IsPaging
+        {
+            get { return Page > 0 && PageSize > 0; }
+        }
+
+        public bool IsTop
+        {
+            get { return Page < 1 && PageSize > 0; }
+        }
+
         public SelectQuery()
         {
             SelectColumns = new Dictionary<string, Column>();
             WhereExpressions = new List<IWhereExpression>();
             Joins = new Dictionary<string, Join>();
             OrderByColumns = new List<OrderBy>();
-            
+
             var fromTableMeta = DbMeta.Instance.GetTable<T>();
             From = GetOrAddTable(fromTableMeta.TableName, fromTableMeta);
 
@@ -49,21 +61,6 @@ namespace DummyOrm2.Orm.Sql.Select
             return new PocoDeserializer(From.Meta.Factory, _outputMappings);
         }
 
-        public void Where(Expression<Func<T, bool>> filter)
-        {
-            var whereExp = WhereExpressionVisitor.Build(filter, this);
-            WhereExpressions.Add(whereExp);
-        }
-
-        public void OrderBy(IList<ColumnMeta> propChain, bool desc)
-        {
-            OrderByColumns.Add(new OrderBy
-            {
-                Desc = desc,
-                Column = CreateColumn(propChain)
-            });
-        }
-
         public void AddColumn(IList<ColumnMeta> propChain)
         {
             var colMeta = propChain.Last();
@@ -74,6 +71,45 @@ namespace DummyOrm2.Orm.Sql.Select
             {
                 _outputMappings.Add(column.Alias, propChain);
             }
+        }
+
+        public void Join(IList<ColumnMeta> props)
+        {
+            EnsureJoined(props);
+        }
+
+        public void Where(Expression<Func<T, bool>> filter)
+        {
+            var whereExp = WhereExpressionVisitor.Build(filter, this);
+            WhereExpressions.Add(whereExp);
+        }
+
+        public void OrderBy(IList<ColumnMeta> propChain, bool desc)
+        {
+            var colMeta = propChain.Last();
+            var table = EnsureJoined(propChain.Take(propChain.Count - 1));
+            var column = AddColumn(table, colMeta);
+
+            if (OrderByColumns.All(c => c.Column.Alias != column.Alias))
+            {
+                OrderByColumns.Add(new OrderBy
+                {
+                    Desc = desc,
+                    Column = column
+                });
+            }
+        }
+
+        public void SetPage(int page, int pageSize)
+        {
+            Page = page;
+            PageSize = pageSize;
+        }
+
+        public void Top(int top)
+        {
+            Page = -1;
+            PageSize = top;
         }
 
         private Column AddColumn(Table table, ColumnMeta colMeta)
@@ -95,11 +131,6 @@ namespace DummyOrm2.Orm.Sql.Select
             SelectColumns.Add(column.Alias, column);
 
             return column;
-        }
-
-        public void Join(IList<ColumnMeta> props)
-        {
-            EnsureJoined(props);
         }
 
         private static string GetTableKey(IEnumerable<ColumnMeta> propChain)
@@ -222,10 +253,5 @@ namespace DummyOrm2.Orm.Sql.Select
                 return alias;
             }
         }
-    }
-
-    public interface IWhereExpressionListener
-    {
-        Column RegisterColumn(IList<ColumnMeta> propChain);
     }
 }

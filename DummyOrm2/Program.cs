@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Data.SqlClient;
+using System.Linq;
 using System.Reflection;
 using DummyOrm2.Entities;
 using DummyOrm2.Orm.Db;
@@ -22,19 +23,29 @@ namespace DummyOrm2
 
             var userIds = new long[] { 1, 2, 3 };
 
-            var query = new QueryImpl<Like>();
+            using (var conn = new SqlConnection("Server=.;Database=TagKid2;uid=sa;pwd=123456"))
+            {
+                conn.Open();
+                var db = new DbImpl(conn);
 
-            var list = query
-                .Join(l => l.User)
-                .Join(l => l.Post)
-                .Join(l => l.Post.User)
-                .Where(l => DateTime.Now.ToUniversalTime().ToLocalTime().ToUniversalTime() > l.User.JoinDate && userIds.Contains(l.User.Id) && l.Post.User.Username.StartsWith("taga".Substring(0, 2)) && l.Post.User.Id != l.User.Id)
-                .OrderBy(l => l.LikedDate)
-                .OrderByDesc(l => l.Post.User.Username)
-                .ToList();
+                var page = db.Select<Like>()
+                    .Join(l => l.User)
+                    .Join(l => l.Post)
+                    .Join(l => l.Post.User)
+                    //.Where(l =>
+                    //    DateTime.Now.ToUniversalTime().ToLocalTime().ToUniversalTime() > l.User.JoinDate &&
+                    //    userIds.Contains(l.User.Id) &&
+                    //    l.Post.User.Username.StartsWith("taga".Substring(0, 2)) &&
+                    //    l.Post.User != l.User)
+                    .Where(l => l.Post.Id == 3)
+                    .OrderBy(l => l.Post.User)
+                    .OrderByDesc(l => l.LikedDate)
+                    .Page(1, 1);
 
-            Console.WriteLine(list.Count);
-
+                Console.WriteLine(page.Items.Count());
+                Console.WriteLine(page.TotalCount);
+                Console.WriteLine(page.HasMore);
+            }
             Console.ReadLine();
         }
     }

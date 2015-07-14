@@ -14,7 +14,7 @@ namespace DummyOrm2.Orm.Sql.Where.ExpressionBuilders
                 Operator = oper
             };
         }
-
+        
         public override void Visit(BinaryExpression e)
         {
             _expression.SetOperand(e);

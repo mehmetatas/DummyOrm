@@ -5,7 +5,7 @@ using DummyOrm2.Orm.Meta;
 
 namespace DummyOrm2.Orm.Dynamix
 {
-    public class PocoDeserializer
+    public class PocoDeserializer : IPocoDeserializer
     {
         private readonly Func<object> _factory;
         private readonly IDictionary<string, IEnumerable<ColumnMeta>> _propertyChain;

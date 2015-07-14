@@ -16,8 +16,21 @@ namespace DummyOrm2.Orm.Sql
             var cmd = new StringBuilder();
             var param = new Dictionary<string, SqlParameter>();
 
-            cmd.AppendLine("SELECT")
-                .AppendLine(String.Join(",\n", query.SelectColumns.Values.Select(c => String.Format("  {0}.{1} {2}", c.Table.Alias, c.Meta.ColumnName, c.Alias))))
+            if (query.IsPaging)
+            {
+                cmd.AppendLine("WITH __DATA AS (");
+            }
+
+            cmd.Append("SELECT");
+
+            if (query.IsTop)
+            {
+                cmd.AppendFormat(" TOP {0}", query.PageSize + 1);
+            }
+
+            cmd.AppendLine()
+                .AppendLine(String.Join(",\n", query.SelectColumns.Values.Select(
+                    c => String.Format("  {0}.{1} {2}", c.Table.Alias, c.Meta.ColumnName, c.Alias))))
                 .AppendFormat("FROM [{0}] {1}", query.From.Meta.TableName, query.From.Alias)
                 .AppendLine();
 
@@ -64,17 +77,66 @@ namespace DummyOrm2.Orm.Sql
                 }
             }
 
-            if (query.OrderByColumns.Any())
+            if (query.IsPaging)
             {
-                cmd.Append("ORDER BY ");
-                var comma = "";
-                foreach (var col in query.OrderByColumns)
+                /*
+                 with
+                    __DATA as (SELECT...), 
+                    __COUNT as (select count(0) as _ROWCOUNT from __DATA)
+                select * from __COUNT, __DATA
+                order by s.SalesOrderID
+                offset 0 rows fetch next 10 rows only*/
+
+                cmd.AppendLine(
+                    "),\n__COUNT AS (SELECT COUNT(0) AS __ROWCOUNT FROM __DATA)\nSELECT * FROM __COUNT, __DATA")
+                    .Append("ORDER BY ");
+
+                if (query.OrderByColumns.Any())
                 {
-                    cmd.AppendFormat("{0}{1}.{2} {3}", comma, col.Column.Table.Alias, col.Column.Meta.ColumnName,
-                        col.Desc ? "DESC" : "ASC");
-                    comma = ",";
+                    var comma = "";
+                    foreach (var col in query.OrderByColumns)
+                    {
+                        cmd.AppendFormat("{0}__DATA.{1} {2}", comma, col.Column.Alias, col.Desc ? "DESC" : "ASC");
+                        comma = ",";
+                    }
+                }
+                else
+                {
+                    var fromCol = query.SelectColumns.Values.FirstOrDefault(c => c.Meta.Identity && c.Table == query.From);
+                    
+                    if (fromCol == null)
+                    {
+                        fromCol = query.SelectColumns.Values.FirstOrDefault(c => c.Meta.Identity);
+                    }
+                    
+                    if (fromCol == null)
+                    {
+                        fromCol = query.SelectColumns.Values.FirstOrDefault();
+                    }
+
+                    cmd.AppendFormat("__DATA.{0}", fromCol.Alias);
+                }
+
+                cmd.AppendLine()
+                    .AppendFormat("OFFSET {0} ROWS FETCH NEXT {1} ROWS ONLY",
+                        (query.Page - 1) * query.PageSize,
+                        query.PageSize);
+            }
+            else
+            {
+                if (query.OrderByColumns.Any())
+                {
+                    cmd.Append("ORDER BY ");
+                    var comma = "";
+                    foreach (var col in query.OrderByColumns)
+                    {
+                        cmd.AppendFormat("{0}{1}.{2} {3}", comma, col.Column.Table.Alias, col.Column.Meta.ColumnName,
+                            col.Desc ? "DESC" : "ASC");
+                        comma = ",";
+                    }
                 }
             }
+
 
             return new SqlCommand
             {
