@@ -11,42 +11,42 @@ namespace DummyOrm.Sql.Where.ExpressionVisitors
     {
         public virtual void Visit(LogicalExpression e)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         public virtual void Visit(ColumnExpression e)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         public virtual void Visit(ValueExpression e)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         public virtual void Visit(NullExpression e)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         public virtual void Visit(BinaryExpression e)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         public virtual void Visit(NotExpression e)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         public virtual void Visit(LikeExpression e)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         public virtual void Visit(InExpression e)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         public abstract IWhereExpression Build();

@@ -14,7 +14,6 @@ namespace DummyOrm.Meta
         private readonly Hashtable _tables = new Hashtable();
         private readonly Hashtable _columns = new Hashtable();
         private readonly Hashtable _associations = new Hashtable();
-        private readonly Hashtable _models = new Hashtable();
 
         public static readonly DbMeta Instance = new DbMeta();
 
