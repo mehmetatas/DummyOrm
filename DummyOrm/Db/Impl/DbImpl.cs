@@ -11,8 +11,9 @@ using DummyOrm.Sql.SimpleCommands;
 
 namespace DummyOrm.Db.Impl
 {
-    public class DbImpl : IDb, ICommandExecutor
+    class DbImpl : IDb, ICommandExecutor
     {
+        private IDbTransaction _tran;
         private readonly IDbConnection _conn;
         private readonly ICommandExecutor _cmdExec;
 
@@ -26,12 +27,12 @@ namespace DummyOrm.Db.Impl
         {
             var cmd = SimpleCommandBuilder.Insert.Build(entity);
             var id = _cmdExec.ExecuteScalar(cmd);
-            
+
             if (id == null)
             {
                 return;
             }
-            
+
             var tableMeta = DbMeta.Instance.GetTable<T>();
             tableMeta.IdColumn.GetterSetter.Set(entity, id);
         }
@@ -119,6 +120,39 @@ namespace DummyOrm.Db.Impl
             return dbCmd;
         }
 
+        public void BeginTransaction(IsolationLevel isolationLevel = IsolationLevel.ReadCommitted)
+        {
+            if (_tran != null)
+            {
+                _tran = _conn.BeginTransaction(isolationLevel);
+            }
+        }
+
+        public void Commit()
+        {
+            if (_tran != null)
+            {
+                _tran.Commit();
+            }
+        }
+
+        public void Rollback()
+        {
+            if (_tran != null)
+            {
+                _tran.Rollback();
+            }
+        }
+
+        public void Dispose()
+        {
+            _conn.Dispose();
+            if (_tran != null)
+            {
+                _tran.Dispose();
+            }
+        }
+
         IDataReader ICommandExecutor.ExecuteReader(Command cmd)
         {
             using (var dbCmd = CreateCommand(cmd))
@@ -141,11 +175,6 @@ namespace DummyOrm.Db.Impl
             {
                 return dbCmd.ExecuteScalar();
             }
-        }
-
-        public void Dispose()
-        {
-            _conn.Dispose();
         }
     }
 }

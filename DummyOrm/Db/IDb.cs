@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq.Expressions;
 using DummyOrm.Sql;
 
@@ -8,6 +9,12 @@ namespace DummyOrm.Db
 {
     public interface IDb : IDisposable
     {
+        void BeginTransaction(IsolationLevel isolationLevel = IsolationLevel.ReadCommitted);
+
+        void Rollback();
+
+        void Commit();
+
         void Insert<T>(T entity) where T : class, new();
 
         void Update<T>(T entity) where T : class, new();

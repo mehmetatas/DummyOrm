@@ -11,7 +11,7 @@ namespace DummyOrm.Dynamix.Impl
         static ProxyFactory()
         {
             var assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(
-                new AssemblyName("DummyOrm2.Dynamix"),
+                new AssemblyName("DummyOrm.Dynamix"),
                 AssemblyBuilderAccess.Run);
 
             var assemblyName = assemblyBuilder.GetName().Name;
@@ -24,7 +24,7 @@ namespace DummyOrm.Dynamix.Impl
             var typeName = typeof(T).Name + "Proxy";
 
             var typeBuilder = ModuleBuilder.DefineType(
-                "DummyOrm2.Dynamix.Proxies." + typeName,
+                "DummyOrm.Dynamix.Proxies." + typeName,
                 TypeAttributes.Public | TypeAttributes.Class,
                 typeof(T),
                 new[] { typeof(IProxy) });
