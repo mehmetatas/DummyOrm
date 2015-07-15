@@ -41,6 +41,7 @@
   <ItemGroup>
     <Compile Include="Db\ICommandExecutor.cs" />
     <Compile Include="Db\IDb.cs" />
+    <Compile Include="Db\Impl\DbFactory.cs" />
     <Compile Include="Db\Impl\DbImpl.cs" />
     <Compile Include="Db\Impl\QueryImpl.cs" />
     <Compile Include="Db\IOrderByQuery.cs" />

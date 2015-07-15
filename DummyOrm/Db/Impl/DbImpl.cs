@@ -142,5 +142,10 @@ namespace DummyOrm.Db.Impl
                 return dbCmd.ExecuteScalar();
             }
         }
+
+        public void Dispose()
+        {
+            _conn.Dispose();
+        }
     }
 }

@@ -6,7 +6,7 @@ using DummyOrm.Sql;
 
 namespace DummyOrm.Db
 {
-    public interface IDb
+    public interface IDb : IDisposable
     {
         void Insert<T>(T entity) where T : class, new();
 

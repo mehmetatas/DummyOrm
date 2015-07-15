@@ -1,12 +1,12 @@
-﻿using System.Collections.Generic;
-using DummyOrm.ConsoleApp.Entities;
+﻿using DummyOrm.ConsoleApp.Entities;
 using DummyOrm.ConsoleApp.Models;
+using DummyOrm.Db;
 using DummyOrm.Db.Impl;
 using DummyOrm.Meta;
 using DummyOrm.Sql;
 using DummyOrm.Sql.Select;
 using System;
-using System.Data;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
@@ -62,10 +62,8 @@ left join [Like] pl on pl.PostId = p.Id
 group by
 	p.Id, p.UserId, u.Username, p.Title";
 
-            using (var conn = OpenConnection())
+            using (var db = OpenConnection())
             {
-                var db = new DbImpl(conn);
-
                 var list = db.Select<PostListModel>(new Command
                 {
                     CommandText = cmd,
@@ -81,10 +79,8 @@ group by
 
         private static void SelectList()
         {
-            using (var conn = OpenConnection())
+            using (var db = OpenConnection())
             {
-                var db = new DbImpl(conn);
-
                 var posts = db.Select<Post>().ToList();
 
                 db.Load(posts, p => p.Tags);
@@ -101,10 +97,8 @@ group by
 
         private static void SimpleCrudTestsAssociationEntity()
         {
-            using (var conn = OpenConnection())
+            using (var db = OpenConnection())
             {
-                var db = new DbImpl(conn);
-
                 var post = new Post { CreateDate = DateTime.Now, Title = "Test Post", User = new User { Id = 4 } };
                 var user = new User { JoinDate = DateTime.Now, Username = "Test User" };
 
@@ -138,10 +132,8 @@ group by
 
         private static void SimpleCrudTestsEntity()
         {
-            using (var conn = OpenConnection())
+            using (var db = OpenConnection())
             {
-                var db = new DbImpl(conn);
-
                 var user = new User
                 {
                     Username = "testuser1",
@@ -177,10 +169,8 @@ group by
             var userIds = new long[] { 1, 2, 3 };
             var post = new Post { Id = 12 };
 
-            using (var conn = OpenConnection())
+            using (var db = OpenConnection())
             {
-                var db = new DbImpl(conn);
-
                 Page<Like> page = null;
 
                 var sw = new Stopwatch();
@@ -211,11 +201,9 @@ group by
             }
         }
 
-        private static IDbConnection OpenConnection()
+        private static IDb OpenConnection()
         {
-            var conn = new System.Data.SqlClient.SqlConnection("Server=.;Database=DummyOrmTest;uid=sa;pwd=123456");
-            conn.Open();
-            return conn;
+            return DbFactory.Create("Server=.;Database=DummyOrmTest;uid=sa;pwd=123456");
         }
     }
 }
