@@ -1,6 +1,8 @@
-using DummyOrm.Execution;
 using System;
+using System.Data;
 using System.Reflection;
+using DummyOrm.Dynamix;
+using DummyOrm.Sql.Select;
 
 namespace DummyOrm.Meta
 {
@@ -8,36 +10,44 @@ namespace DummyOrm.Meta
     {
         public TableMeta Table { get; set; }
         public PropertyInfo Property { get; set; }
+        public DbType DbType { get; set; }
         public string ColumnName { get; set; }
         public bool Identity { get; set; }
         public bool AutoIncrement { get; set; }
+        public byte DecimalPrecision { get; set; }
+        public int StringLength { get; set; }
         public bool IsRefrence { get; set; }
-        public IGetterSetter GetterSetter { private get; set; }
-        
-        public object GetValue(object entity)
-        {
-            return GetterSetter.Get(entity);
-        }
+        public TableMeta ReferencedTable { get; set; }
+        public IGetterSetter GetterSetter { get; set; }
 
-        public void SetValue(object entity, object value)
+        /// <summary>
+        /// this = Like.Post
+        /// FROM Like l
+        /// JOIN Post p ON l.PostId = p.Id
+        /// </summary>
+        public Join CreateJoin(string key, string leftTableAlias, string rightTableAlias)
         {
-            GetterSetter.Set(entity, value);
-        }
-
-        public Type GetParamType()
-        {
-            if (!IsRefrence)
+            return new Join
             {
-                return Property.PropertyType;
-            }
-
-            var refTable = DbMeta.Instance.GetTable(Property.PropertyType);
-            return refTable.IdColumn.GetParamType();
-        }
-
-        public TableMeta GetReferencedTable()
-        {
-            return DbMeta.Instance.GetTable(Property.PropertyType);
+                LeftColumn = new Column
+                {
+                    Meta = this,
+                    Table = new Table
+                    {
+                        Alias = leftTableAlias,
+                        Meta = Table
+                    }
+                },
+                RightColumn = new Column
+                {
+                    Meta = ReferencedTable.IdColumn,
+                    Table = new Table
+                    {
+                        Alias = leftTableAlias + "_" + ReferencedTable.TableName + ReferencedTable.IdColumn.ColumnName,
+                        Meta = ReferencedTable
+                    }
+                }
+            };
         }
 
         public override string ToString()

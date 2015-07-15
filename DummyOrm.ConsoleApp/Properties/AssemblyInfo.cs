@@ -4,11 +4,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("DummyOrm.ConsoleApp")]
+[assembly: AssemblyTitle("DummyOrm")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("DummyOrm.ConsoleApp")]
+[assembly: AssemblyProduct("DummyOrm")]
 [assembly: AssemblyCopyright("Copyright ©  2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -19,7 +19,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("2945b553-3593-495f-b279-3f3ae48de8ed")]
+[assembly: Guid("a45fd2fc-31a2-4d2f-b5d1-90e1912d513d")]
 
 // Version information for an assembly consists of the following four values:
 //

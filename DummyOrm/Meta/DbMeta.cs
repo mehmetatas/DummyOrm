@@ -1,11 +1,11 @@
-using System.Collections.Generic;
-using DummyOrm.Execution;
 using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.Data;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
-using DummyOrm.Utils;
+using DummyOrm.Dynamix.Impl;
+using DummyOrm.Sql.SimpleCommands;
 
 namespace DummyOrm.Meta
 {
@@ -13,12 +13,28 @@ namespace DummyOrm.Meta
     {
         private readonly Hashtable _tables = new Hashtable();
         private readonly Hashtable _columns = new Hashtable();
+        private readonly Hashtable _associations = new Hashtable();
 
         public static readonly DbMeta Instance = new DbMeta();
 
         private DbMeta()
         {
 
+        }
+
+        public TableMeta GetTable(Type type)
+        {
+            return (TableMeta)_tables[type];
+        }
+
+        public ColumnMeta GetColumn(PropertyInfo prop)
+        {
+            return (ColumnMeta)_columns[prop];
+        }
+
+        public AssociationMeta GetAssociation(PropertyInfo prop)
+        {
+            return (AssociationMeta)_associations[prop];
         }
 
         public DbMeta Register(Type type)
@@ -30,12 +46,9 @@ namespace DummyOrm.Meta
                 Factory = PocoFactory.CreateFactory(type)
             };
 
-            var props =
-                type.GetProperties()
-                    .Where(p => !typeof(IEnumerable).IsAssignableFrom(p.PropertyType) ||
-                                p.PropertyType == typeof(string) ||
-                                p.PropertyType == typeof(byte[]))
-                    .ToList();
+            var props = type.GetProperties()
+                .Where(p => p.IsColumnProperty())
+                .ToList();
 
             var idProp = props.FirstOrDefault(p => p.Name == "Id");
 
@@ -45,9 +58,7 @@ namespace DummyOrm.Meta
 
             foreach (var prop in props)
             {
-                var isReference = prop.PropertyType.IsClass &&
-                                  prop.PropertyType != typeof(string) &&
-                                  prop.PropertyType != typeof(byte[]);
+                var isReference = prop.IsReferenceProperty();
 
                 var columnMeta = new ColumnMeta
                 {
@@ -55,6 +66,7 @@ namespace DummyOrm.Meta
                     Property = prop,
                     ColumnName = prop.Name,
                     IsRefrence = isReference,
+                    DbType = isReference ? DbType.Int64 : prop.PropertyType.GetDbType(),
                     GetterSetter = GetterSetter.Create(prop)
                 };
 
@@ -90,36 +102,81 @@ namespace DummyOrm.Meta
             }
 
             _tables.Add(type, tableMeta);
+            
+            SimpleCommandBuilder.RegisterAll(tableMeta);
+            PocoDeserializer.RegisterDefault(type);
 
             return this;
         }
 
-        public TableMeta GetTable(Type type)
+        public DbMeta BuildRelations()
         {
-            return (TableMeta)_tables[type];
+            BuildReferences();
+            BuildAssociations();
+
+            return this;
         }
 
-        public ColumnMeta GetColumn(PropertyInfo prop)
+        private void BuildAssociations()
         {
-            return (ColumnMeta)_columns[prop];
-        }
-    }
+            var allTables = _tables.Values.OfType<TableMeta>().ToArray();
+            foreach (var parentTable in allTables)
+            {
+                var parentType = parentTable.Type;
 
-    public static class DbMetaExtenisons
-    {
-        public static TableMeta GetTable<T>(this DbMeta dbMeta)
-        {
-            return dbMeta.GetTable(typeof(T));
+                var props = parentType.GetProperties()
+                    .Where(p => !p.IsColumnProperty() &&
+                                p.PropertyType.IsGenericType &&
+                                p.PropertyType.GetGenericTypeDefinition() == typeof(List<>))
+                    .ToList();
+
+                var associations = new List<AssociationMeta>();
+
+                foreach (var prop in props)
+                {
+                    var childType = prop.PropertyType.GetGenericArguments()[0];
+                    var childTable = GetTable(childType);
+
+                    var assocTable = allTables.FirstOrDefault(t =>
+                        t.AssociationTable &&
+                        t.Columns.Any(c => c.Identity && c.IsRefrence && c.ReferencedTable == parentTable) &&
+                        t.Columns.Any(c => c.Identity && c.IsRefrence && c.ReferencedTable == childTable));
+
+                    if (assocTable == null)
+                    {
+                        continue;
+                    }
+
+                    var parentColumn = assocTable.Columns.First(c => c.Identity && c.IsRefrence && c.ReferencedTable == parentTable);
+                    var childColumn = assocTable.Columns.First(c => c.Identity && c.IsRefrence && c.ReferencedTable == childTable);
+
+                    var assoc = new AssociationMeta
+                    {
+                        ListFactory = PocoFactory.CreateListFactory(prop.PropertyType),
+                        ListGetterSetter = GetterSetter.Create(prop),
+                        ChildColumn = childColumn,
+                        ParentColumn = parentColumn
+                    };
+
+                    assoc.Loader = new AssociationLoader(assoc);
+
+                    associations.Add(assoc);
+                    _associations.Add(prop, assoc);
+                }
+
+                parentTable.Associations = associations.ToArray();
+            }
         }
 
-        public static DbMeta Register<T>(this DbMeta dbMeta)
+        private void BuildReferences()
         {
-            return dbMeta.Register(typeof(T));
-        }
-
-        public static ColumnMeta GetColumn<T, TProp>(this DbMeta dbMeta, Expression<Func<T, TProp>> propExp)
-        {
-            return dbMeta.GetColumn(propExp.GetPropertyInfo());
+            foreach (var table in _tables.Values.OfType<TableMeta>())
+            {
+                foreach (var column in table.Columns.Where(c => c.IsRefrence))
+                {
+                    column.ReferencedTable = GetTable(column.Property.PropertyType);
+                }
+            }
         }
     }
 }

@@ -5,7 +5,7 @@ namespace DummyOrm.ConsoleApp.Entities
     public class ConfirmationCode
     {
         public virtual long Id { get; set; }
-        public virtual long UserId { get; set; }
+        public virtual User User { get; set; }
         public virtual string Code { get; set; }
         public virtual DateTime SendDate { get; set; }
         public virtual DateTime ExpireDate { get; set; }

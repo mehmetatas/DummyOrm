@@ -5,7 +5,7 @@ namespace DummyOrm.ConsoleApp.Entities
     public class Login
     {
         public virtual long Id { get; set; }
-        public virtual long UserId { get; set; }
+        public virtual User User { get; set; }
         public virtual DateTime Date { get; set; }
         public virtual string Username { get; set; }
         public virtual string Email { get; set; }
