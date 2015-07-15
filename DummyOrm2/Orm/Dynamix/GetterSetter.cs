@@ -83,12 +83,12 @@ namespace DummyOrm2.Orm.Dynamix
                 _typeConverter = CreateTypeConverter(typeof(TProp));
             }
 
-            object IGetterSetter.Get(object obj)
+            object IGetter.Get(object obj)
             {
                 return _getter((T)obj);
             }
 
-            void IGetterSetter.Set(object obj, object value)
+            void ISetter.Set(object obj, object value)
             {
                 if (value == null || value is DBNull)
                 {

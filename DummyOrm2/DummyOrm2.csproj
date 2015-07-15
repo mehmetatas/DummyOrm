@@ -65,10 +65,9 @@
     <Compile Include="Entities\User.cs" />
     <Compile Include="Orm\Db\DbImpl.cs" />
     <Compile Include="Orm\Db\IDb.cs" />
-    <Compile Include="Orm\Db\IFillQuery.cs" />
     <Compile Include="Orm\Db\IOrderByQuery.cs" />
     <Compile Include="Orm\Db\IQuery.cs" />
-    <Compile Include="Orm\Db\IQueryExecuter.cs" />
+    <Compile Include="Orm\Db\ICommandExecutor.cs" />
     <Compile Include="Orm\Db\IQueryExecution.cs" />
     <Compile Include="Orm\Db\IWhereQuery.cs" />
     <Compile Include="Orm\Db\QueryImpl.cs" />
@@ -81,6 +80,7 @@
     <Compile Include="Orm\Dynamix\IProxyValues.cs" />
     <Compile Include="Orm\Dynamix\IGetterSetter.cs" />
     <Compile Include="Orm\Dynamix\PocoFactory.cs" />
+    <Compile Include="Orm\Meta\AssociationMeta.cs" />
     <Compile Include="Orm\Meta\ColumnMeta.cs" />
     <Compile Include="Orm\Meta\DbMeta.cs" />
     <Compile Include="Orm\Meta\DbMetaExtenisons.cs" />

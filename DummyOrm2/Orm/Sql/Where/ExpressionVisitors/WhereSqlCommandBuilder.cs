@@ -135,6 +135,8 @@ namespace DummyOrm2.Orm.Sql.Where.ExpressionVisitors
 
             e.Value.Value = value;
 
+            e.Value.ColumnMeta = e.Column.Column.Meta;
+
             Visit(e.Value);
         }
 
@@ -151,7 +153,8 @@ namespace DummyOrm2.Orm.Sql.Where.ExpressionVisitors
                 _sql.Append(comma);
                 Visit(new ValueExpression
                 {
-                    Value = val
+                    Value = val,
+                    ColumnMeta = e.Column.Column.Meta
                 });
                 comma = ",";
             }

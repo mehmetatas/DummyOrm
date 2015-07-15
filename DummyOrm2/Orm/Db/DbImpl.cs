@@ -1,13 +1,13 @@
 using System;
-using System.Collections;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Linq.Expressions;
 using DummyOrm2.Orm.Dynamix;
 using DummyOrm2.Orm.Meta;
 using DummyOrm2.Orm.Sql;
-using DummyOrm2.Orm.Sql.Select;
 using DummyOrm2.Orm.Sql.SimpleCommands;
+using System.Linq.Expressions;
+using System.Collections;
 
 namespace DummyOrm2.Orm.Db
 {
@@ -47,11 +47,6 @@ namespace DummyOrm2.Orm.Db
             _cmdExec.ExecuteNonQuery(cmd);
         }
 
-        public void Delete<T>(Expression<Func<T, bool>> filter) where T : class, new()
-        {
-            throw new NotImplementedException();
-        }
-
         public T GetById<T>(object id) where T : class, new()
         {
             var cmd = SimpleCommandBuilder.Select.BuildById<T>(id);
@@ -71,14 +66,10 @@ namespace DummyOrm2.Orm.Db
             return new QueryImpl<T>(this);
         }
 
-        public IFillQuery<T> Select<T>(Expression<Func<T, IList>> list) where T : class, new()
+        public void Load<T>(IList<T> entities, Expression<Func<T, IList>> listExp) where T : class, new()
         {
-            throw new NotImplementedException();
-        }
-
-        public T CreateProxy<T>() where T : class, new()
-        {
-            throw new NotImplementedException();
+            var assoc = DbMeta.Instance.GetAssociation(listExp);
+            assoc.Loader.Load(entities, this);
         }
 
         private IDbCommand CreateCommand(SqlCommand sqlCmd)
@@ -91,9 +82,24 @@ namespace DummyOrm2.Orm.Db
             {
                 var param = cmd.CreateParameter();
 
+                // TODO: sqlParameter.Value.ColumnMeta Should never be null
+                DbType dbType;
+                if (sqlParameter.Value.ColumnMeta != null)
+                {
+                    dbType = sqlParameter.Value.ColumnMeta.DbType;
+                }
+                else if (sqlParameter.Value.Value != null)
+                {
+                    dbType = sqlParameter.Value.Value.GetType().GetDbType();
+                }
+                else
+                {
+                    dbType = DbType.Object;
+                }
+
                 param.ParameterName = sqlParameter.Key;
                 param.Value = sqlParameter.Value.Value ?? DBNull.Value;
-                param.DbType = sqlParameter.Value.ColumnMeta.DbType;
+                param.DbType = dbType;
 
                 // TODO: Fix parameter properties
                 //param.Precision = sqlParameter.Value.ColumnMeta.DecimalPrecision;

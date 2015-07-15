@@ -1,4 +1,5 @@
-﻿using DummyOrm2.Entities;
+﻿using System.Collections.Generic;
+using DummyOrm2.Entities;
 using DummyOrm2.Orm.Db;
 using DummyOrm2.Orm.Meta;
 using DummyOrm2.Orm.Sql.Select;
@@ -24,9 +25,34 @@ namespace DummyOrm2
                 DbMeta.Instance.Register(entityClass);
             }
 
+            DbMeta.Instance.BuildRelations();
+
+            SelectList();
             SimpleCrudTestsAssociationEntity();
+            SimpleCrudTestsEntity();
+            SelectTests();
 
             Console.ReadLine();
+        }
+
+        private static void SelectList()
+        {
+            using (var conn = OpenConnection())
+            {
+                var db = new DbImpl(conn);
+
+                var posts = db.Select<Post>().ToList();
+
+                db.Load(posts, p => p.Tags);
+
+                foreach (var post in posts.Where(p => p.Tags != null))
+                {
+                    foreach (var tag in post.Tags)
+                    {
+                        Console.WriteLine(tag.Name);
+                    }
+                }
+            }
         }
 
         private static void SimpleCrudTestsAssociationEntity()

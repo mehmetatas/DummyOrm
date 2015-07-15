@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Linq.Expressions;
 
 namespace DummyOrm2.Orm.Dynamix
@@ -13,6 +14,12 @@ namespace DummyOrm2.Orm.Dynamix
         public static Func<object> CreateFactory(Type pocoType)
         {
             return (Func<object>)Expression.Lambda(typeof(Func<object>), Expression.New(pocoType)).Compile();
+        }
+
+        public static Func<IList> CreateListFactory(Type listType)
+        {
+            var funType = typeof(Func<>).MakeGenericType(listType);
+            return (Func<IList>)Expression.Lambda(funType, Expression.New(listType)).Compile();
         }
     }
 }

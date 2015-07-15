@@ -14,16 +14,11 @@ namespace DummyOrm2.Orm.Meta
         public string ColumnName { get; set; }
         public bool Identity { get; set; }
         public bool AutoIncrement { get; set; }
-        public bool IsRefrence { get; set; }
         public byte DecimalPrecision { get; set; }
         public int StringLength { get; set; }
+        public bool IsRefrence { get; set; }
+        public TableMeta ReferencedTable { get; set; }
         public IGetterSetter GetterSetter { get; set; }
-
-        private TableMeta _referencedTable;
-        public TableMeta ReferencedTable
-        {
-            get { return _referencedTable ?? (_referencedTable = DbMeta.Instance.GetTable(Property.PropertyType)); }
-        }
 
         /// <summary>
         /// this = Like.Post

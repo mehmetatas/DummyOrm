@@ -19,5 +19,10 @@ namespace DummyOrm2.Orm.Meta
         {
             return dbMeta.GetColumn(propExp.GetPropertyInfo());
         }
+
+        public static AssociationMeta GetAssociation<T, TProp>(this DbMeta dbMeta, Expression<Func<T, TProp>> propExp) where T : class, new()
+        {
+            return dbMeta.GetAssociation(propExp.GetPropertyInfo());
+        }
     }
 }

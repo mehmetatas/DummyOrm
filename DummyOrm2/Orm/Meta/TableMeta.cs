@@ -1,6 +1,4 @@
 using System;
-using System.Linq;
-using System.Reflection;
 
 namespace DummyOrm2.Orm.Meta
 {
@@ -12,18 +10,10 @@ namespace DummyOrm2.Orm.Meta
         public bool AssociationTable { get; set; }
         public ColumnMeta IdColumn { get; set; }
 
+        public AssociationMeta[] Associations { get; set; }
+
         public Func<object> Factory { get; set; }
-
-        public ColumnMeta this[string colName]
-        {
-            get { return Columns.First(c => c.ColumnName == colName); }
-        }
-
-        public ColumnMeta GetColumn(PropertyInfo propInf)
-        {
-            return Columns.First(c => c.Property == propInf);
-        }
-
+        
         public override string ToString()
         {
             return TableName;

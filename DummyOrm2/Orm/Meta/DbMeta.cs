@@ -5,7 +5,6 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using DummyOrm2.Orm.Dynamix;
-using DummyOrm2.Orm.Sql;
 using DummyOrm2.Orm.Sql.SimpleCommands;
 
 namespace DummyOrm2.Orm.Meta
@@ -14,12 +13,28 @@ namespace DummyOrm2.Orm.Meta
     {
         private readonly Hashtable _tables = new Hashtable();
         private readonly Hashtable _columns = new Hashtable();
+        private readonly Hashtable _associations = new Hashtable();
 
         public static readonly DbMeta Instance = new DbMeta();
 
         private DbMeta()
         {
 
+        }
+
+        public TableMeta GetTable(Type type)
+        {
+            return (TableMeta)_tables[type];
+        }
+
+        public ColumnMeta GetColumn(PropertyInfo prop)
+        {
+            return (ColumnMeta)_columns[prop];
+        }
+
+        public AssociationMeta GetAssociation(PropertyInfo prop)
+        {
+            return (AssociationMeta)_associations[prop];
         }
 
         public DbMeta Register(Type type)
@@ -94,14 +109,74 @@ namespace DummyOrm2.Orm.Meta
             return this;
         }
 
-        public TableMeta GetTable(Type type)
+        public DbMeta BuildRelations()
         {
-            return (TableMeta)_tables[type];
+            BuildReferences();
+            BuildAssociations();
+
+            return this;
         }
 
-        public ColumnMeta GetColumn(PropertyInfo prop)
+        private void BuildAssociations()
         {
-            return (ColumnMeta)_columns[prop];
+            var allTables = _tables.Values.OfType<TableMeta>().ToArray();
+            foreach (var parentTable in allTables)
+            {
+                var parentType = parentTable.Type;
+
+                var props = parentType.GetProperties()
+                    .Where(p => !p.IsColumnProperty() &&
+                                p.PropertyType.IsGenericType &&
+                                p.PropertyType.GetGenericTypeDefinition() == typeof(List<>))
+                    .ToList();
+
+                var associations = new List<AssociationMeta>();
+
+                foreach (var prop in props)
+                {
+                    var childType = prop.PropertyType.GetGenericArguments()[0];
+                    var childTable = GetTable(childType);
+
+                    var assocTable = allTables.FirstOrDefault(t =>
+                        t.AssociationTable &&
+                        t.Columns.Any(c => c.Identity && c.IsRefrence && c.ReferencedTable == parentTable) &&
+                        t.Columns.Any(c => c.Identity && c.IsRefrence && c.ReferencedTable == childTable));
+
+                    if (assocTable == null)
+                    {
+                        continue;
+                    }
+
+                    var parentColumn = assocTable.Columns.First(c => c.Identity && c.IsRefrence && c.ReferencedTable == parentTable);
+                    var childColumn = assocTable.Columns.First(c => c.Identity && c.IsRefrence && c.ReferencedTable == childTable);
+
+                    var assoc = new AssociationMeta
+                    {
+                        ListFactory = PocoFactory.CreateListFactory(prop.PropertyType),
+                        ListGetterSetter = GetterSetter.Create(prop),
+                        ChildColumn = childColumn,
+                        ParentColumn = parentColumn
+                    };
+
+                    assoc.Loader = new AssociationLoader(assoc);
+
+                    associations.Add(assoc);
+                    _associations.Add(prop, assoc);
+                }
+
+                parentTable.Associations = associations.ToArray();
+            }
+        }
+
+        private void BuildReferences()
+        {
+            foreach (var table in _tables.Values.OfType<TableMeta>())
+            {
+                foreach (var column in table.Columns.Where(c => c.IsRefrence))
+                {
+                    column.ReferencedTable = GetTable(column.Property.PropertyType);
+                }
+            }
         }
     }
 }
