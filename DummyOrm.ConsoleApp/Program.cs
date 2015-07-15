@@ -38,10 +38,10 @@ namespace DummyOrm.ConsoleApp
             DbMeta.Instance.BuildRelations();
 
             SelectModel();
-            //SelectList();
-            //SimpleCrudTestsAssociationEntity();
-            //SimpleCrudTestsEntity();
-            //SelectTests();
+            SelectList();
+            SimpleCrudTestsAssociationEntity();
+            SimpleCrudTestsEntity();
+            SelectTests();
 
             Console.ReadLine();
         }

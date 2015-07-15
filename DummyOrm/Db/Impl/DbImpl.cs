@@ -15,6 +15,7 @@ namespace DummyOrm.Db.Impl
     {
         private readonly IDbConnection _conn;
         private readonly ICommandExecutor _cmdExec;
+
         public DbImpl(IDbConnection conn)
         {
             _conn = conn;
@@ -90,15 +91,15 @@ namespace DummyOrm.Db.Impl
             assoc.Loader.Load(entities, this);
         }
 
-        private IDbCommand CreateCommand(Command sqlCmd)
+        private IDbCommand CreateCommand(Command cmd)
         {
-            var cmd = _conn.CreateCommand();
+            var dbCmd = _conn.CreateCommand();
 
-            cmd.CommandText = sqlCmd.CommandText;
+            dbCmd.CommandText = cmd.CommandText;
 
-            foreach (var sqlParameter in sqlCmd.Parameters)
+            foreach (var sqlParameter in cmd.Parameters)
             {
-                var param = cmd.CreateParameter();
+                var param = dbCmd.CreateParameter();
 
                 param.ParameterName = sqlParameter.Key;
                 param.Value = sqlParameter.Value.Value ?? DBNull.Value;
@@ -106,39 +107,39 @@ namespace DummyOrm.Db.Impl
                 param.Precision = sqlParameter.Value.ColumnMeta.DecimalPrecision;
                 param.Size = sqlParameter.Value.ColumnMeta.StringLength;
 
-                cmd.Parameters.Add(param);
+                dbCmd.Parameters.Add(param);
             }
 #if DEBUG
-            Console.WriteLine(cmd.CommandText);
-            foreach (var param in cmd.Parameters.Cast<IDbDataParameter>())
+            Console.WriteLine(dbCmd.CommandText);
+            foreach (var param in dbCmd.Parameters.Cast<IDbDataParameter>())
             {
                 Console.WriteLine("{0}: {1}", param.ParameterName, param.Value);
             }
 #endif
-            return cmd;
+            return dbCmd;
         }
 
-        IDataReader ICommandExecutor.ExecuteReader(Command sqlCmd)
+        IDataReader ICommandExecutor.ExecuteReader(Command cmd)
         {
-            using (var cmd = CreateCommand(sqlCmd))
+            using (var dbCmd = CreateCommand(cmd))
             {
-                return cmd.ExecuteReader();
+                return dbCmd.ExecuteReader();
             }
         }
 
-        int ICommandExecutor.ExecuteNonQuery(Command sqlCmd)
+        int ICommandExecutor.ExecuteNonQuery(Command cmd)
         {
-            using (var cmd = CreateCommand(sqlCmd))
+            using (var dbCmd = CreateCommand(cmd))
             {
-                return cmd.ExecuteNonQuery();
+                return dbCmd.ExecuteNonQuery();
             }
         }
 
-        object ICommandExecutor.ExecuteScalar(Command sqlCmd)
+        object ICommandExecutor.ExecuteScalar(Command cmd)
         {
-            using (var cmd = CreateCommand(sqlCmd))
+            using (var dbCmd = CreateCommand(cmd))
             {
-                return cmd.ExecuteScalar();
+                return dbCmd.ExecuteScalar();
             }
         }
     }

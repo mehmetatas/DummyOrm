@@ -5,8 +5,8 @@ namespace DummyOrm.Db
 {
     public interface ICommandExecutor
     {
-        int ExecuteNonQuery(Command sqlCmd);
-        object ExecuteScalar(Command sqlCmd);
-        IDataReader ExecuteReader(Command sqlCmd);
+        int ExecuteNonQuery(Command cmd);
+        object ExecuteScalar(Command cmd);
+        IDataReader ExecuteReader(Command cmd);
     }
 }

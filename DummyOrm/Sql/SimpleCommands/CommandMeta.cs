@@ -35,7 +35,7 @@ namespace DummyOrm.Sql.SimpleCommands
                 parameters.Add(paramName, new CommandParameter
                 {
                     Name = paramName,
-                    Value = value ?? DBNull.Value,
+                    Value = value,
                     ColumnMeta = colMeta
                 });
             }
