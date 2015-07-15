@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
 using DummyOrm2.Orm.Meta;
@@ -10,10 +11,10 @@ namespace DummyOrm2.Orm.Db
 {
     public class QueryImpl<T> : IQuery<T>, ISelectQueryBuilder<T> where T : class, new()
     {
-        private readonly IQueryExecuter _queryExecuter;
+        private readonly ICommandExecutor _queryExecuter;
         private readonly SelectQuery<T> _query;
 
-        public QueryImpl(IQueryExecuter queryExecuter)
+        public QueryImpl(ICommandExecutor queryExecuter)
         {
             _query = new SelectQuery<T>();
             _queryExecuter = queryExecuter;
@@ -109,9 +110,7 @@ namespace DummyOrm2.Orm.Db
 
         public T FirstOrDefault()
         {
-            var query = Build();
-
-            using (var reader = _queryExecuter.Execute(query))
+            using (var reader = ExecuteReader())
             {
                 if (!reader.Read())
                 {
@@ -125,9 +124,7 @@ namespace DummyOrm2.Orm.Db
 
         public IList<T> ToList()
         {
-            var query = Build();
-
-            using (var reader = _queryExecuter.Execute(query))
+            using (var reader = ExecuteReader())
             {
                 var list = new List<T>();
                 var mapper = _query.CreateDeserializer();
@@ -145,9 +142,7 @@ namespace DummyOrm2.Orm.Db
         {
             _query.SetPage(page, pageSize);
 
-            var query = Build();
-
-            using (var reader = _queryExecuter.Execute(query))
+            using (var reader = ExecuteReader())
             {
                 var list = new List<T>();
                 var mapper = _query.CreateDeserializer();
@@ -188,6 +183,18 @@ namespace DummyOrm2.Orm.Db
             }
 
             return _query;
+        }
+
+        private IDataReader ExecuteReader()
+        {
+            var query = BuildCommand();
+            return _queryExecuter.ExecuteReader(query);
+        }
+
+        private SqlCommand BuildCommand()
+        {
+            var query = Build();
+            return SqlServerSelectSqlCommandBuilderImpl.Instance.Build(query);
         }
     }
 }

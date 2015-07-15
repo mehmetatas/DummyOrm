@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using DummyOrm.Meta;
+using DummyOrm2.Orm.Meta;
 
-namespace DummyOrm.Sql.QueryBuilders
+namespace DummyOrm2.Orm.Sql.SimpleCommands
 {
     public class SqlCommandMeta
     {
@@ -13,23 +13,42 @@ namespace DummyOrm.Sql.QueryBuilders
 
         private SqlCommandMeta()
         {
-            
+
         }
 
         public SqlCommand CreateCommand(object entity)
         {
-            var parameters = ParameterMeta.ToDictionary(kv => kv.Key, kv => new SqlCommandParameter
+            var parameters = new Dictionary<string, SqlParameter>();
+
+            foreach (var kv in ParameterMeta)
             {
-                Name = kv.Key,
-                Value = kv.Value.GetValue(entity) ?? DBNull.Value,
-                Type = kv.Value.GetParamType()
-            });
-            return new SqlCommand(CommandText, parameters);
+                var paramName = kv.Key;
+                var colMeta = kv.Value;
+
+                var value = colMeta.GetterSetter.Get(entity);
+
+                if (colMeta.IsRefrence && value != null)
+                {
+                    value = colMeta.ReferencedTable.IdColumn.GetterSetter.Get(value);
+                }
+
+                parameters.Add(paramName, new SqlParameter
+                {
+                    Name = paramName,
+                    Value = value ?? DBNull.Value,
+                    ColumnMeta = colMeta
+                });
+            }
+
+            return new SqlCommand
+            {
+                CommandText = CommandText,
+                Parameters = parameters
+            };
         }
 
-        public static SqlCommandMeta CreateInsertCommandMeta(Type type)
+        public static SqlCommandMeta CreateInsertCommandMeta(TableMeta table)
         {
-            var table = DbMeta.Instance.GetTable(type);
             var columns = table.Columns;
 
             var sql = new StringBuilder()
@@ -69,9 +88,8 @@ namespace DummyOrm.Sql.QueryBuilders
             };
         }
 
-        public static SqlCommandMeta CreateUpdateCommandMeta(Type type)
+        public static SqlCommandMeta CreateUpdateCommandMeta(TableMeta table)
         {
-            var table = DbMeta.Instance.GetTable(type);
             var columns = table.Columns;
 
             var parameterMeta = new Dictionary<string, ColumnMeta>();
@@ -103,9 +121,8 @@ namespace DummyOrm.Sql.QueryBuilders
             };
         }
 
-        public static SqlCommandMeta CreateDeleteCommandMeta(Type type)
+        public static SqlCommandMeta CreateDeleteCommandMeta(TableMeta table)
         {
-            var table = DbMeta.Instance.GetTable(type);
             var columns = table.Columns;
 
             var parameterMeta = new Dictionary<string, ColumnMeta>();
@@ -124,9 +141,8 @@ namespace DummyOrm.Sql.QueryBuilders
             };
         }
 
-        public static SqlCommandMeta CreateSelectCommandMeta(Type type)
+        public static SqlCommandMeta CreateSelectCommandMeta(TableMeta table)
         {
-            var table = DbMeta.Instance.GetTable(type);
             var columns = table.Columns;
 
             var parameterMeta = new Dictionary<string, ColumnMeta>();

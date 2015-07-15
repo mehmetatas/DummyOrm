@@ -11,6 +11,8 @@ namespace DummyOrm2.Orm.Sql
 {
     public class SqlServerSelectSqlCommandBuilderImpl : ISelectSqlCommandBuilder
     {
+        public readonly static SqlServerSelectSqlCommandBuilderImpl Instance = new SqlServerSelectSqlCommandBuilderImpl();
+
         public SqlCommand Build<T>(SelectQuery<T> query) where T : class, new()
         {
             var cmd = new StringBuilder();

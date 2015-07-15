@@ -3,6 +3,7 @@ using DummyOrm2.Orm.Db;
 using DummyOrm2.Orm.Meta;
 using DummyOrm2.Orm.Sql.Select;
 using System;
+using System.Data;
 using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Linq;
@@ -23,12 +24,91 @@ namespace DummyOrm2
                 DbMeta.Instance.Register(entityClass);
             }
 
+            SimpleCrudTestsAssociationEntity();
+
+            Console.ReadLine();
+        }
+
+        private static void SimpleCrudTestsAssociationEntity()
+        {
+            using (var conn = OpenConnection())
+            {
+                var db = new DbImpl(conn);
+
+                var post = new Post { CreateDate = DateTime.Now, Title = "Test Post" };
+                var user = new User { JoinDate = DateTime.Now, Username = "Test User" };
+
+                db.Insert(post);
+                db.Insert(user);
+
+                var like = new Like
+                {
+                    Post = post,
+                    User = user,
+                    LikedDate = DateTime.Now
+                };
+
+                db.Insert(like);
+
+                like = db.GetById<Like>(like);
+                Console.WriteLine(like.LikedDate);
+
+                like.LikedDate = DateTime.Now.AddDays(2);
+                db.Update(like);
+
+                like = db.GetById<Like>(like);
+                Console.WriteLine(like.LikedDate);
+
+                db.Delete(like);
+
+                like = db.GetById<Like>(like);
+                Console.WriteLine(like == null);
+            }
+        }
+
+        private static void SimpleCrudTestsEntity()
+        {
+            using (var conn = OpenConnection())
+            {
+                var db = new DbImpl(conn);
+
+                var user = new User
+                {
+                    Username = "testuser1",
+                    Fullname = "Test User1",
+                    FacebookId = "23345",
+                    Email = "testuser1@mail.com",
+                    JoinDate = DateTime.Now,
+                    Status = UserStatus.AwaitingActivation,
+                    Type = UserType.Admin,
+                    Password = "1234"
+                };
+
+                db.Insert(user);
+
+                user = db.GetById<User>(user.Id);
+                Console.WriteLine(user.Username);
+
+                user.Username = "testuser" + DateTime.Now.Ticks;
+                db.Update(user);
+
+                user = db.GetById<User>(user.Id);
+                Console.WriteLine(user.Username);
+
+                db.Delete(user);
+
+                user = db.GetById<User>(user.Id);
+                Console.WriteLine(user == null);
+            }
+        }
+
+        private static void SelectTests()
+        {
             var userIds = new long[] { 1, 2, 3 };
             var post = new Post { Id = 12 };
 
-            using (var conn = new SqlConnection("Server=.;Database=TagKid2;uid=sa;pwd=123456"))
+            using (var conn = OpenConnection())
             {
-                conn.Open();
                 var db = new DbImpl(conn);
 
                 Page<Like> page = null;
@@ -59,7 +139,13 @@ namespace DummyOrm2
 
                 Console.WriteLine(sw.ElapsedMilliseconds);
             }
-            Console.ReadLine();
+        }
+
+        private static IDbConnection OpenConnection()
+        {
+            var conn = new SqlConnection("Server=.;Database=TagKid2;uid=sa;pwd=123456");
+            conn.Open();
+            return conn;
         }
     }
 }

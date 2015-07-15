@@ -84,6 +84,7 @@
     <Compile Include="Orm\Meta\ColumnMeta.cs" />
     <Compile Include="Orm\Meta\DbMeta.cs" />
     <Compile Include="Orm\Meta\DbMetaExtenisons.cs" />
+    <Compile Include="Orm\Sql\SimpleCommands\SimpleCommandBuilder.cs" />
     <Compile Include="Orm\Sql\Select\Column.cs" />
     <Compile Include="Orm\Sql\Select\IWhereExpressionListener.cs" />
     <Compile Include="Orm\Sql\Select\SelectQuery.cs" />
@@ -93,6 +94,9 @@
     <Compile Include="Orm\Sql\Select\OrderBy.cs" />
     <Compile Include="Orm\Sql\Select\Page.cs" />
     <Compile Include="Orm\Sql\Select\Table.cs" />
+    <Compile Include="Orm\Sql\SimpleCommands\IReadCommandBuilder.cs" />
+    <Compile Include="Orm\Sql\SimpleCommands\ISimpleCommandBuilder.cs" />
+    <Compile Include="Orm\Sql\SimpleCommands\SqlCommandMeta.cs" />
     <Compile Include="Orm\Sql\SqlCommand.cs" />
     <Compile Include="Orm\Sql\SqlServerSelectSqlCommandBuilderImpl.cs" />
     <Compile Include="Orm\Sql\Where\Evaluator.cs" />

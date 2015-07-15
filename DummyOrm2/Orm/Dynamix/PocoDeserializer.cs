@@ -1,6 +1,8 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using DummyOrm2.Orm.Meta;
 
 namespace DummyOrm2.Orm.Dynamix
@@ -43,7 +45,7 @@ namespace DummyOrm2.Orm.Dynamix
                     }
 
                     var refObj = columnMeta.GetterSetter.Get(tmp);
-                    
+
                     if (refObj == null)
                     {
                         refObj = columnMeta.ReferencedTable.Factory();
@@ -64,6 +66,34 @@ namespace DummyOrm2.Orm.Dynamix
             }
 
             return entity;
+        }
+
+        private static readonly Hashtable DefaultDeserializers = new Hashtable();
+
+        public static IPocoDeserializer GetDefault<T>() where T : class,new()
+        {
+            return GetDefault(typeof(T));
+        }
+
+        public static void RegisterDefault<T>() where T : class,new()
+        {
+            RegisterDefault(typeof(T));
+        }
+
+        public static void RegisterDefault(Type type)
+        {
+            var tableMeta = DbMeta.Instance.GetTable(type);
+
+            var propChain = tableMeta.Columns.ToDictionary(c => c.ColumnName, c => (IEnumerable<ColumnMeta>)new[] { c });
+
+            var deserializer = new PocoDeserializer(tableMeta.Factory, propChain);
+
+            DefaultDeserializers.Add(type, deserializer);
+        }
+
+        public static IPocoDeserializer GetDefault(Type type)
+        {
+            return (IPocoDeserializer)DefaultDeserializers[type];
         }
     }
 }

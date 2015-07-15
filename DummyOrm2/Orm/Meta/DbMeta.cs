@@ -5,6 +5,8 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using DummyOrm2.Orm.Dynamix;
+using DummyOrm2.Orm.Sql;
+using DummyOrm2.Orm.Sql.SimpleCommands;
 
 namespace DummyOrm2.Orm.Meta
 {
@@ -85,6 +87,9 @@ namespace DummyOrm2.Orm.Meta
             }
 
             _tables.Add(type, tableMeta);
+            
+            SimpleCommandBuilder.RegisterAll(tableMeta);
+            PocoDeserializer.RegisterDefault(type);
 
             return this;
         }

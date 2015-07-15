@@ -1,10 +1,12 @@
 using System.Data;
-using DummyOrm2.Orm.Sql.Select;
+using DummyOrm2.Orm.Sql;
 
 namespace DummyOrm2.Orm.Db
 {
-    public interface IQueryExecuter
+    public interface ICommandExecutor
     {
-        IDataReader Execute<T>(SelectQuery<T> query) where T : class, new();
+        int ExecuteNonQuery(SqlCommand sqlCmd);
+        object ExecuteScalar(SqlCommand sqlCmd);
+        IDataReader ExecuteReader(SqlCommand sqlCmd);
     }
 }
