@@ -77,7 +77,8 @@ namespace DummyOrm.Sql.Where.ExpressionVisitors
             _parameters.Add(paramName, new SqlParameter
             {
                 Name = paramName,
-                Value = e.Value
+                Value = e.Value,
+                ColumnMeta = e.ColumnMeta
             });
         }
 
@@ -135,8 +136,6 @@ namespace DummyOrm.Sql.Where.ExpressionVisitors
 
             e.Value.Value = value;
 
-            e.Value.ColumnMeta = e.Column.Column.Meta;
-
             Visit(e.Value);
         }
 
@@ -151,11 +150,13 @@ namespace DummyOrm.Sql.Where.ExpressionVisitors
             foreach (var val in values)
             {
                 _sql.Append(comma);
+
                 Visit(new ValueExpression
                 {
-                    Value = val,
-                    ColumnMeta = e.Column.Column.Meta
+                    Value = val, 
+                    ColumnMeta = e.Values.ColumnMeta
                 });
+
                 comma = ",";
             }
             _sql.Append(")");

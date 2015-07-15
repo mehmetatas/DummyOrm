@@ -32,6 +32,9 @@ namespace DummyOrm.Sql.Where.ExpressionBuilders
 
         public override IWhereExpression Build()
         {
+            FixColumnMeta(_expression.Operand1 as ValueExpression, _expression.Operand2 as ColumnExpression);
+            FixColumnMeta(_expression.Operand2 as ValueExpression, _expression.Operand1 as ColumnExpression);
+
             return _expression;
         }
     }

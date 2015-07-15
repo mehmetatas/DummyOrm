@@ -82,28 +82,11 @@ namespace DummyOrm.Db.Impl
             {
                 var param = cmd.CreateParameter();
 
-                // TODO: sqlParameter.Value.ColumnMeta Should never be null
-                DbType dbType;
-                if (sqlParameter.Value.ColumnMeta != null)
-                {
-                    dbType = sqlParameter.Value.ColumnMeta.DbType;
-                }
-                else if (sqlParameter.Value.Value != null)
-                {
-                    dbType = sqlParameter.Value.Value.GetType().GetDbType();
-                }
-                else
-                {
-                    dbType = DbType.Object;
-                }
-
                 param.ParameterName = sqlParameter.Key;
                 param.Value = sqlParameter.Value.Value ?? DBNull.Value;
-                param.DbType = dbType;
-
-                // TODO: Fix parameter properties
-                //param.Precision = sqlParameter.Value.ColumnMeta.DecimalPrecision;
-                //param.Size = sqlParameter.Value.ColumnMeta.StringLength;
+                param.DbType = sqlParameter.Value.ColumnMeta.DbType;
+                param.Precision = sqlParameter.Value.ColumnMeta.DecimalPrecision;
+                param.Size = sqlParameter.Value.ColumnMeta.StringLength;
 
                 cmd.Parameters.Add(param);
             }

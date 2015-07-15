@@ -61,7 +61,7 @@ namespace DummyOrm.ConsoleApp
             {
                 var db = new DbImpl(conn);
 
-                var post = new Post { CreateDate = DateTime.Now, Title = "Test Post" };
+                var post = new Post { CreateDate = DateTime.Now, Title = "Test Post", User = new User { Id = 4 } };
                 var user = new User { JoinDate = DateTime.Now, Username = "Test User" };
 
                 db.Insert(post);
@@ -151,7 +151,7 @@ namespace DummyOrm.ConsoleApp
                             DateTime.Now.ToUniversalTime().ToLocalTime().ToUniversalTime() > l.User.JoinDate &&
                             userIds.Contains(l.User.Id) &&
                             l.Post.User.Username.StartsWith("taga".Substring(0, 2)) &&
-                            l.Post.User != l.User)
+                            l.Post.User != l.User                            )
                         .Where(l => l.Post.Id != post.Id)
                         .OrderBy(l => l.Post.User)
                         .OrderByDesc(l => l.LikedDate)
@@ -169,7 +169,7 @@ namespace DummyOrm.ConsoleApp
 
         private static IDbConnection OpenConnection()
         {
-            var conn = new SqlConnection("Server=.;Database=TagKid2;uid=sa;pwd=123456");
+            var conn = new SqlConnection("Server=.;Database=DummyOrmTest;uid=sa;pwd=123456");
             conn.Open();
             return conn;
         }

@@ -50,5 +50,13 @@ namespace DummyOrm.Sql.Where.ExpressionVisitors
         }
 
         public abstract IWhereExpression Build();
+
+        protected static void FixColumnMeta(ValueExpression valEx, ColumnExpression colEx)
+        {
+            if (valEx != null && colEx != null)
+            {
+                valEx.ColumnMeta = colEx.Column.Meta;
+            }
+        }
     }
 }

@@ -27,6 +27,8 @@ namespace DummyOrm.Sql.Where.ExpressionBuilders
 
         public override IWhereExpression Build()
         {
+            FixColumnMeta(_expression.Value, _expression.Column);
+
             return _expression;
         }
     }
