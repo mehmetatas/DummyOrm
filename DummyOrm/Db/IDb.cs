@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using DummyOrm.Sql;
 
 namespace DummyOrm.Db
 {
@@ -16,6 +17,8 @@ namespace DummyOrm.Db
         T GetById<T>(object id) where T : class, new();
 
         IQuery<T> Select<T>() where T : class, new();
+
+        IList<T> Select<T>(Command selectCommand) where T : class, new();
 
         void Load<T>(IList<T> entities, Expression<Func<T, IList>> listExp) where T : class, new();
     }

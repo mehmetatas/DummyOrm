@@ -1,11 +1,12 @@
-﻿using DummyOrm.ConsoleApp.Entities;
-using DummyOrm.Db;
+﻿using System.Collections.Generic;
+using DummyOrm.ConsoleApp.Entities;
+using DummyOrm.ConsoleApp.Models;
 using DummyOrm.Db.Impl;
 using DummyOrm.Meta;
+using DummyOrm.Sql;
 using DummyOrm.Sql.Select;
 using System;
 using System.Data;
-using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
@@ -14,25 +15,68 @@ namespace DummyOrm.ConsoleApp
 {
     class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
             var entityClasses = Assembly.GetExecutingAssembly()
                 .GetTypes()
                 .Where(t => t.Namespace == "DummyOrm.ConsoleApp.Entities" && t.IsClass);
 
+            var modelClasses = Assembly.GetExecutingAssembly()
+                .GetTypes()
+                .Where(t => t.Namespace == "DummyOrm.ConsoleApp.Models" && t.IsClass);
+
             foreach (var entityClass in entityClasses)
             {
-                DbMeta.Instance.Register(entityClass);
+                DbMeta.Instance.RegisterEntity(entityClass);
+            }
+
+            foreach (var modelClass in modelClasses)
+            {
+                DbMeta.Instance.RegisterModel(modelClass);
             }
 
             DbMeta.Instance.BuildRelations();
 
-            SelectList();
-            SimpleCrudTestsAssociationEntity();
-            SimpleCrudTestsEntity();
-            SelectTests();
+            SelectModel();
+            //SelectList();
+            //SimpleCrudTestsAssociationEntity();
+            //SimpleCrudTestsEntity();
+            //SelectTests();
 
             Console.ReadLine();
+        }
+
+        private static void SelectModel()
+        {
+            var cmd = @"select 
+	p.Id PostId, 
+	p.UserId UserId,
+	u.Username Username,
+	p.Title PostTitle,
+	count(pt.TagId) TagCount,
+	count(pl.PostId) LikeCount
+from Post p
+join [User] u on u.Id = p.UserId 
+left join PostTag pt on pt.PostId = p.Id
+left join [Like] pl on pl.PostId = p.Id
+group by
+	p.Id, p.UserId, u.Username, p.Title";
+
+            using (var conn = OpenConnection())
+            {
+                var db = new DbImpl(conn);
+
+                var list = db.Select<PostListModel>(new Command
+                {
+                    CommandText = cmd,
+                    Parameters = new Dictionary<string, CommandParameter>()
+                });
+
+                foreach (var post in list)
+                {
+                    Console.WriteLine("{0}: {1} [{2} Likes] [{3} Tags] {4}", post.Username, post.PostTitle, post.LikeCount, post.TagCount, post.PostId);
+                }
+            }
         }
 
         private static void SelectList()
@@ -169,7 +213,7 @@ namespace DummyOrm.ConsoleApp
 
         private static IDbConnection OpenConnection()
         {
-            var conn = new SqlConnection("Server=.;Database=DummyOrmTest;uid=sa;pwd=123456");
+            var conn = new System.Data.SqlClient.SqlConnection("Server=.;Database=DummyOrmTest;uid=sa;pwd=123456");
             conn.Open();
             return conn;
         }

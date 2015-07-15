@@ -64,6 +64,9 @@
     <Compile Include="Meta\DbMetaExtenisons.cs" />
     <Compile Include="Meta\TableMeta.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Sql\Command.cs" />
+    <Compile Include="Sql\CommandParameter.cs" />
+    <Compile Include="Sql\ISelectQueryBuilder.cs" />
     <Compile Include="Sql\Select\Column.cs" />
     <Compile Include="Sql\Select\IWhereExpressionListener.cs" />
     <Compile Include="Sql\Select\Join.cs" />
@@ -75,9 +78,9 @@
     <Compile Include="Sql\SimpleCommands\IReadCommandBuilder.cs" />
     <Compile Include="Sql\SimpleCommands\ISimpleCommandBuilder.cs" />
     <Compile Include="Sql\SimpleCommands\SimpleCommandBuilder.cs" />
-    <Compile Include="Sql\SimpleCommands\SqlCommandMeta.cs" />
-    <Compile Include="Sql\SqlCommand.cs" />
-    <Compile Include="Sql\SqlServerSelectSqlCommandBuilderImpl.cs" />
+    <Compile Include="Sql\SimpleCommands\CommandMeta.cs" />
+    <Compile Include="Sql\ISelectCommandBuilder.cs" />
+    <Compile Include="Sql\SqlServerSelectCommandBuilderImpl.cs" />
     <Compile Include="Sql\Where\Evaluator.cs" />
     <Compile Include="Sql\Where\ExpressionBuilders\BinaryExpressionBuilder.cs" />
     <Compile Include="Sql\Where\ExpressionBuilders\InExpressionBuilder.cs" />
@@ -94,12 +97,12 @@
     <Compile Include="Sql\Where\Expressions\ValueExpression.cs" />
     <Compile Include="Sql\Where\ExpressionVisitors\WhereExpressionBuilder.cs" />
     <Compile Include="Sql\Where\ExpressionVisitors\WhereExpressionVisitor.cs" />
-    <Compile Include="Sql\Where\ExpressionVisitors\WhereSqlCommandBuilder.cs" />
+    <Compile Include="Sql\Where\ExpressionVisitors\WhereCommandBuilder.cs" />
     <Compile Include="Sql\Where\IWhereExpression.cs" />
     <Compile Include="Sql\Where\IWhereExpressionBuilder.cs" />
     <Compile Include="Sql\Where\IWhereExpressionVisitor.cs" />
-    <Compile Include="Sql\Where\IWhereSqlCommandBuilder.cs" />
-    <Compile Include="Sql\Where\SqlOperator.cs" />
+    <Compile Include="Sql\Where\IWhereCommandBuilder.cs" />
+    <Compile Include="Sql\Where\Operator.cs" />
     <Compile Include="Sql\Where\WhereExpressionExtensions.cs" />
     <Compile Include="Utils.cs" />
   </ItemGroup>

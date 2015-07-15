@@ -7,12 +7,12 @@ using DummyOrm.Meta;
 
 namespace DummyOrm.Dynamix.Impl
 {
-    public class PocoDeserializer : IPocoDeserializer
+    public class EntityDeserializer : IPocoDeserializer
     {
         private readonly Func<object> _factory;
         private readonly IDictionary<string, IEnumerable<ColumnMeta>> _propertyChain;
 
-        public PocoDeserializer(Func<object> factory, IDictionary<string, IEnumerable<ColumnMeta>> propertyChain)
+        public EntityDeserializer(Func<object> factory, IDictionary<string, IEnumerable<ColumnMeta>> propertyChain)
         {
             _factory = factory;
             _propertyChain = propertyChain;
@@ -67,7 +67,41 @@ namespace DummyOrm.Dynamix.Impl
 
             return entity;
         }
+    }
 
+    public class ModelDerializer : IPocoDeserializer
+    {
+        private readonly Func<object> _factory;
+        private readonly IDictionary<string, ISetter> _setters;
+
+        public ModelDerializer(Func<object> factory, IDictionary<string, ISetter> setters)
+        {
+            _factory = factory;
+            _setters = setters;
+        }
+
+        public object Deserialize(IDataReader reader)
+        {
+            var entity = _factory();
+
+            foreach (var setter in _setters)
+            {
+                var value = reader[setter.Key];
+                
+                if (value == null || value == DBNull.Value)
+                {
+                    continue;
+                }
+
+                setter.Value.Set(entity, value);
+            }
+
+            return entity;
+        }
+    }
+
+    public static class PocoDeserializer
+    {
         private static readonly Hashtable DefaultDeserializers = new Hashtable();
 
         public static IPocoDeserializer GetDefault<T>() where T : class,new()
@@ -75,19 +109,36 @@ namespace DummyOrm.Dynamix.Impl
             return GetDefault(typeof(T));
         }
 
-        public static void RegisterDefault<T>() where T : class,new()
+        public static void RegisterEntity<T>() where T : class,new()
         {
-            RegisterDefault(typeof(T));
+            RegisterEntity(typeof(T));
         }
 
-        public static void RegisterDefault(Type type)
+        public static void RegisterEntity(Type type)
         {
             var tableMeta = DbMeta.Instance.GetTable(type);
 
             var propChain = tableMeta.Columns.ToDictionary(c => c.ColumnName, c => (IEnumerable<ColumnMeta>)new[] { c });
 
-            var deserializer = new PocoDeserializer(tableMeta.Factory, propChain);
+            var deserializer = new EntityDeserializer(tableMeta.Factory, propChain);
 
+            DefaultDeserializers.Add(type, deserializer);
+        }
+
+        public static void RegisterModel<T>() where T : class,new()
+        {
+            RegisterModel(typeof(T));
+        }
+
+        public static void RegisterModel(Type type)
+        {
+            var setters = type.GetProperties()
+                .ToDictionary(prop => prop.Name, prop => (ISetter) GetterSetter.Create(prop));
+            
+            var factory = PocoFactory.CreateFactory(type);
+            
+            var deserializer = new ModelDerializer(factory, setters);
+            
             DefaultDeserializers.Add(type, deserializer);
         }
 

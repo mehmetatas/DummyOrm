@@ -9,14 +9,14 @@ using DummyOrm.Sql.Where.ExpressionVisitors;
 
 namespace DummyOrm.Sql
 {
-    public class SqlServerSelectSqlCommandBuilderImpl : ISelectSqlCommandBuilder
+    public class SqlServerSelectCommandBuilderImpl : ISelectCommandBuilder
     {
-        public readonly static SqlServerSelectSqlCommandBuilderImpl Instance = new SqlServerSelectSqlCommandBuilderImpl();
+        public readonly static SqlServerSelectCommandBuilderImpl Instance = new SqlServerSelectCommandBuilderImpl();
 
-        public SqlCommand Build<T>(SelectQuery<T> query) where T : class, new()
+        public Command Build<T>(SelectQuery<T> query) where T : class, new()
         {
             var cmd = new StringBuilder();
-            var param = new Dictionary<string, SqlParameter>();
+            var param = new Dictionary<string, CommandParameter>();
 
             if (query.IsPaging)
             {
@@ -53,7 +53,7 @@ namespace DummyOrm.Sql
                 var where = new LogicalExpression
                 {
                     Operand1 = query.WhereExpressions[0],
-                    Operator = SqlOperator.And
+                    Operator = Operator.And
                 };
 
                 foreach (var whereExpression in query.WhereExpressions.Skip(1))
@@ -62,12 +62,12 @@ namespace DummyOrm.Sql
                     where = new LogicalExpression
                     {
                         Operand1 = where,
-                        Operator = SqlOperator.And
+                        Operator = Operator.And
                     };
                 }
 
                 var whereExp = where.Operand1;
-                var builder = new WhereSqlCommandBuilder();
+                var builder = new WhereCommandBuilder();
                 whereExp.Accept(builder);
                 var whereCmd = builder.Build();
 
@@ -140,7 +140,7 @@ namespace DummyOrm.Sql
             }
 
 
-            return new SqlCommand
+            return new Command
             {
                 CommandText = cmd.ToString().TrimEnd(),
                 Parameters = param

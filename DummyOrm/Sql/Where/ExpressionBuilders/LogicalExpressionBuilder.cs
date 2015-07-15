@@ -7,7 +7,7 @@ namespace DummyOrm.Sql.Where.ExpressionBuilders
     {
         private readonly LogicalExpression _expression;
 
-        public LogicalExpressionBuilder(SqlOperator oper)
+        public LogicalExpressionBuilder(Operator oper)
         {
             _expression = new LogicalExpression
             {

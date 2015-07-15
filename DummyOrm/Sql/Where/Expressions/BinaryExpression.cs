@@ -6,7 +6,7 @@ namespace DummyOrm.Sql.Where.Expressions
     public class BinaryExpression : IWhereExpression
     {
         public IWhereExpression Operand1 { get; set; }
-        public SqlOperator Operator { get; set; }
+        public Operator Operator { get; set; }
         public IWhereExpression Operand2 { get; set; }
 
         public void Accept(IWhereExpressionVisitor visitor)

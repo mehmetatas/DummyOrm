@@ -7,7 +7,7 @@ namespace DummyOrm.Sql.Where.ExpressionBuilders
     {
         private readonly LikeExpression _expression;
 
-        public LikeExpressionBuilder(SqlOperator oper)
+        public LikeExpressionBuilder(Operator oper)
         {
             _expression = new LikeExpression
             {

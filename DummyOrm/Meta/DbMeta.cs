@@ -14,6 +14,7 @@ namespace DummyOrm.Meta
         private readonly Hashtable _tables = new Hashtable();
         private readonly Hashtable _columns = new Hashtable();
         private readonly Hashtable _associations = new Hashtable();
+        private readonly Hashtable _models = new Hashtable();
 
         public static readonly DbMeta Instance = new DbMeta();
 
@@ -37,7 +38,13 @@ namespace DummyOrm.Meta
             return (AssociationMeta)_associations[prop];
         }
 
-        public DbMeta Register(Type type)
+        public DbMeta RegisterModel(Type type)
+        {
+            PocoDeserializer.RegisterModel(type);
+            return this;
+        }
+
+        public DbMeta RegisterEntity(Type type)
         {
             var tableMeta = new TableMeta
             {
@@ -104,7 +111,7 @@ namespace DummyOrm.Meta
             _tables.Add(type, tableMeta);
             
             SimpleCommandBuilder.RegisterAll(tableMeta);
-            PocoDeserializer.RegisterDefault(type);
+            PocoDeserializer.RegisterEntity(type);
 
             return this;
         }

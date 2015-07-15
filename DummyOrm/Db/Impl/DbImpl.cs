@@ -66,13 +66,31 @@ namespace DummyOrm.Db.Impl
             return new QueryImpl<T>(this);
         }
 
+        public IList<T> Select<T>(Command selectCommand) where T : class, new()
+        {
+            using (var reader = _cmdExec.ExecuteReader(selectCommand))
+            {
+                var deserializer = PocoDeserializer.GetDefault<T>();
+
+                var list = new List<T>();
+
+                while (reader.Read())
+                {
+                    var entity = (T)deserializer.Deserialize(reader);
+                    list.Add(entity);
+                }
+
+                return list;
+            }
+        }
+
         public void Load<T>(IList<T> entities, Expression<Func<T, IList>> listExp) where T : class, new()
         {
             var assoc = DbMeta.Instance.GetAssociation(listExp);
             assoc.Loader.Load(entities, this);
         }
 
-        private IDbCommand CreateCommand(SqlCommand sqlCmd)
+        private IDbCommand CreateCommand(Command sqlCmd)
         {
             var cmd = _conn.CreateCommand();
 
@@ -100,7 +118,7 @@ namespace DummyOrm.Db.Impl
             return cmd;
         }
 
-        IDataReader ICommandExecutor.ExecuteReader(SqlCommand sqlCmd)
+        IDataReader ICommandExecutor.ExecuteReader(Command sqlCmd)
         {
             using (var cmd = CreateCommand(sqlCmd))
             {
@@ -108,7 +126,7 @@ namespace DummyOrm.Db.Impl
             }
         }
 
-        int ICommandExecutor.ExecuteNonQuery(SqlCommand sqlCmd)
+        int ICommandExecutor.ExecuteNonQuery(Command sqlCmd)
         {
             using (var cmd = CreateCommand(sqlCmd))
             {
@@ -116,7 +134,7 @@ namespace DummyOrm.Db.Impl
             }
         }
 
-        object ICommandExecutor.ExecuteScalar(SqlCommand sqlCmd)
+        object ICommandExecutor.ExecuteScalar(Command sqlCmd)
         {
             using (var cmd = CreateCommand(sqlCmd))
             {

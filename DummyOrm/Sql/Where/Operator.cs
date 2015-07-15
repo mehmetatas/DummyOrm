@@ -2,7 +2,7 @@
 
 namespace DummyOrm.Sql.Where
 {
-    public enum SqlOperator
+    public enum Operator
     {
         Not = 0,
         And = 1,
@@ -24,41 +24,41 @@ namespace DummyOrm.Sql.Where
         NotLikeContains = ~LikeContains
     }
 
-    public static class SqlOperatorExtensions
+    public static class OperatorExtensions
     {
-        public static string GetOperator(this SqlOperator sqlOperator)
+        public static string GetOperator(this Operator sqlOperator)
         {
             switch (sqlOperator)
             {
-                case SqlOperator.Not:
+                case Operator.Not:
                     return "NOT";
-                case SqlOperator.And:
+                case Operator.And:
                     return "AND";
-                case SqlOperator.Equals:
+                case Operator.Equals:
                     return "=";
-                case SqlOperator.GreaterThan:
+                case Operator.GreaterThan:
                     return ">";
-                case SqlOperator.LessThan:
+                case Operator.LessThan:
                     return "<";
-                case SqlOperator.In:
+                case Operator.In:
                     return "IN";
-                case SqlOperator.LikeStartsWith:
-                case SqlOperator.LikeEndsWith:
-                case SqlOperator.LikeContains:
+                case Operator.LikeStartsWith:
+                case Operator.LikeEndsWith:
+                case Operator.LikeContains:
                     return "LIKE";
-                case SqlOperator.Or:
+                case Operator.Or:
                     return "OR";
-                case SqlOperator.NotEquals:
+                case Operator.NotEquals:
                     return "<>";
-                case SqlOperator.GreaterThanOrEquals:
+                case Operator.GreaterThanOrEquals:
                     return ">=";
-                case SqlOperator.LessThanOrEquals:
+                case Operator.LessThanOrEquals:
                     return "<=";
-                case SqlOperator.NotIn:
+                case Operator.NotIn:
                     return "NOT IN";
-                case SqlOperator.NotLikeStartsWith:
-                case SqlOperator.NotLikeEndsWith:
-                case SqlOperator.NotLikeContains:
+                case Operator.NotLikeStartsWith:
+                case Operator.NotLikeEndsWith:
+                case Operator.NotLikeContains:
                     return "NOT LIKE";
                 default:
                     throw new ArgumentOutOfRangeException("sqlOperator");

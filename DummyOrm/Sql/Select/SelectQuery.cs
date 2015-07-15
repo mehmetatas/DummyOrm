@@ -56,9 +56,9 @@ namespace DummyOrm.Sql.Select
             return CreateColumn(propChain);
         }
 
-        public PocoDeserializer CreateDeserializer()
+        public EntityDeserializer CreateDeserializer()
         {
-            return new PocoDeserializer(From.Meta.Factory, _outputMappings);
+            return new EntityDeserializer(From.Meta.Factory, _outputMappings);
         }
 
         public void AddColumn(IList<ColumnMeta> propChain)

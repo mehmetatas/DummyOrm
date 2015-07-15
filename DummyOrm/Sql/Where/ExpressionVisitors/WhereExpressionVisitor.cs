@@ -65,7 +65,7 @@ namespace DummyOrm.Sql.Where.ExpressionVisitors
             {
                 var expression = StripQuotes(methodCallExpression.Arguments[0]);
 
-                Push(new LikeExpressionBuilder(SqlOperator.LikeStartsWith));
+                Push(new LikeExpressionBuilder(Operator.LikeStartsWith));
 
                 Visit(methodCallExpression.Object);
                 Visit(expression);
@@ -77,7 +77,7 @@ namespace DummyOrm.Sql.Where.ExpressionVisitors
             {
                 var expression = StripQuotes(methodCallExpression.Arguments[0]);
 
-                Push(new LikeExpressionBuilder(SqlOperator.LikeEndsWith));
+                Push(new LikeExpressionBuilder(Operator.LikeEndsWith));
 
                 Visit(methodCallExpression.Object);
                 Visit(expression);
@@ -89,7 +89,7 @@ namespace DummyOrm.Sql.Where.ExpressionVisitors
             {
                 var expression = StripQuotes(methodCallExpression.Arguments[0]);
 
-                Push(new LikeExpressionBuilder(SqlOperator.LikeContains));
+                Push(new LikeExpressionBuilder(Operator.LikeContains));
 
                 Visit(methodCallExpression.Object);
                 Visit(expression);
@@ -153,7 +153,7 @@ namespace DummyOrm.Sql.Where.ExpressionVisitors
         {
             var oper = GetBinaryOperator(binaryExpression.NodeType);
 
-            var expressionBuilder = oper == SqlOperator.And || oper == SqlOperator.Or
+            var expressionBuilder = oper == Operator.And || oper == Operator.Or
                 ? new LogicalExpressionBuilder(oper)
                 : (IWhereExpressionBuilder)new BinaryExpressionBuilder(oper);
 
@@ -215,28 +215,28 @@ namespace DummyOrm.Sql.Where.ExpressionVisitors
             return memberExpression;
         }
 
-        private static SqlOperator GetBinaryOperator(ExpressionType nodeType)
+        private static Operator GetBinaryOperator(ExpressionType nodeType)
         {
             switch (nodeType)
             {
                 case ExpressionType.And:
                 case ExpressionType.AndAlso:
-                    return SqlOperator.And;
+                    return Operator.And;
                 case ExpressionType.Or:
                 case ExpressionType.OrElse:
-                    return SqlOperator.Or;
+                    return Operator.Or;
                 case ExpressionType.Equal:
-                    return SqlOperator.Equals;
+                    return Operator.Equals;
                 case ExpressionType.NotEqual:
-                    return SqlOperator.NotEquals;
+                    return Operator.NotEquals;
                 case ExpressionType.LessThan:
-                    return SqlOperator.LessThan;
+                    return Operator.LessThan;
                 case ExpressionType.LessThanOrEqual:
-                    return SqlOperator.LessThanOrEquals;
+                    return Operator.LessThanOrEquals;
                 case ExpressionType.GreaterThan:
-                    return SqlOperator.GreaterThan;
+                    return Operator.GreaterThan;
                 case ExpressionType.GreaterThanOrEqual:
-                    return SqlOperator.GreaterThanOrEquals;
+                    return Operator.GreaterThanOrEquals;
                 default:
                     throw new NotSupportedException(string.Format("The binary operator '{0}' is not supported", nodeType));
             }

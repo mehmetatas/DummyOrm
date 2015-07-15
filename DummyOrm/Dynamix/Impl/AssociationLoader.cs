@@ -44,14 +44,14 @@ namespace DummyOrm.Dynamix.Impl
             var parentIdGetter = parentId.GetterSetter;
 
             var inParams = new StringBuilder();
-            var parameters = new Dictionary<string, SqlParameter>();
+            var parameters = new Dictionary<string, CommandParameter>();
 
             var comma = "";
             foreach (var parentEntity in parentEntities)
             {
                 var value = parentIdGetter.Get(parentEntity);
                 var paramName = String.Format("p{0}", parameters.Count);
-                parameters.Add(paramName, new SqlParameter
+                parameters.Add(paramName, new CommandParameter
                 {
                     Name = paramName,
                     Value = value,
@@ -61,7 +61,7 @@ namespace DummyOrm.Dynamix.Impl
                 comma = ",";
             }
 
-            var cmd = new SqlCommand
+            var cmd = new Command
             {
                 CommandText = String.Format(_selectTemplate, inParams),
                 Parameters = parameters

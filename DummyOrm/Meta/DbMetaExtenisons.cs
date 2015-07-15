@@ -10,9 +10,14 @@ namespace DummyOrm.Meta
             return dbMeta.GetTable(typeof(T));
         }
 
-        public static DbMeta Register<T>(this DbMeta dbMeta) where T : class, new()
+        public static DbMeta RegisterEntity<T>(this DbMeta dbMeta) where T : class, new()
         {
-            return dbMeta.Register(typeof(T));
+            return dbMeta.RegisterEntity(typeof(T));
+        }
+
+        public static DbMeta RegisterModel<T>(this DbMeta dbMeta) where T : class, new()
+        {
+            return dbMeta.RegisterModel(typeof(T));
         }
 
         public static ColumnMeta GetColumn<T, TProp>(this DbMeta dbMeta, Expression<Func<T, TProp>> propExp) where T : class, new()

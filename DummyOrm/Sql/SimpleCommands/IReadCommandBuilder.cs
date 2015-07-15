@@ -2,6 +2,6 @@
 {
     public interface IReadCommandBuilder : ISimpleCommandBuilder
     {
-        SqlCommand BuildById<T>(object id);
+        Command BuildById<T>(object id);
     }
 }

@@ -6,19 +6,19 @@ using DummyOrm.Meta;
 
 namespace DummyOrm.Sql.SimpleCommands
 {
-    public class SqlCommandMeta
+    public class CommandMeta
     {
         public string CommandText { get; private set; }
         public IDictionary<string, ColumnMeta> ParameterMeta { get; private set; }
 
-        private SqlCommandMeta()
+        private CommandMeta()
         {
 
         }
 
-        public SqlCommand CreateCommand(object entity)
+        public Command CreateCommand(object entity)
         {
-            var parameters = new Dictionary<string, SqlParameter>();
+            var parameters = new Dictionary<string, CommandParameter>();
 
             foreach (var kv in ParameterMeta)
             {
@@ -32,7 +32,7 @@ namespace DummyOrm.Sql.SimpleCommands
                     value = colMeta.ReferencedTable.IdColumn.GetterSetter.Get(value);
                 }
 
-                parameters.Add(paramName, new SqlParameter
+                parameters.Add(paramName, new CommandParameter
                 {
                     Name = paramName,
                     Value = value ?? DBNull.Value,
@@ -40,14 +40,14 @@ namespace DummyOrm.Sql.SimpleCommands
                 });
             }
 
-            return new SqlCommand
+            return new Command
             {
                 CommandText = CommandText,
                 Parameters = parameters
             };
         }
 
-        public static SqlCommandMeta CreateInsertCommandMeta(TableMeta table)
+        public static CommandMeta CreateInsertCommandMeta(TableMeta table)
         {
             var columns = table.Columns;
 
@@ -81,14 +81,14 @@ namespace DummyOrm.Sql.SimpleCommands
                 sql.Append("; SELECT SCOPE_IDENTITY();");
             }
 
-            return new SqlCommandMeta
+            return new CommandMeta
             {
                 CommandText = sql.ToString(),
                 ParameterMeta = parameterMeta
             };
         }
 
-        public static SqlCommandMeta CreateUpdateCommandMeta(TableMeta table)
+        public static CommandMeta CreateUpdateCommandMeta(TableMeta table)
         {
             var columns = table.Columns;
 
@@ -114,14 +114,14 @@ namespace DummyOrm.Sql.SimpleCommands
 
             BuildIdentityWhere(columns, parameterMeta, sql);
 
-            return new SqlCommandMeta
+            return new CommandMeta
             {
                 CommandText = sql.ToString(),
                 ParameterMeta = parameterMeta
             };
         }
 
-        public static SqlCommandMeta CreateDeleteCommandMeta(TableMeta table)
+        public static CommandMeta CreateDeleteCommandMeta(TableMeta table)
         {
             var columns = table.Columns;
 
@@ -134,14 +134,14 @@ namespace DummyOrm.Sql.SimpleCommands
 
             BuildIdentityWhere(columns, parameterMeta, sql);
 
-            return new SqlCommandMeta
+            return new CommandMeta
             {
                 CommandText = sql.ToString(),
                 ParameterMeta = parameterMeta
             };
         }
 
-        public static SqlCommandMeta CreateSelectCommandMeta(TableMeta table)
+        public static CommandMeta CreateSelectCommandMeta(TableMeta table)
         {
             var columns = table.Columns;
 
@@ -156,14 +156,14 @@ namespace DummyOrm.Sql.SimpleCommands
 
             BuildIdentityWhere(columns, parameterMeta, sql);
 
-            return new SqlCommandMeta
+            return new CommandMeta
             {
                 CommandText = sql.ToString(),
                 ParameterMeta = parameterMeta
             };
         }
 
-        public static SqlCommandMeta CreateFillCommandMeta(TableMeta table)
+        public static CommandMeta CreateFillCommandMeta(TableMeta table)
         {
             var columns = table.Columns;
 
@@ -178,7 +178,7 @@ namespace DummyOrm.Sql.SimpleCommands
 
             BuildIdentityWhere(columns, parameterMeta, sql);
 
-            return new SqlCommandMeta
+            return new CommandMeta
             {
                 CommandText = sql.ToString(),
                 ParameterMeta = parameterMeta

@@ -13,7 +13,7 @@ namespace DummyOrm.Meta
         public AssociationMeta[] Associations { get; set; }
 
         public Func<object> Factory { get; set; }
-        
+
         public override string ToString()
         {
             return TableName;

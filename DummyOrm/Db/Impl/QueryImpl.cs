@@ -191,10 +191,10 @@ namespace DummyOrm.Db.Impl
             return _queryExecuter.ExecuteReader(query);
         }
 
-        private SqlCommand BuildCommand()
+        private Command BuildCommand()
         {
             var query = Build();
-            return SqlServerSelectSqlCommandBuilderImpl.Instance.Build(query);
+            return SqlServerSelectCommandBuilderImpl.Instance.Build(query);
         }
     }
 }

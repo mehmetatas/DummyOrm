@@ -63,6 +63,7 @@
     <Compile Include="Entities\Tag.cs" />
     <Compile Include="Entities\Token.cs" />
     <Compile Include="Entities\User.cs" />
+    <Compile Include="Models\PostListModel.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

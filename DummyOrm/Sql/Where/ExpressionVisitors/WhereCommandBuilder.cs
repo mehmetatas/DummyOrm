@@ -8,12 +8,12 @@ namespace DummyOrm.Sql.Where.ExpressionVisitors
 {
     /// <summary>
     /// Visits on IWhereExpressions
-    /// Builds SqlCommand
+    /// Builds Command
     /// </summary>
-    public class WhereSqlCommandBuilder : IWhereExpressionVisitor, IWhereSqlCommandBuilder
+    public class WhereCommandBuilder : IWhereExpressionVisitor, IWhereCommandBuilder
     {
         private readonly StringBuilder _sql = new StringBuilder();
-        private readonly IDictionary<string, SqlParameter> _parameters = new Dictionary<string, SqlParameter>();
+        private readonly IDictionary<string, CommandParameter> _parameters = new Dictionary<string, CommandParameter>();
 
         public void Visit(LogicalExpression e)
         {
@@ -47,7 +47,7 @@ namespace DummyOrm.Sql.Where.ExpressionVisitors
             if (isNull)
             {
                 _sql.Append(" IS");
-                if (e.Operator == SqlOperator.NotEquals)
+                if (e.Operator == Operator.NotEquals)
                 {
                     _sql.Append(" NOT");
                 }
@@ -74,7 +74,7 @@ namespace DummyOrm.Sql.Where.ExpressionVisitors
 
             var paramName = String.Format("wp{0}", _parameters.Count);
             _sql.AppendFormat("@{0}", paramName);
-            _parameters.Add(paramName, new SqlParameter
+            _parameters.Add(paramName, new CommandParameter
             {
                 Name = paramName,
                 Value = e.Value,
@@ -100,14 +100,14 @@ namespace DummyOrm.Sql.Where.ExpressionVisitors
 
             switch (e.Operator)
             {
-                case SqlOperator.LikeStartsWith:
-                case SqlOperator.LikeContains:
-                case SqlOperator.LikeEndsWith:
+                case Operator.LikeStartsWith:
+                case Operator.LikeContains:
+                case Operator.LikeEndsWith:
                     _sql.Append(" LIKE ");
                     break;
-                case SqlOperator.NotLikeStartsWith:
-                case SqlOperator.NotLikeContains:
-                case SqlOperator.NotLikeEndsWith:
+                case Operator.NotLikeStartsWith:
+                case Operator.NotLikeContains:
+                case Operator.NotLikeEndsWith:
                     _sql.Append(" NOT LIKE ");
                     break;
                 default:
@@ -118,16 +118,16 @@ namespace DummyOrm.Sql.Where.ExpressionVisitors
 
             switch (e.Operator)
             {
-                case SqlOperator.LikeStartsWith:
-                case SqlOperator.NotLikeStartsWith:
+                case Operator.LikeStartsWith:
+                case Operator.NotLikeStartsWith:
                     value = value + "%";
                     break;
-                case SqlOperator.LikeEndsWith:
-                case SqlOperator.NotLikeEndsWith:
+                case Operator.LikeEndsWith:
+                case Operator.NotLikeEndsWith:
                     value = "%" + value;
                     break;
-                case SqlOperator.LikeContains:
-                case SqlOperator.NotLikeContains:
+                case Operator.LikeContains:
+                case Operator.NotLikeContains:
                     value = "%" + value + "%";
                     break;
                 default:
@@ -162,9 +162,9 @@ namespace DummyOrm.Sql.Where.ExpressionVisitors
             _sql.Append(")");
         }
 
-        public SqlCommand Build()
+        public Command Build()
         {
-            return new SqlCommand
+            return new Command
             {
                 CommandText = _sql.ToString(),
                 Parameters = _parameters
