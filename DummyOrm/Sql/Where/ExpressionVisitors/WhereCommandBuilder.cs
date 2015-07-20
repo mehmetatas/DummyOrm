@@ -141,9 +141,15 @@ namespace DummyOrm.Sql.Where.ExpressionVisitors
 
         public void Visit(InExpression e)
         {
-            e.Column.Accept(this);
-
             var values = (IEnumerable)e.Values.Value;
+
+            if (!values.GetEnumerator().MoveNext())
+            {
+                _sql.Append("1=1");
+                return;
+            }
+
+            e.Column.Accept(this);
 
             _sql.Append(" IN (");
             var comma = "";

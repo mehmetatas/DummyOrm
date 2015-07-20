@@ -17,6 +17,22 @@ namespace DummyOrm.ConsoleApp
     {
         static void Main()
         {
+            Init();
+
+            JoinTest();
+            SelectWall();
+            SelectModel();
+            SelectList();
+            SimpleCrudTestsAssociationEntity();
+            SimpleCrudTestsEntity();
+            SelectTests();
+
+            Console.WriteLine("OK!");
+            Console.ReadLine();
+        }
+
+        private static void Init()
+        {
             var entityClasses = Assembly.GetExecutingAssembly()
                 .GetTypes()
                 .Where(t => t.Namespace == "DummyOrm.ConsoleApp.Entities" && t.IsClass);
@@ -36,14 +52,38 @@ namespace DummyOrm.ConsoleApp
             }
 
             DbMeta.Instance.BuildRelations();
+        }
 
-            SelectModel();
-            SelectList();
-            SimpleCrudTestsAssociationEntity();
-            SimpleCrudTestsEntity();
-            SelectTests();
+        private static void JoinTest()
+        {
+            using (var db = OpenConnection())
+            {
+                db.Select<Like>()
+                    .Where(l => l.Post.User.Id == 3)
+                    .ToList();
+            }
+        }
 
-            Console.ReadLine();
+        private static void SelectWall()
+        {
+            var loggedInUserId = 1;
+            var lastFetchedPostId = 5;
+
+            using (var db = OpenConnection())
+            {
+                var followedUserIds = db.Select<FollowUser>()
+                    .Where(fu => fu.FollowerUser.Id == loggedInUserId)
+                    .ToList()
+                    .Select(fu => fu.FollowedUser.Id);
+
+                var posts = db.Select<Post>()
+                    .Join(p => p.User, u => new { u.Id, u.Username })
+                    .Include(p => new { p.Id, p.Title })
+                    .Where(p => followedUserIds.Contains(p.Id) && p.Id > lastFetchedPostId)
+                    .Top(5);
+
+                db.Load(posts.Items, p => p.Tags);
+            }
         }
 
         private static void SelectModel()
@@ -185,7 +225,7 @@ group by
                             DateTime.Now.ToUniversalTime().ToLocalTime().ToUniversalTime() > l.User.JoinDate &&
                             userIds.Contains(l.User.Id) &&
                             l.Post.User.Username.StartsWith("taga".Substring(0, 2)) &&
-                            l.Post.User != l.User                            )
+                            l.Post.User != l.User)
                         .Where(l => l.Post.Id != post.Id)
                         .OrderBy(l => l.Post.User)
                         .OrderByDesc(l => l.LikedDate)

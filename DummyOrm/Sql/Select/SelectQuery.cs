@@ -53,7 +53,24 @@ namespace DummyOrm.Sql.Select
 
         Column IWhereExpressionListener.RegisterColumn(IList<ColumnMeta> propChain)
         {
-            return CreateColumn(propChain);
+            var colMeta = propChain.Last();
+            
+            Table table;
+            if (colMeta.Identity && propChain.Count > 1)
+            {
+                colMeta = propChain[propChain.Count - 2];
+                table = EnsureJoined(propChain.Take(propChain.Count - 2));
+            }
+            else
+            {
+                table = EnsureJoined(propChain.Take(propChain.Count - 1));
+            }
+
+            return new Column
+            {
+                Meta = colMeta,
+                Table = table
+            };
         }
 
         public EntityDeserializer CreateDeserializer()
@@ -220,17 +237,6 @@ namespace DummyOrm.Sql.Select
             }
 
             return leftTable;
-        }
-
-        private Column CreateColumn(IList<ColumnMeta> propChain)
-        {
-            var colMeta = propChain.Last();
-            var table = EnsureJoined(propChain.Take(propChain.Count - 1));
-            return new Column
-            {
-                Meta = colMeta,
-                Table = table
-            };
         }
 
         class AliasContext

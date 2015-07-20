@@ -138,8 +138,7 @@ namespace DummyOrm.Sql
                     }
                 }
             }
-
-
+            
             return new Command
             {
                 CommandText = cmd.ToString().TrimEnd(),
