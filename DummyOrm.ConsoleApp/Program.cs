@@ -67,7 +67,7 @@ namespace DummyOrm.ConsoleApp
                 DbMeta.Instance.RegisterModel(modelClass);
             }
 
-            DbMeta.Instance.BuildRelations();
+            DbMeta.Instance.Build();
         }
 
         private static void JoinTest()

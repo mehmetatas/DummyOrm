@@ -604,3 +604,40 @@ Some quick samples
     FROM [Post] p
       INNER JOIN [User] u ON p.UserId = u.Id
     ORDER BY u.Username ASC
+    
+# TODO
+    
+## Association Entities
+
+Association entities are the entities that are used for building ManyToMany associations between two entities. Association entities do not have a autoincrement primary key. They use the foreign keys as the composite primary key.
+
+First introduce our new entity `Like`.
+
+    public class Like {                                 CREATE TABLE [Like] (
+        public Post Post { get; set; }                      [PostId] [bigint] NOT NULL,
+        public User User { get; set; }                      [UserId] [bigint] NOT NULL,
+        public DateTime LikedDate { get; set; }             [LikedDate] [datetime] NULL,
+    }                                                   	CONSTRAINT [PK_Like] PRIMARY KEY CLUSTERED 
+                                                        	(
+                                                        		[PostId] ASC,
+                                                        		[UserId] ASC
+                                                        	)
+                                                        ) ON [PRIMARY]                
+
+Register the association entity.
+
+    DbMeta.Instance.RegisterEntity<Like>();
+    
+If a registered entity does not have a property named `Id` then it is assumed to be an Association entity. An Association entity must have exactly two properties those are referencing to another entities. Other primitive typed properties can also be added on to association entities.
+
+## Collection Properties
+
+## OneToMany
+
+## ManyToMany
+
+## Views
+
+## Inline Sql
+
+## Stored Procedure

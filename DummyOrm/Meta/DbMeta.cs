@@ -115,7 +115,7 @@ namespace DummyOrm.Meta
             return this;
         }
 
-        public DbMeta BuildRelations()
+        public DbMeta Build()
         {
             BuildReferences();
             BuildAssociations();
