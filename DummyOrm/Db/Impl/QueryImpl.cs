@@ -13,11 +13,13 @@ namespace DummyOrm.Db.Impl
     {
         private readonly ICommandExecutor _queryExecuter;
         private readonly SelectQuery<T> _query;
+        private bool _autoIncludeFromColumns;
 
         public QueryImpl(ICommandExecutor queryExecuter)
         {
             _query = new SelectQuery<T>();
             _queryExecuter = queryExecuter;
+            _autoIncludeFromColumns = true;
         }
 
         public IQuery<T> Join<TProp>(Expression<Func<T, TProp>> refProp, Expression<Func<TProp, object>> include = null) where TProp : class ,new()
@@ -30,19 +32,19 @@ namespace DummyOrm.Db.Impl
             if (include == null)
             {
                 // No columns specified Include all properties of joined type
-                Include(refProp.GetMemberExpression());
+                Include(true, refProp.GetMemberExpression());
             }
             else
             {
                 if (include.Body is NewExpression)
                 {
                     // Include multiple properties
-                    Include(include.Body as NewExpression, propChain);
+                    Include(true, include.Body as NewExpression, propChain);
                 }
                 else
                 {
                     // Include specified property only
-                    Include(include.GetMemberExpression(), propChain);
+                    Include(true, include.GetMemberExpression(), propChain);
                 }
             }
 
@@ -53,25 +55,25 @@ namespace DummyOrm.Db.Impl
         {
             if (propExpression.Body is NewExpression)
             {
-                Include(propExpression.Body as NewExpression);
+                Include(false, propExpression.Body as NewExpression);
             }
             else
             {
-                Include(propExpression.GetMemberExpression());
+                Include(false, propExpression.GetMemberExpression());
             }
             return this;
         }
 
-        private void Include(NewExpression newExp, List<ColumnMeta> rootChain = null)
+        private void Include(bool join, NewExpression newExp, List<ColumnMeta> rootChain = null)
         {
             var includedProps = newExp.Arguments.Cast<MemberExpression>();
             foreach (var includeProp in includedProps)
             {
-                Include(includeProp, rootChain);
+                Include(join, includeProp, rootChain);
             }
         }
 
-        private void Include(MemberExpression memberExp, IEnumerable<ColumnMeta> rootChain = null)
+        private void Include(bool join, MemberExpression memberExp, IEnumerable<ColumnMeta> rootChain = null)
         {
             var list = rootChain == null
                 ? new List<ColumnMeta>()
@@ -81,12 +83,18 @@ namespace DummyOrm.Db.Impl
             _query.AddColumn(list);
 
             var colMeta = list.Last();
+
             if (colMeta.IsRefrence)
             {
                 foreach (var columnMeta in colMeta.ReferencedTable.Columns)
                 {
                     _query.AddColumn(new List<ColumnMeta>(list) { columnMeta });
                 }
+            }
+            
+            if (!join && colMeta.Table == _query.From.Meta)
+            {
+                _autoIncludeFromColumns = false;
             }
         }
 
@@ -176,7 +184,7 @@ namespace DummyOrm.Db.Impl
         public SelectQuery<T> Build()
         {
             // If there is no column specified from the From table select all columns by default.
-            if (_query.SelectColumns.All(c => c.Value.Table != _query.From))
+            if (_autoIncludeFromColumns) // && _query.SelectColumns.All(c => c.Value.Table != _query.From)
             {
                 var fromTable = _query.From.Meta;
                 foreach (var columnMeta in fromTable.Columns)
@@ -193,7 +201,7 @@ namespace DummyOrm.Db.Impl
                     _query.AddColumn(new[] { idColumn });
                 }
             }
-   
+
             return _query;
         }
 

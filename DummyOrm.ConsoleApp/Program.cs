@@ -39,10 +39,9 @@ namespace DummyOrm.ConsoleApp
             {
                 db.BeginTransaction();
 
-                IList<User> list = db.Select<User>()
-                    .Include(u => new { u.Fullname, u.Username, u.Email })
-                    //.Include(u => u.Username)
-                    .ToList();
+              IList<Post> list = db.Select<Post>()
+                         .OrderBy(p => p.User.Username)
+                         .ToList();
 
                 db.Rollback();
             }
