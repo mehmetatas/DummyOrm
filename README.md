@@ -641,3 +641,5 @@ If a registered entity does not have a property named `Id` then it is assumed to
 ## Inline Sql
 
 ## Stored Procedure
+
+## Transactions
