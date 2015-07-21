@@ -110,6 +110,8 @@ namespace DummyOrm.Db.Impl
 
         public T FirstOrDefault()
         {
+            _query.Top(1);
+
             using (var reader = ExecuteReader())
             {
                 if (!reader.Read())
@@ -164,7 +166,7 @@ namespace DummyOrm.Db.Impl
 
         public Page<T> Top(int top)
         {
-            _query.Top(top);
+            _query.Top(top + 1);
 
             var list = ToList();
 

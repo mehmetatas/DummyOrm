@@ -27,7 +27,7 @@ namespace DummyOrm.Sql
 
             if (query.IsTop)
             {
-                cmd.AppendFormat(" TOP {0}", query.PageSize + 1);
+                cmd.AppendFormat(" TOP {0}", query.PageSize);
             }
 
             cmd.AppendLine()

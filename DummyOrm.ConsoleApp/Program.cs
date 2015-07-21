@@ -19,16 +19,44 @@ namespace DummyOrm.ConsoleApp
         {
             Init();
 
-            JoinTest();
-            SelectWall();
-            SelectModel();
-            SelectList();
-            SimpleCrudTestsAssociationEntity();
-            SimpleCrudTestsEntity();
-            SelectTests();
+            var args = new Args();
+            Readme(args);
+
+            //JoinTest();
+            //SelectWall();
+            //SelectModel();
+            //SelectList();
+            //SimpleCrudTestsAssociationEntity();
+            //SimpleCrudTestsEntity();
+            //SelectTests();
 
             Console.WriteLine("OK!");
             Console.ReadLine();
+        }
+
+        class Args
+        {
+            public long[] Ids { get; set; }
+        }
+
+        private static void Readme(Args args)
+        {
+            using (var db = OpenConnection())
+            {
+                db.BeginTransaction();
+                args.Ids = new[] { 40L, 41L, 43L, 44L };
+                Page<User> page = db.Select<User>()
+                                    .Top(10);
+                
+                Console.WriteLine(page.HasMore);
+                Console.WriteLine(page.Items);
+                Console.WriteLine(page.PageCount);
+                Console.WriteLine(page.PageIndex);
+                Console.WriteLine(page.PageSize);
+                Console.WriteLine(page.TotalCount);
+
+                db.Rollback();
+            }
         }
 
         private static void Init()
@@ -178,7 +206,6 @@ group by
                 {
                     Username = "testuser1",
                     Fullname = "Test User1",
-                    FacebookId = "23345",
                     Email = "testuser1@mail.com",
                     JoinDate = DateTime.Now,
                     Status = UserStatus.AwaitingActivation,
