@@ -43,12 +43,6 @@ namespace DummyOrm.Sql.Select
 
             var fromTableMeta = DbMeta.Instance.GetTable<T>();
             From = GetOrAddTable(fromTableMeta.TableName, fromTableMeta);
-
-            foreach (var columnMeta in fromTableMeta.Columns)
-            {
-                var column = AddColumn(From, columnMeta);
-                _outputMappings.Add(column.Alias, new[] { column.Meta });
-            }
         }
 
         Column IWhereExpressionListener.RegisterColumn(IList<ColumnMeta> propChain)

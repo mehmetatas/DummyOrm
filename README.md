@@ -289,11 +289,32 @@ Let's create an `IDb` instance which we will be using for database operations.
 
 **C&num;**
 
+    IList<User> list = db.Select<User>()
+                         .Include(u => u.Username)
+                         .ToList();
+
 **SQL**
+
+    SELECT
+      u.Username u_Username,
+      u.Id u_Id
+    FROM [User] u
   
-### Select - Include Multiple Column
+> Primary key will be selected even if it is not specified.
+  
+### Select - Include Multiple Columns
 
 **C&num;**
 
+    IList<User> list = db.Select<User>()
+                         .Include(u => new { u.Fullname, u.Username, u.Email })
+                         .ToList();
+
 **SQL**
   
+    SELECT
+      u.Fullname u_Fullname,
+      u.Username u_Username,
+      u.Email u_Email,
+      u.Id u_Id
+    FROM [User] u

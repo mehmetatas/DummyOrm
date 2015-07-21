@@ -175,7 +175,8 @@ namespace DummyOrm.Db.Impl
 
         public SelectQuery<T> Build()
         {
-            if (!_query.SelectColumns.Any())
+            // If there is no column specified from the From table select all columns by default.
+            if (_query.SelectColumns.All(c => c.Value.Table != _query.From))
             {
                 var fromTable = _query.From.Meta;
                 foreach (var columnMeta in fromTable.Columns)
@@ -184,6 +185,15 @@ namespace DummyOrm.Db.Impl
                 }
             }
 
+            // If Id columns of From table are not included, include all id columns by default
+            foreach (var idColumn in _query.From.Meta.Columns.Where(c => c.Identity))
+            {
+                if (_query.SelectColumns.All(c => c.Value.Meta != idColumn))
+                {
+                    _query.AddColumn(new[] { idColumn });
+                }
+            }
+   
             return _query;
         }
 

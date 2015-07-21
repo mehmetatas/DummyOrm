@@ -19,8 +19,7 @@ namespace DummyOrm.ConsoleApp
         {
             Init();
 
-            var args = new Args();
-            Readme(args);
+            Readme();
 
             //JoinTest();
             //SelectWall();
@@ -34,26 +33,16 @@ namespace DummyOrm.ConsoleApp
             Console.ReadLine();
         }
 
-        class Args
-        {
-            public long[] Ids { get; set; }
-        }
-
-        private static void Readme(Args args)
+        private static void Readme()
         {
             using (var db = OpenConnection())
             {
                 db.BeginTransaction();
-                args.Ids = new[] { 40L, 41L, 43L, 44L };
-                Page<User> page = db.Select<User>()
-                                    .Top(10);
-                
-                Console.WriteLine(page.HasMore);
-                Console.WriteLine(page.Items);
-                Console.WriteLine(page.PageCount);
-                Console.WriteLine(page.PageIndex);
-                Console.WriteLine(page.PageSize);
-                Console.WriteLine(page.TotalCount);
+
+                IList<User> list = db.Select<User>()
+                    .Include(u => new { u.Fullname, u.Username, u.Email })
+                    //.Include(u => u.Username)
+                    .ToList();
 
                 db.Rollback();
             }
