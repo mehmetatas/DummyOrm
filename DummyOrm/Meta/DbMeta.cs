@@ -5,7 +5,6 @@ using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using DummyOrm.Dynamix;
 using DummyOrm.Dynamix.Impl;
 using DummyOrm.Sql.SimpleCommands;
 

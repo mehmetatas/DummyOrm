@@ -1,8 +1,6 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Data;
-using System.Linq;
 using System.Linq.Expressions;
 using DummyOrm.Dynamix.Impl;
 using DummyOrm.Meta;
@@ -114,10 +112,10 @@ namespace DummyOrm.Db.Impl
             }
 #if DEBUG
             Console.WriteLine(dbCmd.CommandText);
-            foreach (var param in dbCmd.Parameters.Cast<IDbDataParameter>())
-            {
-                Console.WriteLine("{0}: {1}", param.ParameterName, param.Value);
-            }
+            //foreach (var param in dbCmd.Parameters.Cast<IDbDataParameter>())
+            //{
+            //    Console.WriteLine("{0}: {1}", param.ParameterName, param.Value);
+            //}
 #endif
             return dbCmd;
         }

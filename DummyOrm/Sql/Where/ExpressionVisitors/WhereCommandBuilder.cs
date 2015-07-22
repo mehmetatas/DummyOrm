@@ -143,7 +143,9 @@ namespace DummyOrm.Sql.Where.ExpressionVisitors
         {
             var values = (IEnumerable)e.Values.Value;
 
-            if (!values.GetEnumerator().MoveNext())
+            var iter = values.GetEnumerator();
+
+            if (!iter.MoveNext())
             {
                 _sql.Append("1=1");
                 return;
@@ -153,18 +155,20 @@ namespace DummyOrm.Sql.Where.ExpressionVisitors
 
             _sql.Append(" IN (");
             var comma = "";
-            foreach (var val in values)
+            
+            do
             {
                 _sql.Append(comma);
 
                 Visit(new ValueExpression
                 {
-                    Value = val, 
+                    Value = iter.Current,
                     ColumnMeta = e.Values.ColumnMeta
                 });
 
                 comma = ",";
-            }
+            } while (iter.MoveNext());
+
             _sql.Append(")");
         }
 

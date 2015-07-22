@@ -27,7 +27,6 @@ namespace DummyOrm.Sql.Where.ExpressionVisitors
 
         public static IWhereExpression Build(Expression whereExpression, IWhereExpressionListener listener)
         {
-            //var evaled = whereExpression;
             var evaled = Evaluator.PartialEval(whereExpression);
             var visitor = new WhereExpressionVisitor(listener);
             visitor.Visit(evaled);

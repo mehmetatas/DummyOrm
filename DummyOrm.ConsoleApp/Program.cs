@@ -19,14 +19,14 @@ namespace DummyOrm.ConsoleApp
         {
             Init();
 
-            //Readme();
+            Readme();
 
-            //JoinTest();
-            //SelectWall();
-            //SelectModel();
-            //SimpleCrudTestsAssociationEntity();
-            //SimpleCrudTestsEntity();
-            //SelectTests();
+            JoinTest();
+            SelectWall();
+            SelectModel();
+            SimpleCrudTestsAssociationEntity();
+            SimpleCrudTestsEntity();
+            SelectTests();
             SelectManyToMany();
             SelectOneToMany();
 
@@ -40,9 +40,9 @@ namespace DummyOrm.ConsoleApp
             {
                 db.BeginTransaction();
 
-              IList<Post> list = db.Select<Post>()
-                         .OrderBy(p => p.User.Username)
-                         .ToList();
+                db.Select<Post>()
+                    .OrderBy(p => p.User.Username)
+                    .ToList();
 
                 db.Rollback();
             }
@@ -143,14 +143,6 @@ group by
                 var posts = db.Select<Post>().ToList();
 
                 db.Load(posts, p => p.Tags, t => new { t.Name });
-
-                foreach (var post in posts.Where(p => p.Tags != null))
-                {
-                    foreach (var tag in post.Tags)
-                    {
-                        Console.WriteLine(tag.Name);
-                    }
-                }
             }
         }
 
@@ -160,19 +152,7 @@ group by
             {
                 var users = db.Select<User>().ToList();
 
-                //db.Load(users, u => u.Posts, p => p.Title);
-                db.Load(users, u => u.Posts, p => new { p.Id, p.User.Username, p.Title, p.PublishDate });
-
-                var posts = users.Where(u => u.Posts != null).SelectMany(u => u.Posts);
-
-                //var posts = db.Select<Post>()
-                //    .Include(p => new { p.Id, p.User.Username, p.Title, p.PublishDate })
-                //    .ToList();
-
-                foreach (var post in posts)
-                {
-                    Console.WriteLine(post.User.Id);
-                }
+                db.Load(users, u => u.Posts, p => new { p.User.Username, p.Title, p.PublishDate });
             }
         }
 
