@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace DummyOrm.ConsoleApp.Entities
 {
@@ -12,5 +13,7 @@ namespace DummyOrm.ConsoleApp.Entities
         public virtual DateTime? JoinDate { get; set; }
         public virtual UserType Type { get; set; }
         public virtual UserStatus Status { get; set; }
+
+        public List<Post> Posts { get; set; }
     }
 }

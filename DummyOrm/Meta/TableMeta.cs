@@ -10,8 +10,6 @@ namespace DummyOrm.Meta
         public bool AssociationTable { get; set; }
         public ColumnMeta IdColumn { get; set; }
 
-        public AssociationMeta[] Associations { get; set; }
-
         public Func<object> Factory { get; set; }
 
         public override string ToString()

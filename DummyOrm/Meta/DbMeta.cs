@@ -3,7 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
+using DummyOrm.Dynamix;
 using DummyOrm.Dynamix.Impl;
 using DummyOrm.Sql.SimpleCommands;
 
@@ -32,9 +34,77 @@ namespace DummyOrm.Meta
             return (ColumnMeta)_columns[prop];
         }
 
-        public AssociationMeta GetAssociation(PropertyInfo prop)
+        public IAssociationMeta GetAssociation(PropertyInfo prop)
         {
-            return (AssociationMeta)_associations[prop];
+            var assoc = _associations[prop] as IAssociationMeta;
+
+            if (assoc == null)
+            {
+                throw new InvalidOperationException("Association meta not found for " + prop);
+            }
+
+            return assoc;
+        }
+
+        public DbMeta OneToMany<TOne, TMany>(Expression<Func<TOne, IEnumerable<TMany>>> listPropExp, Expression<Func<TMany, TOne>> foreignPropExp)
+            where TOne : class, new()
+            where TMany : class, new()
+        {
+            EnsureReferences();
+
+            var parentTable = this.GetTable<TOne>();
+            var primaryKey = parentTable.IdColumn;
+
+            var listProp = listPropExp.GetPropertyInfo();
+
+            var childCol = GetColumn(foreignPropExp.GetPropertyInfo());
+
+            var assoc = new OneToManyMeta
+            {
+                ListFactory = PocoFactory.CreateListFactory(listProp.PropertyType),
+                ListGetterSetter = GetterSetter.Create(listProp),
+                PrimaryKey = primaryKey,
+                ForeignKey = childCol
+            };
+
+            assoc.Loader = new OneToManyLoader(assoc);
+
+            _associations.Add(listProp, assoc);
+
+            return this;
+        }
+
+        public DbMeta ManyToMany<TParent, TAssoc>(Expression<Func<TParent, IList>> listPropExp)
+            where TParent : class, new()
+            where TAssoc : class, new()
+        {
+            EnsureReferences();
+            
+            var listProp = listPropExp.GetPropertyInfo();
+
+            var parentType = listProp.DeclaringType;
+            var childType = listProp.PropertyType.GetGenericArguments()[0];
+
+            var parentTable = GetTable(parentType);
+            var childTable = GetTable(childType);
+            var assocTable = this.GetTable<TAssoc>();
+
+            var parentColumn = assocTable.Columns.First(c => c.ReferencedTable == parentTable);
+            var childColumn = assocTable.Columns.First(c => c.ReferencedTable == childTable);
+
+            var assoc = new ManyToManyMeta
+            {
+                ListFactory = PocoFactory.CreateListFactory(listProp.PropertyType),
+                ListGetterSetter = GetterSetter.Create(listProp),
+                ChildColumn = childColumn,
+                ParentColumn = parentColumn
+            };
+
+            assoc.Loader = new ManyToManyLoader<TAssoc>(assoc);
+
+            _associations.Add(listProp, assoc);
+
+            return this;
         }
 
         public DbMeta RegisterModel(Type type)
@@ -108,73 +178,16 @@ namespace DummyOrm.Meta
             }
 
             _tables.Add(type, tableMeta);
-            
+
             SimpleCommandBuilder.RegisterAll(tableMeta);
             PocoDeserializer.RegisterEntity(type);
+            
+            EnsureReferences();
 
             return this;
         }
 
-        public DbMeta Build()
-        {
-            BuildReferences();
-            BuildAssociations();
-
-            return this;
-        }
-
-        private void BuildAssociations()
-        {
-            var allTables = _tables.Values.OfType<TableMeta>().ToArray();
-            foreach (var parentTable in allTables)
-            {
-                var parentType = parentTable.Type;
-
-                var props = parentType.GetProperties()
-                    .Where(p => !p.IsColumnProperty() &&
-                                p.PropertyType.IsGenericType &&
-                                p.PropertyType.GetGenericTypeDefinition() == typeof(List<>))
-                    .ToList();
-
-                var associations = new List<AssociationMeta>();
-
-                foreach (var prop in props)
-                {
-                    var childType = prop.PropertyType.GetGenericArguments()[0];
-                    var childTable = GetTable(childType);
-
-                    var assocTable = allTables.FirstOrDefault(t =>
-                        t.AssociationTable &&
-                        t.Columns.Any(c => c.Identity && c.IsRefrence && c.ReferencedTable == parentTable) &&
-                        t.Columns.Any(c => c.Identity && c.IsRefrence && c.ReferencedTable == childTable));
-
-                    if (assocTable == null)
-                    {
-                        continue;
-                    }
-
-                    var parentColumn = assocTable.Columns.First(c => c.Identity && c.IsRefrence && c.ReferencedTable == parentTable);
-                    var childColumn = assocTable.Columns.First(c => c.Identity && c.IsRefrence && c.ReferencedTable == childTable);
-
-                    var assoc = new AssociationMeta
-                    {
-                        ListFactory = PocoFactory.CreateListFactory(prop.PropertyType),
-                        ListGetterSetter = GetterSetter.Create(prop),
-                        ChildColumn = childColumn,
-                        ParentColumn = parentColumn
-                    };
-
-                    assoc.Loader = new AssociationLoader(assoc);
-
-                    associations.Add(assoc);
-                    _associations.Add(prop, assoc);
-                }
-
-                parentTable.Associations = associations.ToArray();
-            }
-        }
-
-        private void BuildReferences()
+        private void EnsureReferences()
         {
             foreach (var table in _tables.Values.OfType<TableMeta>())
             {

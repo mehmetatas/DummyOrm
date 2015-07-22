@@ -19,15 +19,16 @@ namespace DummyOrm.ConsoleApp
         {
             Init();
 
-            Readme();
+            //Readme();
 
             //JoinTest();
             //SelectWall();
             //SelectModel();
-            //SelectList();
             //SimpleCrudTestsAssociationEntity();
             //SimpleCrudTestsEntity();
             //SelectTests();
+            SelectManyToMany();
+            SelectOneToMany();
 
             Console.WriteLine("OK!");
             Console.ReadLine();
@@ -67,7 +68,9 @@ namespace DummyOrm.ConsoleApp
                 DbMeta.Instance.RegisterModel(modelClass);
             }
 
-            DbMeta.Instance.Build();
+            DbMeta.Instance
+                .OneToMany<User, Post>(u => u.Posts, p => p.User)
+                .ManyToMany<Post, PostTag>(p => p.Tags);
         }
 
         private static void JoinTest()
@@ -133,13 +136,13 @@ group by
             }
         }
 
-        private static void SelectList()
+        private static void SelectManyToMany()
         {
             using (var db = OpenConnection())
             {
                 var posts = db.Select<Post>().ToList();
 
-                db.Load(posts, p => p.Tags);
+                db.Load(posts, p => p.Tags, t => new { t.Name });
 
                 foreach (var post in posts.Where(p => p.Tags != null))
                 {
@@ -147,6 +150,28 @@ group by
                     {
                         Console.WriteLine(tag.Name);
                     }
+                }
+            }
+        }
+
+        private static void SelectOneToMany()
+        {
+            using (var db = OpenConnection())
+            {
+                var users = db.Select<User>().ToList();
+
+                //db.Load(users, u => u.Posts, p => p.Title);
+                db.Load(users, u => u.Posts, p => new { p.Id, p.User.Username, p.Title, p.PublishDate });
+
+                var posts = users.Where(u => u.Posts != null).SelectMany(u => u.Posts);
+
+                //var posts = db.Select<Post>()
+                //    .Include(p => new { p.Id, p.User.Username, p.Title, p.PublishDate })
+                //    .ToList();
+
+                foreach (var post in posts)
+                {
+                    Console.WriteLine(post.User.Id);
                 }
             }
         }

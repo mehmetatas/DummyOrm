@@ -92,6 +92,11 @@ namespace DummyOrm.Sql.Select
         public void Where(Expression<Func<T, bool>> filter)
         {
             var whereExp = WhereExpressionVisitor.Build(filter, this);
+            Where(whereExp);
+        }
+
+        internal void Where(IWhereExpression whereExp)
+        {
             WhereExpressions.Add(whereExp);
         }
 
@@ -195,6 +200,7 @@ namespace DummyOrm.Sql.Select
         private Table EnsureJoined(IEnumerable<ColumnMeta> props)
         {
             var leftTable = From;
+
             var i = 0;
             foreach (var leftColMeta in props)
             {
@@ -203,21 +209,28 @@ namespace DummyOrm.Sql.Select
                     break;
                 }
 
+                var subChain = props.Take(++i).ToList();
+
                 var rightTableMeta = leftColMeta.ReferencedTable;
-                var rightTableKey = GetTableKey(props.Take(++i));
+                var rightTableKey = GetTableKey(subChain);
                 var rightTable = GetOrAddTable(rightTableKey, rightTableMeta);
 
                 var joinKey = String.Format("{0}_{1}", leftTable.Alias, rightTable.Alias);
 
                 if (!Joins.ContainsKey(joinKey))
                 {
+                    //var leftColumn = AddColumn(leftTable, leftColMeta);
                     var leftColumn = new Column
                     {
                         Table = leftTable,
                         Meta = leftColMeta
-                    }; // AddColumn(leftTable, leftColMeta);
+                    };
 
                     var rightColumn = AddColumn(rightTable, rightTableMeta.IdColumn);
+                    if (!_outputMappings.ContainsKey(rightColumn.Alias))
+                    {
+                        _outputMappings.Add(rightColumn.Alias, subChain);
+                    }
 
                     Joins.Add(joinKey, new Join
                     {

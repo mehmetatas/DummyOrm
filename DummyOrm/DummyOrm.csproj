@@ -46,8 +46,9 @@
     <Compile Include="Db\IWhereQuery.cs" />
     <Compile Include="Dynamix\IAssociationLoader.cs" />
     <Compile Include="Dynamix\IGetterSetter.cs" />
-    <Compile Include="Dynamix\Impl\AssociationLoader.cs" />
+    <Compile Include="Dynamix\Impl\ManyToManyLoader.cs" />
     <Compile Include="Dynamix\Impl\GetterSetter.cs" />
+    <Compile Include="Dynamix\Impl\OneToManyLoader.cs" />
     <Compile Include="Dynamix\Impl\PocoDeserializer.cs" />
     <Compile Include="Dynamix\Impl\PocoFactory.cs" />
     <Compile Include="Dynamix\Impl\ProxyFactory.cs" />
@@ -55,10 +56,11 @@
     <Compile Include="Dynamix\IPocoDeserializer.cs" />
     <Compile Include="Dynamix\IProxy.cs" />
     <Compile Include="Dynamix\IProxyValues.cs" />
-    <Compile Include="Meta\AssociationMeta.cs" />
+    <Compile Include="Meta\ManyToManyMeta.cs" />
     <Compile Include="Meta\ColumnMeta.cs" />
     <Compile Include="Meta\DbMeta.cs" />
     <Compile Include="Meta\DbMetaExtenisons.cs" />
+    <Compile Include="Meta\OneToManyMeta.cs" />
     <Compile Include="Meta\TableMeta.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Sql\Command.cs" />

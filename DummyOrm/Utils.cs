@@ -46,6 +46,19 @@ namespace DummyOrm
                 propType == typeof(byte[]);
         }
 
+        public static Expression<Func<T,TProp>> ToLambda<T, TProp>(this PropertyInfo propInf)
+        {
+            var paramExp = Expression.Parameter(typeof(T), "t");
+            Expression propExp = Expression.Property(paramExp, propInf);
+
+            if (propInf.PropertyType != typeof(TProp))
+            {
+                propExp = Expression.Convert(propExp, typeof(TProp));
+            }
+
+            return Expression.Lambda<Func<T, TProp>>(propExp, paramExp);
+        }
+
         public static Type AsNonNullable(this Type type)
         {
             if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))

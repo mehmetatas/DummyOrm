@@ -6,6 +6,7 @@ using System.Linq.Expressions;
 using DummyOrm.Meta;
 using DummyOrm.Sql;
 using DummyOrm.Sql.Select;
+using DummyOrm.Sql.Where;
 
 namespace DummyOrm.Db.Impl
 {
@@ -14,6 +15,8 @@ namespace DummyOrm.Db.Impl
         private readonly ICommandExecutor _queryExecuter;
         private readonly SelectQuery<T> _query;
         private bool _autoIncludeFromColumns;
+
+        internal string FromTableAlias { get { return _query.From.Alias; } }
 
         public QueryImpl(ICommandExecutor queryExecuter)
         {
@@ -51,6 +54,30 @@ namespace DummyOrm.Db.Impl
             return this;
         }
 
+        internal void Join<TProp>(List<ColumnMeta> propChain, Expression<Func<TProp, object>> include = null) where TProp : class ,new()
+        {
+            _query.Join(propChain);
+
+            if (include == null)
+            {
+                // No columns specified Include all properties of joined type
+                Include(true, propChain);
+            }
+            else
+            {
+                if (include.Body is NewExpression)
+                {
+                    // Include multiple properties
+                    Include(true, include.Body as NewExpression, propChain);
+                }
+                else
+                {
+                    // Include specified property only
+                    Include(true, include.GetMemberExpression(), propChain);
+                }
+            }
+        }
+
         public IQuery<T> Include(Expression<Func<T, object>> propExpression)
         {
             if (propExpression.Body is NewExpression)
@@ -80,18 +107,24 @@ namespace DummyOrm.Db.Impl
                 : new List<ColumnMeta>(rootChain);
 
             list.AddRange(memberExp.GetPropertyChain(false));
-            _query.AddColumn(list);
+            
+            Include(join, list);
+        }
 
-            var colMeta = list.Last();
+        private void Include(bool join, List<ColumnMeta> propChain)
+        {
+            _query.AddColumn(propChain);
+
+            var colMeta = propChain.Last();
 
             if (colMeta.IsRefrence)
             {
                 foreach (var columnMeta in colMeta.ReferencedTable.Columns)
                 {
-                    _query.AddColumn(new List<ColumnMeta>(list) { columnMeta });
+                    _query.AddColumn(new List<ColumnMeta>(propChain) { columnMeta });
                 }
             }
-            
+
             if (!join && colMeta.Table == _query.From.Meta)
             {
                 _autoIncludeFromColumns = false;
@@ -102,6 +135,11 @@ namespace DummyOrm.Db.Impl
         {
             _query.Where(filter);
             return this;
+        }
+
+        internal void Where(IWhereExpression whereExp)
+        {
+            _query.Where(whereExp);
         }
 
         public IOrderByQuery<T> OrderBy(Expression<Func<T, object>> props)

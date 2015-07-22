@@ -1,5 +1,6 @@
 using System;
 using System.Linq.Expressions;
+using DummyOrm.Dynamix;
 
 namespace DummyOrm.Meta
 {
@@ -25,7 +26,7 @@ namespace DummyOrm.Meta
             return dbMeta.GetColumn(propExp.GetPropertyInfo());
         }
 
-        public static AssociationMeta GetAssociation<T, TProp>(this DbMeta dbMeta, Expression<Func<T, TProp>> propExp) where T : class, new()
+        public static IAssociationMeta GetAssociation<T, TProp>(this DbMeta dbMeta, Expression<Func<T, TProp>> propExp) where T : class, new()
         {
             return dbMeta.GetAssociation(propExp.GetPropertyInfo());
         }

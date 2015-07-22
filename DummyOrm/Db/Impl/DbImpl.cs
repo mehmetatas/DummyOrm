@@ -86,10 +86,12 @@ namespace DummyOrm.Db.Impl
             }
         }
 
-        public void Load<T>(IList<T> entities, Expression<Func<T, IList>> listExp) where T : class, new()
+        public void Load<T, TProp>(IList<T> entities, Expression<Func<T, IList<TProp>>> listExp, Expression<Func<TProp, object>> includeProps = null)
+            where T : class, new()
+            where TProp : class, new()
         {
             var assoc = DbMeta.Instance.GetAssociation(listExp);
-            assoc.Loader.Load(entities, this);
+            assoc.Loader.Load(entities, this, includeProps);
         }
 
         private IDbCommand CreateCommand(Command cmd)

@@ -27,13 +27,16 @@ namespace DummyOrm.Db
 
         IList<T> Select<T>(Command selectCommand) where T : class, new();
 
-        void Load<T>(IList<T> entities, Expression<Func<T, IList>> listExp) where T : class, new();
+        void Load<T, TProp>(IList<T> entities, Expression<Func<T, IList<TProp>>> listExp, Expression<Func<TProp, object>> includeProps = null)
+            where T : class, new()
+            where TProp : class, new();
     }
 
     public static class DbExtensions
     {
-        public static void Load<T>(this IDb db, T entity, Expression<Func<T, IList>> listExp)
+        public static void Load<T, TProp>(this IDb db, T entity, Expression<Func<T, IList<TProp>>> listExp)
             where T : class, new()
+            where TProp : class, new()
         {
             db.Load(new[] { entity }, listExp);
         }
