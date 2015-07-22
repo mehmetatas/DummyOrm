@@ -163,28 +163,6 @@ namespace DummyOrm.Sql.SimpleCommands
             };
         }
 
-        public static CommandMeta CreateFillCommandMeta(TableMeta table)
-        {
-            var columns = table.Columns;
-
-            var parameterMeta = new Dictionary<string, ColumnMeta>();
-
-            var sql = new StringBuilder()
-                .Append("SELECT pt.PostId, t.* FROM Tag t JOIN PostTag pt ON pt.TagId = t.Id WHERE pt.PostId IN (...)")
-                .Append(String.Join(",", columns.Select(c => String.Format("[{0}]", c.ColumnName))))
-                .Append(" FROM [")
-                .Append(table.TableName)
-                .Append("]");
-
-            BuildIdentityWhere(columns, parameterMeta, sql);
-
-            return new CommandMeta
-            {
-                CommandText = sql.ToString(),
-                ParameterMeta = parameterMeta
-            };
-        }
-
         private static void BuildIdentityWhere(IEnumerable<ColumnMeta> columns, Dictionary<string, ColumnMeta> parameterMeta, StringBuilder sql)
         {
             var and = " WHERE ";
