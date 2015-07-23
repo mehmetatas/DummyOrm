@@ -2,7 +2,7 @@
 
 DummyOrm is the ORM tool that is designed for fast development. The main idea is:
 
-> Do no so complicated stuff with the ORM but for complex cases (group by, having, too many joins etc.) use inline sql queries or stored procedures.
+> Do simple stuff with the ORM but for complex cases (group by, having, too many joins etc.) use inline sql queries or stored procedures.
 
 So, DummyOrm does not support many features that are supported by popular ORMs
 
@@ -55,7 +55,7 @@ Here is the default CRL/Db type mapping used. For value types, their `Nullable<>
 
 Then, what does it support?
     
-DummyOrm can work with any `IDbConnection` implementation. By default it only supports SqlServer 2014, but by  implementing an [IDbProvider](https://github.com/mehmetatas/DummyOrm) you can make it can support your db server too. While implementing your own [IDbProvider](https://github.com/mehmetatas/DummyOrm) you can cheat from [SqlServer2014 implementations](https://github.com/mehmetatas/DummyOrm).
+DummyOrm can work with any `IDbConnection` implementation. By default it only supports SqlServer 2014, but by  implementing an [IDbProvider](https://github.com/mehmetatas/DummyOrm/blob/master/DummyOrm/Provider/IDbProvider.cs) you can make it can support your db server too. While implementing your own [IDbProvider](https://github.com/mehmetatas/DummyOrm/blob/master/DummyOrm/Provider/IDbProvider.cs) you can cheat from [SqlServer2014 implementations](https://github.com/mehmetatas/DummyOrm/tree/master/DummyOrm/Provider/Impl/SqlServer2014).
 
 In the beginning of application (i.e. Main or Global.asax.cs) we need to do a setup. This is going to be the place where we will be telling DummyOrm which DbProvider we will be using, what are our entities, what kind of relations we have etc.
 
