@@ -653,42 +653,44 @@ Some quick samples
 
 Sometimes, we may want to load associated entities with a second select instead of a join. I think this as a explicit lazy loading thing. Load associated entities when needed. Difference is we (the developer) decide when to load an associated entity. Making lazy loading explicit gives control to developer and prevents [select n + 1](http://stackoverflow.com/questions/97197/what-is-the-n1-selects-issue) problem a little bit.
 
+**C&num;**
+
     var posts = db.Select<Post>().ToList();
+    
     db.Load(posts,                                  // Load Users of these posts
         p => p.User,                                // This is the part where we say we need User
         u => new { u.Username, u.Fullname });       // We do not want all properties of the Users
     
 **SQL**
 
- -- Select Posts 
- SELECT
-  p.Id p_Id,
-  p.UserId p_UserId,
-  p.CreateDate p_CreateDate,
-  p.PublishDate p_PublishDate,
-  p.UpdateDate p_UpdateDate,
-  p.Title p_Title,
-  p.HtmlContent p_HtmlContent,
-  p.AccessLevel p_AccessLevel,
-  p.Data p_Data
-FROM [Post] p
+     -- Select Posts 
+     SELECT
+      p.Id p_Id,
+      p.UserId p_UserId,
+      p.CreateDate p_CreateDate,
+      p.PublishDate p_PublishDate,
+      p.UpdateDate p_UpdateDate,
+      p.Title p_Title,
+      p.HtmlContent p_HtmlContent,
+      p.AccessLevel p_AccessLevel,
+      p.Data p_Data
+    FROM [Post] p
 
--- Select Users of posts
-SELECT
-  u.Username u_Username,
-  u.Fullname u_Fullname,
-  u.Id u_Id
-FROM [User] u
-WHERE
-u.Id IN (@wp0,@wp1,@wp2,@wp3,@wp4,@wp5,@wp6,@wp7,@wp8)
+    -- Select Users of posts
+    SELECT
+      u.Username u_Username,
+      u.Fullname u_Fullname,
+      u.Id u_Id
+    FROM [User] u
+    WHERE
+    u.Id IN (@wp0,@wp1,@wp2,@wp3,@wp4,@wp5,@wp6,@wp7,@wp8)
+    -- Appearantly first select returned 9 distinct User Ids.
 
 ### One To Many
 
 > "Parent entity" has a list of "child entity" and "child entity" has the "parent entity" as a property.
 
 In the One To One part I talked about putting a list of posts property is senseless. For a second, let's forget about that and put a `List<Post> Posts` property in the `User` entity. Because I could not find a better example and did not want to make our sample domain complicated. Remember that, `Post` entity already has a `User` property.
-
-**C&num;**
 
     public class User {
         // Other properties
@@ -703,36 +705,46 @@ So there exists a One To Many association for the DummyOrm. But can you see the 
 
     DbMeta.Instance.OneToMany<User, Post>(u => u.Posts, p => p.User)
     
-Now DummyOrm knows about the One To many association.
+Now DummyOrm knows about the One To Many association.
 
-### Many To Many
+"Many" (collection) properties cannot be fetched via `Join` or `Include`. Also they cannot be part of `Where`. They only can be loaded after a select operation.
 
-> Parent entity has a list of child entity but child entity does not have the parent entity as a property. Instead there is third entity (Association Entity) having both entities as a property.
+### LoadMany
 
-Association entities are the entities that are used for building ManyToMany associations between two entities. Association entities do not have a autoincrement primary key. They use the foreign keys as the composite primary key.
+**C&num;**
 
-First introduce our new entity `Like`.
+    var users = db.Select<User>().ToList();
 
-    public class Like {                                 CREATE TABLE [Like] (
-        public Post Post { get; set; }                      [PostId] [bigint] NOT NULL,
-        public User User { get; set; }                      [UserId] [bigint] NOT NULL,
-        public DateTime LikedDate { get; set; }             [LikedDate] [datetime] NULL,
-    }                                                   	CONSTRAINT [PK_Like] PRIMARY KEY CLUSTERED 
-                                                        	(
-                                                        		[PostId] ASC,
-                                                        		[UserId] ASC
-                                                        	)
-                                                        ) ON [PRIMARY]                
+    db.LoadMany(users,                              // Load Posts of these users                              
+        u => u.Posts,                               // This is the part where we say we need Posts
+        p => new { p.User.Username, p.Title });     // We do not want all properties of the Posts
 
-Register the association entity.
+**SQL**
 
-    DbMeta.Instance.RegisterEntity<Like>();
-    
-If a registered entity does not have a property named `Id` then it is assumed to be an Association entity. An Association entity must have exactly two properties those are referencing to another entities. Other primitive typed properties can also be added on to association entities.
+    SELECT
+      u.Id u_Id,
+      u.Fullname u_Fullname,
+      u.Email u_Email,
+      u.Username u_Username,
+      u.Password u_Password,
+      u.JoinDate u_JoinDate,
+      u.Type u_Type,
+      u.Status u_Status
+    FROM [User] u
+    SELECT
+      u.Id u_Id,
+      u.Username u_Username,
+      p.Title p_Title,
+      p.PublishDate p_PublishDate,
+      p.Id p_Id
+    FROM [Post] p
+      INNER JOIN [User] u ON p.UserId = u.Id
+    WHERE
+    p.UserId IN (@wp0,@wp1,@wp2,@wp3,@wp4,@wp5)
 
 # TODO
 
-## Late Loading
+## Many To Many
 
 ## Views
 

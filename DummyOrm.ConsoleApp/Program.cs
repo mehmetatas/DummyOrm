@@ -42,9 +42,9 @@ namespace DummyOrm.ConsoleApp
         {
             using (var db = OpenConnection())
             {
-                var posts = db.Select<Post>().ToList();
+                var users = db.Select<User>().ToList();
 
-                db.Load(posts, p => p.User, u => new { u.Username, u.Fullname });
+                db.LoadMany(users, u => u.Posts, p => new { p.User.Username, p.Title, p.PublishDate });
             }
         }
 
