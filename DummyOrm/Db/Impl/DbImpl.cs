@@ -4,6 +4,7 @@ using System.Data;
 using System.Linq.Expressions;
 using DummyOrm.Dynamix.Impl;
 using DummyOrm.Meta;
+using DummyOrm.Provider;
 using DummyOrm.Sql;
 using DummyOrm.Sql.SimpleCommands;
 
@@ -15,9 +16,10 @@ namespace DummyOrm.Db.Impl
         private readonly IDbConnection _conn;
         private readonly ICommandExecutor _cmdExec;
 
-        public DbImpl(IDbConnection conn)
+        public DbImpl()
         {
-            _conn = conn;
+            _conn = DbMeta.Instance.DbProvider.CreateConnection();
+            _conn.Open();
             _cmdExec = this;
         }
 

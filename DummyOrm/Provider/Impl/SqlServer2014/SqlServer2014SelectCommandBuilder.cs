@@ -2,30 +2,31 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using DummyOrm.Meta;
+using DummyOrm.Sql;
 using DummyOrm.Sql.Select;
 using DummyOrm.Sql.Where;
 using DummyOrm.Sql.Where.Expressions;
-using DummyOrm.Sql.Where.ExpressionVisitors;
 
-namespace DummyOrm.Sql
+namespace DummyOrm.Provider.Impl.SqlServer2014
 {
-    public class SqlServerSelectCommandBuilderImpl : ISelectCommandBuilder
+    public class SqlServer2014SelectCommandBuilder : ISelectCommandBuilder
     {
-        public readonly static SqlServerSelectCommandBuilderImpl Instance = new SqlServerSelectCommandBuilderImpl();
+        public readonly static SqlServer2014SelectCommandBuilder Instance = new SqlServer2014SelectCommandBuilder();
 
         public Command Build<T>(SelectQuery<T> query) where T : class, new()
         {
             var cmd = new StringBuilder();
             var param = new Dictionary<string, CommandParameter>();
 
-            if (query.IsPaging)
+            if (query.IsPaging())
             {
                 cmd.AppendLine("WITH __DATA AS (");
             }
 
             cmd.Append("SELECT");
 
-            if (query.IsTop)
+            if (query.IsTop())
             {
                 cmd.AppendFormat(" TOP {0}", query.PageSize);
             }
@@ -67,7 +68,7 @@ namespace DummyOrm.Sql
                 }
 
                 var whereExp = where.Operand1;
-                var builder = new WhereCommandBuilder();
+                var builder = DbMeta.Instance.DbProvider.GetWhereCommandBuilder();
                 whereExp.Accept(builder);
                 var whereCmd = builder.Build();
 
@@ -79,7 +80,7 @@ namespace DummyOrm.Sql
                 }
             }
 
-            if (query.IsPaging)
+            if (query.IsPaging())
             {
                 /*
                  with

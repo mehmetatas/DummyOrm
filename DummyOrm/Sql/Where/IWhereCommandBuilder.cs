@@ -1,7 +1,7 @@
 
 namespace DummyOrm.Sql.Where
 {
-    public interface IWhereCommandBuilder
+    public interface IWhereCommandBuilder : IWhereExpressionVisitor
     {
         Command Build();
     }

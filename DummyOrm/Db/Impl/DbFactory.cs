@@ -1,14 +1,11 @@
-﻿using System.Data.SqlClient;
-
+﻿
 namespace DummyOrm.Db.Impl
 {
     public static class DbFactory
     {
-        public static IDb Create(string connectionString)
+        public static IDb Create()
         {
-            var conn = new SqlConnection(connectionString);
-            conn.Open();
-            return new DbImpl(conn);
+            return new DbImpl();
         }
     }
 }

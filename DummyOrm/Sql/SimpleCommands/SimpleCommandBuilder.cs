@@ -48,7 +48,7 @@ namespace DummyOrm.Sql.SimpleCommands
         {
             protected override CommandMeta CreateCommandMeta(TableMeta tableMeta)
             {
-                return CommandMeta.CreateInsertCommandMeta(tableMeta);
+                return DbMeta.Instance.DbProvider.GetCommandMetaBuilder().BuildInsertCommandMeta(tableMeta);
             }
         }
 
@@ -56,7 +56,7 @@ namespace DummyOrm.Sql.SimpleCommands
         {
             protected override CommandMeta CreateCommandMeta(TableMeta tableMeta)
             {
-                return CommandMeta.CreateUpdateCommandMeta(tableMeta);
+                return DbMeta.Instance.DbProvider.GetCommandMetaBuilder().BuildUpdateCommandMeta(tableMeta);
             }
         }
 
@@ -64,7 +64,7 @@ namespace DummyOrm.Sql.SimpleCommands
         {
             protected override CommandMeta CreateCommandMeta(TableMeta tableMeta)
             {
-                return CommandMeta.CreateDeleteCommandMeta(tableMeta);
+                return DbMeta.Instance.DbProvider.GetCommandMetaBuilder().BuildDeleteCommandMeta(tableMeta);
             }
         }
 
@@ -72,7 +72,7 @@ namespace DummyOrm.Sql.SimpleCommands
         {
             protected override CommandMeta CreateCommandMeta(TableMeta tableMeta)
             {
-                return CommandMeta.CreateSelectCommandMeta(tableMeta);
+                return DbMeta.Instance.DbProvider.GetCommandMetaBuilder().BuildGetByIdCommandMeta(tableMeta);
             }
 
             public Command BuildById<T>(object id)

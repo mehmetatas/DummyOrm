@@ -9,7 +9,7 @@ using DummyOrm.Sql.Where.ExpressionVisitors;
 
 namespace DummyOrm.Sql.Select
 {
-    public class SelectQuery<T> : IWhereExpressionListener where T : class, new()
+    public class SelectQuery<T> : ISelectQuery<T>, IWhereExpressionListener where T : class, new()
     {
         private readonly AliasContext _aliasCtx = new AliasContext();
         private readonly Dictionary<string, Table> _tables = new Dictionary<string, Table>();
@@ -23,17 +23,7 @@ namespace DummyOrm.Sql.Select
 
         public int Page { get; private set; }
         public int PageSize { get; private set; }
-
-        public bool IsPaging
-        {
-            get { return Page > 0 && PageSize > 0; }
-        }
-
-        public bool IsTop
-        {
-            get { return Page < 1 && PageSize > 0; }
-        }
-
+        
         public SelectQuery()
         {
             SelectColumns = new Dictionary<string, Column>();
@@ -48,7 +38,7 @@ namespace DummyOrm.Sql.Select
         Column IWhereExpressionListener.RegisterColumn(IList<ColumnMeta> propChain)
         {
             var colMeta = propChain.Last();
-            
+
             Table table;
             if (colMeta.Identity && propChain.Count > 1)
             {

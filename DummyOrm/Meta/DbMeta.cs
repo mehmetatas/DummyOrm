@@ -6,6 +6,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using DummyOrm.Dynamix.Impl;
+using DummyOrm.Provider;
 using DummyOrm.Sql.SimpleCommands;
 
 namespace DummyOrm.Meta
@@ -18,9 +19,17 @@ namespace DummyOrm.Meta
 
         public static readonly DbMeta Instance = new DbMeta();
 
+        public IDbProvider DbProvider { get; private set; }
+
         private DbMeta()
         {
 
+        }
+
+        public DbMeta SetProvider(IDbProvider provider)
+        {
+            DbProvider = provider;
+            return this;
         }
 
         public TableMeta GetTable(Type type)

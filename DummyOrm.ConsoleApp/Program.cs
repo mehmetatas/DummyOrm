@@ -1,8 +1,11 @@
-﻿using DummyOrm.ConsoleApp.Entities;
+﻿using System.Data;
+using System.Data.SqlClient;
+using DummyOrm.ConsoleApp.Entities;
 using DummyOrm.ConsoleApp.Models;
 using DummyOrm.Db;
 using DummyOrm.Db.Impl;
 using DummyOrm.Meta;
+using DummyOrm.Provider.Impl.SqlServer2014;
 using DummyOrm.Sql;
 using DummyOrm.Sql.Select;
 using System;
@@ -27,9 +30,9 @@ namespace DummyOrm.ConsoleApp
             //SimpleCrudTestsAssociationEntity();
             //SimpleCrudTestsEntity();
             //SelectTests();
-            SelectOneToOne();
-            SelectOneToMany();
-            SelectManyToMany();
+            //SelectOneToOne();
+            //SelectOneToMany();
+            //SelectManyToMany();
 
             Console.WriteLine("OK!");
             Console.ReadLine();
@@ -58,6 +61,8 @@ namespace DummyOrm.ConsoleApp
             var modelClasses = Assembly.GetExecutingAssembly()
                 .GetTypes()
                 .Where(t => t.Namespace == "DummyOrm.ConsoleApp.Models" && t.IsClass);
+
+            DbMeta.Instance.SetProvider(new TestDbProvider());
 
             foreach (var entityClass in entityClasses)
             {
@@ -274,7 +279,15 @@ group by
 
         private static IDb OpenConnection()
         {
-            return DbFactory.Create("Server=.;Database=DummyOrmTest;uid=sa;pwd=123456");
+            return DbFactory.Create();
+        }
+    }
+
+    public class TestDbProvider : SqlServer2014Provider
+    {
+        public override IDbConnection CreateConnection()
+        {
+            return new SqlConnection("Server=.;Database=DummyOrmTest;uid=sa;pwd=123456");
         }
     }
 }

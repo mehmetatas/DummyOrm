@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
+using DummyOrm.Meta;
 using DummyOrm.Sql.Where.Expressions;
 
 namespace DummyOrm.Sql.Where.ExpressionVisitors
@@ -10,12 +11,12 @@ namespace DummyOrm.Sql.Where.ExpressionVisitors
     /// Visits on IWhereExpressions
     /// Builds Command
     /// </summary>
-    public class WhereCommandBuilder : IWhereExpressionVisitor, IWhereCommandBuilder
+    public abstract class WhereCommandBuilder : IWhereCommandBuilder
     {
         private readonly StringBuilder _sql = new StringBuilder();
         private readonly IDictionary<string, CommandParameter> _parameters = new Dictionary<string, CommandParameter>();
 
-        public void Visit(LogicalExpression e)
+        public virtual void Visit(LogicalExpression e)
         {
             _sql.Append("(");
             e.Operand1.Accept(this);
@@ -24,7 +25,7 @@ namespace DummyOrm.Sql.Where.ExpressionVisitors
             _sql.Append(")");
         }
 
-        public void Visit(BinaryExpression e)
+        public virtual void Visit(BinaryExpression e)
         {
             var left = e.Operand1;
             var right = e.Operand2;
@@ -60,12 +61,12 @@ namespace DummyOrm.Sql.Where.ExpressionVisitors
             right.Accept(this);
         }
 
-        public void Visit(ColumnExpression e)
+        public virtual void Visit(ColumnExpression e)
         {
             _sql.AppendFormat("{0}.{1}", e.Column.Table.Alias, e.Column.Meta.ColumnName);
         }
 
-        public void Visit(ValueExpression e)
+        public virtual void Visit(ValueExpression e)
         {
             if (e.Value == null)
             {
@@ -73,7 +74,7 @@ namespace DummyOrm.Sql.Where.ExpressionVisitors
             }
 
             var paramName = String.Format("wp{0}", _parameters.Count);
-            _sql.AppendFormat("@{0}", paramName);
+            _sql.AppendFormat("{0}{1}", DbMeta.Instance.DbProvider.ParameterPrefix, paramName);
             _parameters.Add(paramName, new CommandParameter
             {
                 Name = paramName,
@@ -82,19 +83,19 @@ namespace DummyOrm.Sql.Where.ExpressionVisitors
             });
         }
 
-        public void Visit(NullExpression e)
+        public virtual void Visit(NullExpression e)
         {
             _sql.Append(" NULL");
         }
 
-        public void Visit(NotExpression e)
+        public virtual void Visit(NotExpression e)
         {
             _sql.Append(" NOT (");
             e.Operand.Accept(this);
             _sql.Append(")");
         }
 
-        public void Visit(LikeExpression e)
+        public virtual void Visit(LikeExpression e)
         {
             e.Column.Accept(this);
 
@@ -139,7 +140,7 @@ namespace DummyOrm.Sql.Where.ExpressionVisitors
             Visit(e.Value);
         }
 
-        public void Visit(InExpression e)
+        public virtual void Visit(InExpression e)
         {
             var values = (IEnumerable)e.Values.Value;
 

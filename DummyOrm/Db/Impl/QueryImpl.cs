@@ -4,6 +4,8 @@ using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
 using DummyOrm.Meta;
+using DummyOrm.Provider.Impl;
+using DummyOrm.Provider.Impl.SqlServer2014;
 using DummyOrm.Sql;
 using DummyOrm.Sql.Select;
 using DummyOrm.Sql.Where;
@@ -252,7 +254,7 @@ namespace DummyOrm.Db.Impl
         private Command BuildCommand()
         {
             var query = Build();
-            return SqlServerSelectCommandBuilderImpl.Instance.Build(query);
+            return SqlServer2014SelectCommandBuilder.Instance.Build(query);
         }
     }
 }
