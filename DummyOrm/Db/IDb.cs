@@ -26,11 +26,11 @@ namespace DummyOrm.Db
 
         IList<T> Select<T>(Command selectCommand) where T : class, new();
 
-        void Load<T, TProp>(IList<T> entities, Expression<Func<T, TProp>> propExp, Expression<Func<TProp, object>> includeProps = null)
+        void Load<T, TProp>(IList<T> parentEntities, Expression<Func<T, TProp>> childPropExp, Expression<Func<TProp, object>> includeChildProps = null)
             where T : class, new()
             where TProp : class, new();
 
-        void LoadMany<T, TProp>(IList<T> entities, Expression<Func<T, IList<TProp>>> listExp, Expression<Func<TProp, object>> includeProps = null)
+        void LoadMany<T, TProp>(IList<T> parentEntities, Expression<Func<T, IList<TProp>>> childrenListExp, Expression<Func<TProp, object>> includeChildProps = null)
             where T : class, new()
             where TProp : class, new();
     }
@@ -85,18 +85,18 @@ namespace DummyOrm.Db
             }
         }
 
-        public static void Load<T, TProp>(this IDb db, T entity, Expression<Func<T, TProp>> propExp, Expression<Func<TProp, object>> includeProps = null)
+        public static void Load<T, TProp>(this IDb db, T parentEntity, Expression<Func<T, TProp>> childPropExp, Expression<Func<TProp, object>> includeChildProps = null)
             where T : class, new()
             where TProp : class, new()
         {
-            db.Load(new[] { entity }, propExp, includeProps);
+            db.Load(new[] { parentEntity }, childPropExp, includeChildProps);
         }
 
-        public static void LoadMany<T, TProp>(this IDb db, T entity, Expression<Func<T, IList<TProp>>> listExp, Expression<Func<TProp, object>> includeProps = null)
+        public static void LoadMany<T, TProp>(this IDb db, T parentEntity, Expression<Func<T, IList<TProp>>> childrenListExp, Expression<Func<TProp, object>> includeChildProps = null)
             where T : class, new()
             where TProp : class, new()
         {
-            db.LoadMany(new[] { entity }, listExp, includeProps);
+            db.LoadMany(new[] { parentEntity }, childrenListExp, includeChildProps);
         }
     }
 }

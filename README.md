@@ -2,42 +2,32 @@
 
 DummyOrm is the ORM tool that is designed for fast development. The main idea is:
 
-> Do general stuff with the ORM but for complex cases like reporting queries (group by, having, too many joins etc.) write inline sql queries or use stored procedures.
+> Do no so complicated stuff with the ORM but for complex cases (group by, having, too many joins etc.) use inline sql queries or stored procedures.
 
 So, DummyOrm does not support many features that are supported by popular ORMs
 
  - It is not an UnitOfwork/Repository implementation (ISession/DbContext)
  - No LINQ Provider
  - No lazy loading
- - No implicit OneToMany support
  - No first and second level caching
  - No cascading
- - Only supports SqlServer 2014
- - No code first support
  - No GROUP BY support
+ - No Attribute based configuration
+ - No inheritance mapping
+ - No code first support
+
+Most of these features will never be supported.
+
+Also for now,
+
  - No unit tests!!! (Yes, it is not tested! yet...)
+ - No custom entity-table mapping (There will be a fluent mapping configuration)
 
-Then, what does it support?
-
-First things you need to know.
+For now there is a simple convention based mapping is used. Simply:
 
     One Entity      =   One Table
     Class Name      =   Table Name
     Property Name   =   Column Name
-
-Let's look at the `User` entity and table.
-
-    public class User {                                  CREATE TABLE [User] (
-        public long Id { get; set; }                       [Id] [bigint] IDENTITY(1,1) NOT NULL,
-        public string Fullname { get; set; }               [Fullname] [nvarchar](100) NULL,
-        public string Email { get; set; }                  [Email] [nvarchar](100) NULL,
-        public string Username { get; set; }               [Username] [nvarchar](20) NULL,
-        public string Password { get; set; }               [Password] [nvarchar](32) NULL,
-        public DateTime JoinDate { get; set; }             [JoinDate] [datetime] NULL,
-        public UserType Type { get; set; }                 [Type] [int] NULL,
-        public UserStatus Status { get; set; }             [Status] [int] NULL,
-    }                                                      PRIMARY KEY CLUSTERED ([Id] ASC)
-                                                         ) ON [PRIMARY]
 
 Entities should be POCO classes with a public parameterless constuctor and public properties with both get and set. Since DummyOrm does not have a code first feature it is your responsibility to match the table/column names and types.
 
@@ -61,7 +51,41 @@ Here is the default CRL/Db type mapping used. For value types, their `Nullable<>
     { typeof(Guid),       DbType.Guid },
     { typeof(DateTime),   DbType.DateTime2 }
 
-> Enums (and nullable enums) are supported too!
+> Enums (and nullable enums) are supported too! They are converted to `DbType.Int32`.
+
+Then, what does it support?
+    
+DummyOrm can work with any `IDbConnection` implementation. By default it only supports SqlServer 2014, but by  implementing an [IDbProvider](https://github.com/mehmetatas/DummyOrm) you can make it can support your db server too. While implementing your own [IDbProvider](https://github.com/mehmetatas/DummyOrm) you can cheat from [SqlServer2014 implementations](https://github.com/mehmetatas/DummyOrm).
+
+In the beginning of application (i.e. Main or Global.asax.cs) we need to do a setup. This is going to be the place where we will be telling DummyOrm which DbProvider we will be using, what are our entities, what kind of relations we have etc.
+
+First you need to create a `IDbProvider` class and tell DummyOrm to use this provider.
+
+    public class MyDbProvider : SqlServer2014Provider
+    {
+        public override IDbConnection CreateConnection()
+        {
+            return new SqlConnection("Server=.;Database=MyDb;uid=sa;pwd=1234");
+        }
+    }
+    
+    DbMeta.Instance.SetProvider(new MyDbProvider());
+    
+Now DummyOrm will call your `CreateConnection` method any time it needs a new connection. Since `CreateConnection` returns an `IDbConnection` DummyOrm does not care if it is a `SqlConnection` or `MySqlConnection`. In general, any time a database specific information is needed DummyOrm will ask that information to the `IDbProvider` instance you set in the beginning. This is what makes DummyOrm RDMS independent.
+
+Let's look at the `User` entity and table.
+
+    public class User {                                  CREATE TABLE [User] (
+        public long Id { get; set; }                       [Id] [bigint] IDENTITY(1,1) NOT NULL,
+        public string Fullname { get; set; }               [Fullname] [nvarchar](100) NULL,
+        public string Email { get; set; }                  [Email] [nvarchar](100) NULL,
+        public string Username { get; set; }               [Username] [nvarchar](20) NULL,
+        public string Password { get; set; }               [Password] [nvarchar](32) NULL,
+        public DateTime JoinDate { get; set; }             [JoinDate] [datetime] NULL,
+        public UserType Type { get; set; }                 [Type] [int] NULL,
+        public UserStatus Status { get; set; }             [Status] [int] NULL,
+    }                                                      PRIMARY KEY CLUSTERED ([Id] ASC)
+                                                         ) ON [PRIMARY]
 
 Now introduce this entity to our DummyOrm.
 
@@ -73,11 +97,10 @@ After this registration DummyOrm assumes there exists a User table in the databa
 
 Let's create an `IDb` instance which we will be using for database operations.
 
-    SqlConnection conn = ...
-    using (IDb db = new DbImpl(conn))
+    using (IDb db = DbFactory.Create())
     {
         
-    } // Will dispose the connection
+    }
     
 ### Insert
 
@@ -346,9 +369,30 @@ Let's create an `IDb` instance which we will be using for database operations.
       u.Id u_Id
     FROM [User] u
     
-## Relations
     
-Till here, all queries are executed against a single, the [User] table. In other words, there were no `JOIN`s. First define a new entity that is associatied with the `User` entity then we will see some `JOIN`s.
+## Associations
+
+DummyOrm "kind of" supports One To One, One To Many and Many To Many associations. 
+
+Why "kind of"? I a little bit changed meanings of these fundemental association concepts from a developers perspective.
+
+### One To One
+
+> "Parent entity" has "child entity" as a property.
+
+From the domain perspective User-Post is a One To Many association. Since we will never fetch all posts of a `User` at once, putting a `List<Post> Posts { get; set; }` property inside the `User` entity does not make sense from a developers perspective. On the other hand, while selecting a `Post` entity, most of the time, we will want to select (join) it's `User` as well. So we put a `User User { get; set; }` property int the Post entity.
+
+    public class Post {                     public class User {
+        public User User { get; set; }          // There might or might not be a Post property
+    }                                       }
+
+Let's rephrase the definition:
+
+> "Post" has "User" as a property.
+
+So, for DummyOrm, there exists a One To One relation.
+    
+Till here, all queries are executed against a single, the [User] table. In other words, there were no `JOIN`s. First define our new `Post` entity that has one-to-one association with the `User` entity and soon we will start seeing some `JOIN`s.
 
     public class Post {                                  CREATE TABLE [Post2] (
         public long Id { get; set; }                      [Id] [bigint] IDENTITY(1,1) NOT NULL,
@@ -604,10 +648,66 @@ Some quick samples
     FROM [Post] p
       INNER JOIN [User] u ON p.UserId = u.Id
     ORDER BY u.Username ASC
+
+### Load
+
+Sometimes, we may want to load associated entities with a second select instead of a join. I think this as a explicit lazy loading thing. Load associated entities when needed. Difference is we (the developer) decide when to load an associated entity. Making lazy loading explicit gives control to developer and prevents [select n + 1](http://stackoverflow.com/questions/97197/what-is-the-n1-selects-issue) problem a little bit.
+
+    var posts = db.Select<Post>().ToList();
+    db.Load(posts,                                  // Load Users of these posts
+        p => p.User,                                // This is the part where we say we need User
+        u => new { u.Username, u.Fullname });       // We do not want all properties of the Users
     
-# TODO
+**SQL**
+
+ -- Select Posts 
+ SELECT
+  p.Id p_Id,
+  p.UserId p_UserId,
+  p.CreateDate p_CreateDate,
+  p.PublishDate p_PublishDate,
+  p.UpdateDate p_UpdateDate,
+  p.Title p_Title,
+  p.HtmlContent p_HtmlContent,
+  p.AccessLevel p_AccessLevel,
+  p.Data p_Data
+FROM [Post] p
+
+-- Select Users of posts
+SELECT
+  u.Username u_Username,
+  u.Fullname u_Fullname,
+  u.Id u_Id
+FROM [User] u
+WHERE
+u.Id IN (@wp0,@wp1,@wp2,@wp3,@wp4,@wp5,@wp6,@wp7,@wp8)
+
+### One To Many
+
+> "Parent entity" has a list of "child entity" and "child entity" has the "parent entity" as a property.
+
+In the One To One part I talked about putting a list of posts property is senseless. For a second, let's forget about that and put a `List<Post> Posts` property in the `User` entity. Because I could not find a better example and did not want to make our sample domain complicated. Remember that, `Post` entity already has a `User` property.
+
+**C&num;**
+
+    public class User {
+        // Other properties
+        public List<Post> Posts { get; set; }
+    }
+
+Now it is time to rephrase the definition:
+
+> "User" has a list of "Post" and "Post" has the "User" as a property.
+  
+So there exists a One To Many association for the DummyOrm. But can you see the problem? What if `Post` entity has more than one property whose type is `User`? How can DummyOrm can resolve the association? The answer is simple. It can not! So, what is the solution? We simply need to tell DummyOrm about the One To Many associaiton during the setup.
+
+    DbMeta.Instance.OneToMany<User, Post>(u => u.Posts, p => p.User)
     
-## Association Entities
+Now DummyOrm knows about the One To many association.
+
+### Many To Many
+
+> Parent entity has a list of child entity but child entity does not have the parent entity as a property. Instead there is third entity (Association Entity) having both entities as a property.
 
 Association entities are the entities that are used for building ManyToMany associations between two entities. Association entities do not have a autoincrement primary key. They use the foreign keys as the composite primary key.
 
@@ -630,11 +730,9 @@ Register the association entity.
     
 If a registered entity does not have a property named `Id` then it is assumed to be an Association entity. An Association entity must have exactly two properties those are referencing to another entities. Other primitive typed properties can also be added on to association entities.
 
-## Collection Properties
+# TODO
 
-## OneToMany
-
-## ManyToMany
+## Late Loading
 
 ## Views
 
@@ -643,3 +741,5 @@ If a registered entity does not have a property named `Id` then it is assumed to
 ## Stored Procedure
 
 ## Transactions
+
+## Fluent Configuration

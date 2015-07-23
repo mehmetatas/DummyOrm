@@ -42,13 +42,9 @@ namespace DummyOrm.ConsoleApp
         {
             using (var db = OpenConnection())
             {
-                db.BeginTransaction();
+                var posts = db.Select<Post>().ToList();
 
-                db.Select<Post>()
-                    .OrderBy(p => p.User.Username)
-                    .ToList();
-
-                db.Rollback();
+                db.Load(posts, p => p.User, u => new { u.Username, u.Fullname });
             }
         }
 
