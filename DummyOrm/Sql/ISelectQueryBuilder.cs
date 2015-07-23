@@ -1,9 +1,7 @@
-﻿using DummyOrm.Sql.Select;
-
-namespace DummyOrm.Sql
+﻿namespace DummyOrm.Sql
 {
     public interface ISelectQueryBuilder<T> where T : class, new()
     {
-        SelectQuery<T> Build();
+        ISelectQuery<T> Build();
     }
 }

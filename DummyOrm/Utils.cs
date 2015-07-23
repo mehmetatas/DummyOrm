@@ -9,7 +9,7 @@ using DummyOrm.Meta;
 
 namespace DummyOrm
 {
-    public static class Utils
+    internal static class Utils
     {
         private static readonly IDictionary<Type, DbType> TypeMap = new ReadOnlyDictionary<Type, DbType>(new Dictionary<Type, DbType>
         {

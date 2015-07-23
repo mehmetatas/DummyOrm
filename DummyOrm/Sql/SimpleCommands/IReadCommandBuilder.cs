@@ -1,6 +1,6 @@
 ﻿namespace DummyOrm.Sql.SimpleCommands
 {
-    public interface IReadCommandBuilder : ISimpleCommandBuilder
+    interface IReadCommandBuilder : ISimpleCommandBuilder
     {
         Command BuildById<T>(object id);
     }

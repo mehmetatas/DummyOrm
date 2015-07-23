@@ -4,8 +4,6 @@ using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
 using DummyOrm.Meta;
-using DummyOrm.Provider.Impl;
-using DummyOrm.Provider.Impl.SqlServer2014;
 using DummyOrm.Sql;
 using DummyOrm.Sql.Select;
 using DummyOrm.Sql.Where;
@@ -15,14 +13,14 @@ namespace DummyOrm.Db.Impl
     class QueryImpl<T> : IQuery<T>, ISelectQueryBuilder<T> where T : class, new()
     {
         private readonly ICommandExecutor _queryExecuter;
-        private readonly SelectQuery<T> _query;
+        private readonly SelectQueryImpl<T> _query;
         private bool _autoIncludeFromColumns;
 
         internal string FromTableAlias { get { return _query.From.Alias; } }
 
         public QueryImpl(ICommandExecutor queryExecuter)
         {
-            _query = new SelectQuery<T>();
+            _query = new SelectQueryImpl<T>();
             _queryExecuter = queryExecuter;
             _autoIncludeFromColumns = true;
         }
@@ -221,7 +219,7 @@ namespace DummyOrm.Db.Impl
             return new Page<T>(1, top, list.Count, list.Take(top));
         }
 
-        public SelectQuery<T> Build()
+        public ISelectQuery<T> Build()
         {
             // If there is no column specified from the From table select all columns by default.
             if (_autoIncludeFromColumns) // && _query.SelectColumns.All(c => c.Value.Table != _query.From)
@@ -254,7 +252,7 @@ namespace DummyOrm.Db.Impl
         private Command BuildCommand()
         {
             var query = Build();
-            return SqlServer2014SelectCommandBuilder.Instance.Build(query);
+            return DbMeta.Instance.DbProvider.GetSelectCommandBuilder().Build(query);
         }
     }
 }

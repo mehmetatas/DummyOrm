@@ -4,8 +4,6 @@ using System.Linq;
 using System.Text;
 using DummyOrm.Meta;
 using DummyOrm.Sql;
-using DummyOrm.Sql.Select;
-using DummyOrm.Sql.Where;
 using DummyOrm.Sql.Where.Expressions;
 
 namespace DummyOrm.Provider.Impl.SqlServer2014
@@ -14,7 +12,7 @@ namespace DummyOrm.Provider.Impl.SqlServer2014
     {
         public readonly static SqlServer2014SelectCommandBuilder Instance = new SqlServer2014SelectCommandBuilder();
 
-        public Command Build<T>(SelectQuery<T> query) where T : class, new()
+        public Command Build<T>(ISelectQuery<T> query) where T : class, new()
         {
             var cmd = new StringBuilder();
             var param = new Dictionary<string, CommandParameter>();

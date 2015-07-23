@@ -73,18 +73,18 @@
     <Compile Include="Sql\ISelectQueryBuilder.cs" />
     <Compile Include="Sql\Select\Column.cs" />
     <Compile Include="Sql\ISelectQuery.cs" />
-    <Compile Include="Sql\Select\IWhereExpressionListener.cs" />
+    <Compile Include="Sql\IWhereExpressionListener.cs" />
     <Compile Include="Sql\Select\Join.cs" />
     <Compile Include="Sql\Select\JoinType.cs" />
     <Compile Include="Sql\Select\OrderBy.cs" />
     <Compile Include="Sql\Select\Page.cs" />
-    <Compile Include="Sql\Select\SelectQuery.cs" />
+    <Compile Include="Sql\Select\SelectQueryImpl.cs" />
     <Compile Include="Sql\Select\Table.cs" />
-    <Compile Include="Sql\SimpleCommands\ICommandMetaBuilder.cs" />
+    <Compile Include="Sql\ICommandMetaBuilder.cs" />
     <Compile Include="Sql\SimpleCommands\IReadCommandBuilder.cs" />
     <Compile Include="Sql\SimpleCommands\ISimpleCommandBuilder.cs" />
     <Compile Include="Sql\SimpleCommands\SimpleCommandBuilder.cs" />
-    <Compile Include="Sql\SimpleCommands\CommandMeta.cs" />
+    <Compile Include="Sql\CommandMeta.cs" />
     <Compile Include="Sql\ISelectCommandBuilder.cs" />
     <Compile Include="Provider\Impl\SqlServer2014\SqlServer2014SelectCommandBuilder.cs" />
     <Compile Include="Sql\Where\Evaluator.cs" />
@@ -108,7 +108,7 @@
     <Compile Include="Sql\Where\IWhereExpressionBuilder.cs" />
     <Compile Include="Sql\Where\IWhereExpressionVisitor.cs" />
     <Compile Include="Sql\Where\IWhereCommandBuilder.cs" />
-    <Compile Include="Sql\Where\Operator.cs" />
+    <Compile Include="Sql\Operator.cs" />
     <Compile Include="Sql\Where\WhereExpressionExtensions.cs" />
     <Compile Include="Utils.cs" />
   </ItemGroup>

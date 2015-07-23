@@ -9,7 +9,7 @@ using DummyOrm.Sql.Where.ExpressionVisitors;
 
 namespace DummyOrm.Sql.Select
 {
-    public class SelectQuery<T> : ISelectQuery<T>, IWhereExpressionListener where T : class, new()
+    class SelectQueryImpl<T> : ISelectQuery<T>, IWhereExpressionListener where T : class, new()
     {
         private readonly AliasContext _aliasCtx = new AliasContext();
         private readonly Dictionary<string, Table> _tables = new Dictionary<string, Table>();
@@ -24,7 +24,7 @@ namespace DummyOrm.Sql.Select
         public int Page { get; private set; }
         public int PageSize { get; private set; }
         
-        public SelectQuery()
+        public SelectQueryImpl()
         {
             SelectColumns = new Dictionary<string, Column>();
             WhereExpressions = new List<IWhereExpression>();

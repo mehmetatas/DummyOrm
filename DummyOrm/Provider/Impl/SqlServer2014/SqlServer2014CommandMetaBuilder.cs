@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using DummyOrm.Meta;
-using DummyOrm.Sql.SimpleCommands;
+using DummyOrm.Sql;
 
 namespace DummyOrm.Provider.Impl.SqlServer2014
 {

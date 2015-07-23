@@ -1,6 +1,5 @@
 ﻿using System.Data;
 using DummyOrm.Sql;
-using DummyOrm.Sql.SimpleCommands;
 using DummyOrm.Sql.Where;
 
 namespace DummyOrm.Provider

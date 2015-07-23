@@ -32,28 +32,6 @@ namespace DummyOrm.Meta
             return this;
         }
 
-        public TableMeta GetTable(Type type)
-        {
-            return (TableMeta)_tables[type];
-        }
-
-        public ColumnMeta GetColumn(PropertyInfo prop)
-        {
-            return (ColumnMeta)_columns[prop];
-        }
-
-        public IAssociationMeta GetAssociation(PropertyInfo prop)
-        {
-            var assoc = _associations[prop] as IAssociationMeta;
-
-            if (assoc == null)
-            {
-                throw new InvalidOperationException("Association meta not found for " + prop);
-            }
-
-            return assoc;
-        }
-
         public DbMeta OneToMany<TOne, TMany>(Expression<Func<TOne, IEnumerable<TMany>>> listPropExp, Expression<Func<TMany, TOne>> foreignPropExp)
             where TOne : class, new()
             where TMany : class, new()
@@ -194,6 +172,28 @@ namespace DummyOrm.Meta
             EnsureReferences();
 
             return this;
+        }
+
+        internal TableMeta GetTable(Type type)
+        {
+            return (TableMeta)_tables[type];
+        }
+
+        internal ColumnMeta GetColumn(PropertyInfo prop)
+        {
+            return (ColumnMeta)_columns[prop];
+        }
+
+        internal IAssociationMeta GetAssociation(PropertyInfo prop)
+        {
+            var assoc = _associations[prop] as IAssociationMeta;
+
+            if (assoc == null)
+            {
+                throw new InvalidOperationException("Association meta not found for " + prop);
+            }
+
+            return assoc;
         }
 
         private void EnsureReferences()

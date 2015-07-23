@@ -5,11 +5,6 @@ namespace DummyOrm.Meta
 {
     public static class DbMetaExtenisons
     {
-        public static TableMeta GetTable<T>(this DbMeta dbMeta) where T : class, new()
-        {
-            return dbMeta.GetTable(typeof(T));
-        }
-
         public static DbMeta RegisterEntity<T>(this DbMeta dbMeta) where T : class, new()
         {
             return dbMeta.RegisterEntity(typeof(T));
@@ -20,12 +15,17 @@ namespace DummyOrm.Meta
             return dbMeta.RegisterModel(typeof(T));
         }
 
-        public static ColumnMeta GetColumn<T, TProp>(this DbMeta dbMeta, Expression<Func<T, TProp>> propExp) where T : class, new()
+        internal static TableMeta GetTable<T>(this DbMeta dbMeta) where T : class, new()
+        {
+            return dbMeta.GetTable(typeof(T));
+        }
+
+        internal static ColumnMeta GetColumn<T, TProp>(this DbMeta dbMeta, Expression<Func<T, TProp>> propExp) where T : class, new()
         {
             return dbMeta.GetColumn(propExp.GetPropertyInfo());
         }
 
-        public static IAssociationMeta GetAssociation<T, TProp>(this DbMeta dbMeta, Expression<Func<T, TProp>> propExp) where T : class, new()
+        internal static IAssociationMeta GetAssociation<T, TProp>(this DbMeta dbMeta, Expression<Func<T, TProp>> propExp) where T : class, new()
         {
             return dbMeta.GetAssociation(propExp.GetPropertyInfo());
         }

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DummyOrm.Sql.Where
+namespace DummyOrm.Sql
 {
     public enum Operator
     {

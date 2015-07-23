@@ -22,7 +22,7 @@ namespace DummyOrm.ConsoleApp
         {
             Init();
 
-            //Readme();
+            Readme();
 
             //JoinTest();
             //SelectWall();

@@ -1,5 +1,4 @@
-﻿
-namespace DummyOrm.Db.Impl
+﻿namespace DummyOrm.Db.Impl
 {
     public static class DbFactory
     {

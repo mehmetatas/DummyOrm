@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using DummyOrm.Meta;
 
-namespace DummyOrm.Sql.SimpleCommands
+namespace DummyOrm.Sql
 {
     public class CommandMeta
     {
