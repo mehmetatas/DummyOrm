@@ -29,7 +29,7 @@ namespace DummyOrm.Dynamix.Impl
             var parentId = _meta.PrimaryKey;
             var parentIdGetter = parentId.GetterSetter;
 
-            var parentIds = parentEntities.Select(parentIdGetter.Get);
+            var parentIds = parentEntities.Select(parentIdGetter.Get).Distinct();
 
             query.Where(new InExpression
             {

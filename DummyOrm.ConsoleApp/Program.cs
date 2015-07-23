@@ -19,16 +19,17 @@ namespace DummyOrm.ConsoleApp
         {
             Init();
 
-            Readme();
+            //Readme();
 
-            JoinTest();
-            SelectWall();
-            SelectModel();
-            SimpleCrudTestsAssociationEntity();
-            SimpleCrudTestsEntity();
-            SelectTests();
-            SelectManyToMany();
+            //JoinTest();
+            //SelectWall();
+            //SelectModel();
+            //SimpleCrudTestsAssociationEntity();
+            //SimpleCrudTestsEntity();
+            //SelectTests();
+            SelectOneToOne();
             SelectOneToMany();
+            SelectManyToMany();
 
             Console.WriteLine("OK!");
             Console.ReadLine();
@@ -101,7 +102,7 @@ namespace DummyOrm.ConsoleApp
                     .Where(p => followedUserIds.Contains(p.Id) && p.Id > lastFetchedPostId)
                     .Top(5);
 
-                db.Load(posts.Items, p => p.Tags);
+                db.LoadMany(posts.Items, p => p.Tags);
             }
         }
 
@@ -136,13 +137,13 @@ group by
             }
         }
 
-        private static void SelectManyToMany()
+        private static void SelectOneToOne()
         {
             using (var db = OpenConnection())
             {
                 var posts = db.Select<Post>().ToList();
 
-                db.Load(posts, p => p.Tags, t => new { t.Name });
+                db.Load(posts, p => p.User, u => new { u.Username, u.Fullname });
             }
         }
 
@@ -152,7 +153,17 @@ group by
             {
                 var users = db.Select<User>().ToList();
 
-                db.Load(users, u => u.Posts, p => new { p.User.Username, p.Title, p.PublishDate });
+                db.LoadMany(users, u => u.Posts, p => new { p.User.Username, p.Title, p.PublishDate });
+            }
+        }
+
+        private static void SelectManyToMany()
+        {
+            using (var db = OpenConnection())
+            {
+                var posts = db.Select<Post>().ToList();
+
+                db.LoadMany(posts, p => p.Tags, t => new { t.Name });
             }
         }
 

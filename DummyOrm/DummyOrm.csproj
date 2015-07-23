@@ -49,6 +49,7 @@
     <Compile Include="Dynamix\Impl\ManyToManyLoader.cs" />
     <Compile Include="Dynamix\Impl\GetterSetter.cs" />
     <Compile Include="Dynamix\Impl\OneToManyLoader.cs" />
+    <Compile Include="Dynamix\Impl\OneToOneLoader.cs" />
     <Compile Include="Dynamix\Impl\PocoDeserializer.cs" />
     <Compile Include="Dynamix\Impl\PocoFactory.cs" />
     <Compile Include="Dynamix\Impl\ProxyFactory.cs" />

@@ -2,7 +2,6 @@ using System;
 using System.Data;
 using System.Reflection;
 using DummyOrm.Dynamix;
-using DummyOrm.Sql.Select;
 
 namespace DummyOrm.Meta
 {
@@ -19,36 +18,7 @@ namespace DummyOrm.Meta
         public bool IsRefrence { get; set; }
         public TableMeta ReferencedTable { get; set; }
         public IGetterSetter GetterSetter { get; set; }
-
-        /// <summary>
-        /// this = Like.Post
-        /// FROM Like l
-        /// JOIN Post p ON l.PostId = p.Id
-        /// </summary>
-        public Join CreateJoin(string key, string leftTableAlias, string rightTableAlias)
-        {
-            return new Join
-            {
-                LeftColumn = new Column
-                {
-                    Meta = this,
-                    Table = new Table
-                    {
-                        Alias = leftTableAlias,
-                        Meta = Table
-                    }
-                },
-                RightColumn = new Column
-                {
-                    Meta = ReferencedTable.IdColumn,
-                    Table = new Table
-                    {
-                        Alias = leftTableAlias + "_" + ReferencedTable.TableName + ReferencedTable.IdColumn.ColumnName,
-                        Meta = ReferencedTable
-                    }
-                }
-            };
-        }
+        public IAssociationLoader Loader { get; set; }
 
         public override string ToString()
         {

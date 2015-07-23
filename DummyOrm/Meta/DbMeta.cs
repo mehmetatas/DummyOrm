@@ -148,6 +148,7 @@ namespace DummyOrm.Meta
                 if (isReference)
                 {
                     columnMeta.ColumnName += "Id";
+                    columnMeta.Loader = new OneToOneLoader(columnMeta);
                 }
 
                 if (tableMeta.AssociationTable)

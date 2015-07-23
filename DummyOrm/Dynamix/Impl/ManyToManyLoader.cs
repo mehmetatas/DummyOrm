@@ -28,7 +28,7 @@ namespace DummyOrm.Dynamix.Impl
             var parentId = _meta.ParentColumn.ReferencedTable.IdColumn;
             var parentIdGetter = parentId.GetterSetter;
 
-            var parentIds = parentEntities.Select(parentIdGetter.Get);
+            var parentIds = parentEntities.Select(parentIdGetter.Get).Distinct();
 
             var query = new QueryImpl<TAssoc>(cmdExec);
 
