@@ -57,7 +57,7 @@ Then, what does it support?
     
 DummyOrm can work with any `IDbConnection` implementation. By default it only supports SqlServer 2014, but by  implementing an [IDbProvider](https://github.com/mehmetatas/DummyOrm/blob/master/DummyOrm/Provider/IDbProvider.cs) you can make it can support your db server too. While implementing your own [IDbProvider](https://github.com/mehmetatas/DummyOrm/blob/master/DummyOrm/Provider/IDbProvider.cs) you can cheat from [SqlServer2014 implementations](https://github.com/mehmetatas/DummyOrm/tree/master/DummyOrm/Provider/Impl/SqlServer2014).
 
-In the beginning of application (i.e. Main or Global.asax.cs) we need to do a setup. This is going to be the place where we will be telling DummyOrm which DbProvider we will be using, what are our entities, what kind of relations we have etc.
+In the beginning of application (i.e. Main or Global.asax.cs) we need to do a setup. This is going to be the place where we will be telling DummyOrm which DbProvider we will be using, what are our entities, what kind of associations we have etc.
 
 First you need to create a `IDbProvider` class and tell DummyOrm to use this provider.
 
@@ -707,8 +707,6 @@ So there exists a One To Many association for the DummyOrm. But can you see the 
     
 Now DummyOrm knows about the One To Many association.
 
-"Many" (collection) properties cannot be fetched via `Join` or `Include`. Also they cannot be part of `Where`. They only can be loaded after a select operation.
-
 ### LoadMany
 
 **C&num;**
@@ -721,6 +719,7 @@ Now DummyOrm knows about the One To Many association.
 
 **SQL**
 
+    -- First select users
     SELECT
       u.Id u_Id,
       u.Fullname u_Fullname,
@@ -731,6 +730,8 @@ Now DummyOrm knows about the One To Many association.
       u.Type u_Type,
       u.Status u_Status
     FROM [User] u
+
+    -- Then select posts of those users
     SELECT
       u.Id u_Id,
       u.Username u_Username,
@@ -741,16 +742,107 @@ Now DummyOrm knows about the One To Many association.
       INNER JOIN [User] u ON p.UserId = u.Id
     WHERE
     p.UserId IN (@wp0,@wp1,@wp2,@wp3,@wp4,@wp5)
+    -- Appearantly we have 6 users in database
+
+> After load many operation `User.Posts` will be filled for each User given. If user does not have any `Post`, Posts property of that `User` will be untouched. Meaning if it is null it will remain null. If it is empty list it will remain empty.
+
+### Many To Many
+
+> "Parent entity" has a list of "child entity" but "child entity" does not have "the parent entity" as a property. Instead there is a "third entity" having both "entities" as a property.
+
+I call the third entity "Association Entity". Association entities are the entities that are used for building ManyToMany associations between two entities. Association entities do not have a autoincrement primary key. They use the foreign keys as the composite primary key.
+
+For our sample domain Post-Tag association is a good example of Many To Many association. A `Post` may have many `Tag`s and a `Tag` may belong to many `Post`s.
+
+First, the simple `Tag` entity.
+
+    public class Tag {                                  CREATE TABLE [Tag](
+        public long Id { get; set; }                        [Id] [bigint] IDENTITY(1,1) NOT NULL,
+        public string Name { get; set; }                    [Name] [nvarchar](255) NULL,
+        public long Count { get; set; }                     [Count] [bigint] NULL,
+        public string Hint { get; set; }                    [Hint] [nvarchar](255) NULL,
+        public string Description { get; set; }             [Description] [nvarchar](255) NULL,
+    }                                                   	PRIMARY KEY CLUSTERED ([Id] ASC)
+                                                        ) ON [PRIMARY]                
+
+Second, the Assocation Entity: `PostTag`
+
+    public class PostTag {                              CREATE TABLE [PostTag](
+        public Post Post { get; set; }                      [PostId] [bigint] NOT NULL,
+        public Tag Tag { get; set; }                        [TagId] [bigint] NOT NULL,
+    }                                                   	PRIMARY KEY CLUSTERED 
+	                                                        (
+		                                                        [PostId] ASC,
+		                                                        [TagId] ASC
+	                                                        )
+                                                        ) ON [PRIMARY]
+
+Register the association entity.
+
+    DbMeta.Instance.RegisterEntity<PostTag>();
+    
+If a registered entity does not have a property named `Id` then it is assumed to be an Association Entity. An Association Entity must have exactly two properties those are referencing to another entities. This means if we want to build a Many To Many relation between `Post` and `Tag` entities, the Association Entity, `PostTag` must have exactly one property whose type is `Post` and exactly one property whose type is `User`. Other primitive typed properties can still be added on to Association Entities.
+
+**Many Properties** of One To Many and Many To Many associations
+
+- Should be `List<T>`
+
+- Should be initialized in the consturctor of the parent entity. (To avoid NullReferenceException and null checks)
+
+- Do not have a corresponding column in database.
+
+- Cannot be fetched via `Join` or `Include`. 
+
+- Cannot be part of `Where`.
+
+- Can be loaded with `LoadMany`.
+
+## Models
+
+- Models are POCO classes are used for mapping custom queries. 
+
+- They can be used for maping result set of a View, Stored Procedure or inline sql query. 
+
+- Models do not have a correspoding Table in database.
+
+- Can only have simple properties. No associations.
+
+### Mapping an Inline Sql To a Model
+
+    public class PostListModel
+    {
+        public long PostId { get; set; }
+        public long UserId { get; set; }
+        public string Username { get; set; }
+        public string PostTitle { get; set; }
+        public int TagCount { get; set; }
+        public int LikeCount { get; set; }
+    }
+
+    var sql = @"select p.Id PostId, p.UserId UserId, u.Username Username, p.Title PostTitle, count(pt.TagId) TagCount, count(pl.PostId) LikeCount
+                from Post p
+                join [User] u on u.Id = p.UserId 
+                left join PostTag pt on pt.PostId = p.Id
+                left join [Like] pl on pl.PostId = p.Id
+                where p.CreateDate < @pCreateDate
+                group by p.Id, p.UserId, u.Username, p.Title";
+
+    var cmd = new CommandBuilder()
+        .Append(sql)
+        .AddParameter("pCreateDate", DateTime.Now)
+        .Build();
+ 
+    var list = db.Select<PostListModel>(cmd);
+    foreach (var post in list)
+    {
+        Console.WriteLine("{0}: {1} [{2} Likes] [{3} Tags] {4}", post.Username, post.PostTitle, post.LikeCount, post.TagCount, post.PostId);
+    }
 
 # TODO
 
-## Many To Many
-
-## Views
-
-## Inline Sql
-
 ## Stored Procedure
+
+## View
 
 ## Transactions
 

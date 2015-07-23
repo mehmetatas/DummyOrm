@@ -28,7 +28,7 @@ namespace DummyOrm.Sql
                 {
                     Name = paramName,
                     Value = value,
-                    ColumnMeta = colMeta
+                    ParameterMeta = colMeta.ParameterMeta
                 });
             }
 

@@ -22,11 +22,11 @@ namespace DummyOrm.ConsoleApp
         {
             Init();
 
-            Readme();
+            //Readme();
 
             //JoinTest();
             //SelectWall();
-            //SelectModel();
+            SelectModel();
             //SimpleCrudTestsAssociationEntity();
             //SimpleCrudTestsEntity();
             //SelectTests();
@@ -109,7 +109,7 @@ namespace DummyOrm.ConsoleApp
 
         private static void SelectModel()
         {
-            var cmd = @"select 
+            var cmd = new CommandBuilder().Append(@"select 
 	p.Id PostId, 
 	p.UserId UserId,
 	u.Username Username,
@@ -120,16 +120,16 @@ from Post p
 join [User] u on u.Id = p.UserId 
 left join PostTag pt on pt.PostId = p.Id
 left join [Like] pl on pl.PostId = p.Id
+where
+    p.CreateDate < @pCreateDate
 group by
-	p.Id, p.UserId, u.Username, p.Title";
+	p.Id, p.UserId, u.Username, p.Title")
+                .AddParameter("pCreateDate", DateTime.Now)
+                .Build();
 
             using (var db = OpenConnection())
             {
-                var list = db.Select<PostListModel>(new Command
-                {
-                    CommandText = cmd,
-                    Parameters = new Dictionary<string, CommandParameter>()
-                });
+                var list = db.Select<PostListModel>(cmd);
 
                 foreach (var post in list)
                 {

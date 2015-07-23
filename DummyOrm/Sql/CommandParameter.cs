@@ -6,6 +6,6 @@ namespace DummyOrm.Sql
     {
         public string Name { get; set; }
         public object Value { get; set; }
-        public ColumnMeta ColumnMeta { get; set; }
+        public ParameterMeta ParameterMeta { get; set; }
     }
 }

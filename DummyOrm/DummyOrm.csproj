@@ -69,6 +69,7 @@
     <Compile Include="Provider\Impl\SqlServer2014\SqlServer2014Provider.cs" />
     <Compile Include="Provider\Impl\SqlServer2014\SqlServer2014WhereCommandBuilder.cs" />
     <Compile Include="Sql\Command.cs" />
+    <Compile Include="Sql\CommandBuilder.cs" />
     <Compile Include="Sql\CommandParameter.cs" />
     <Compile Include="Sql\ISelectQueryBuilder.cs" />
     <Compile Include="Sql\Select\Column.cs" />

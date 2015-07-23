@@ -79,7 +79,7 @@ namespace DummyOrm.Sql.Where.ExpressionVisitors
             {
                 Name = paramName,
                 Value = e.Value,
-                ColumnMeta = e.ColumnMeta
+                ParameterMeta = e.ColumnMeta.ParameterMeta
             });
         }
 

@@ -111,11 +111,14 @@ namespace DummyOrm.Db.Impl
             {
                 var param = dbCmd.CreateParameter();
 
+                var paramMeta = sqlParameter.Value.ParameterMeta; 
+
                 param.ParameterName = sqlParameter.Key;
                 param.Value = sqlParameter.Value.Value ?? DBNull.Value;
-                param.DbType = sqlParameter.Value.ColumnMeta.DbType;
-                param.Precision = sqlParameter.Value.ColumnMeta.DecimalPrecision;
-                param.Size = sqlParameter.Value.ColumnMeta.StringLength;
+
+                param.DbType = paramMeta.DbType;
+                param.Precision = paramMeta.DecimalPrecision;
+                param.Size = paramMeta.StringLength;
 
                 dbCmd.Parameters.Add(param);
             }

@@ -128,8 +128,11 @@ namespace DummyOrm.Meta
                     Property = prop,
                     ColumnName = prop.Name,
                     IsRefrence = isReference,
-                    DbType = isReference ? DbType.Int64 : prop.PropertyType.GetDbType(),
-                    GetterSetter = GetterSetter.Create(prop)
+                    GetterSetter = GetterSetter.Create(prop),
+                    ParameterMeta = new ParameterMeta
+                    {
+                        DbType = isReference ? DbType.Int64 : prop.PropertyType.GetDbType()
+                    }
                 };
 
                 if (isReference)

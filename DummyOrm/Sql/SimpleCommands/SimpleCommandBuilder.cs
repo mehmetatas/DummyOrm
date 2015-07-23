@@ -99,7 +99,7 @@ namespace DummyOrm.Sql.SimpleCommands
                             {
                                 Value = id,
                                 Name = paramMeta.Key,
-                                ColumnMeta = paramMeta.Value
+                                ParameterMeta = paramMeta.Value.ParameterMeta
                             }
                         }
                     }
