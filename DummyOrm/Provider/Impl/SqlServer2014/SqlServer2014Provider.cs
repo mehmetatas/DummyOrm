@@ -21,17 +21,17 @@ namespace DummyOrm.Provider.Impl.SqlServer2014
             get { return '@'; }
         }
 
-        public virtual ISelectCommandBuilder GetSelectCommandBuilder()
+        public virtual ISelectCommandBuilder CreateSelectCommandBuilder()
         {
-            return SqlServer2014SelectCommandBuilder.Instance;
+            return new SqlServer2014SelectCommandBuilder();
         }
 
-        public virtual IWhereCommandBuilder GetWhereCommandBuilder()
+        public virtual IWhereCommandBuilder CreateWhereCommandBuilder()
         {
             return new SqlServer2014WhereCommandBuilder();
         }
 
-        public virtual ICommandMetaBuilder GetCommandMetaBuilder()
+        public virtual ICommandMetaBuilder CreateCommandMetaBuilder()
         {
             return new SqlServer2014CommandMetaBuilder();
         }

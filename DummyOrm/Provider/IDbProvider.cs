@@ -12,11 +12,11 @@ namespace DummyOrm.Provider
 
         char ParameterPrefix { get; }
 
-        ISelectCommandBuilder GetSelectCommandBuilder();
+        ISelectCommandBuilder CreateSelectCommandBuilder();
 
-        IWhereCommandBuilder GetWhereCommandBuilder();
+        IWhereCommandBuilder CreateWhereCommandBuilder();
 
-        ICommandMetaBuilder GetCommandMetaBuilder();
+        ICommandMetaBuilder CreateCommandMetaBuilder();
 
         IDbConnection CreateConnection();
     }

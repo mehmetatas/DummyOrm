@@ -9,20 +9,20 @@ using DummyOrm.Sql.SimpleCommands;
 
 namespace DummyOrm.Db.Impl
 {
-    class DbImpl : IDb, ICommandExecutor
+    public class DbImpl : IDb, ICommandExecutor
     {
         private IDbTransaction _tran;
         private readonly IDbConnection _conn;
         private readonly ICommandExecutor _cmdExec;
 
-        public DbImpl()
+        protected internal DbImpl()
         {
             _conn = DbMeta.Instance.DbProvider.CreateConnection();
             _conn.Open();
             _cmdExec = this;
         }
 
-        public void Insert<T>(T entity) where T : class, new()
+        public virtual void Insert<T>(T entity) where T : class, new()
         {
             var cmd = SimpleCommandBuilder.Insert.Build(entity);
             var id = _cmdExec.ExecuteScalar(cmd);
@@ -36,19 +36,19 @@ namespace DummyOrm.Db.Impl
             tableMeta.IdColumn.GetterSetter.Set(entity, id);
         }
 
-        public void Update<T>(T entity) where T : class, new()
+        public virtual void Update<T>(T entity) where T : class, new()
         {
             var cmd = SimpleCommandBuilder.Update.Build(entity);
             _cmdExec.ExecuteNonQuery(cmd);
         }
 
-        public void Delete<T>(T entity) where T : class, new()
+        public virtual void Delete<T>(T entity) where T : class, new()
         {
             var cmd = SimpleCommandBuilder.Delete.Build(entity);
             _cmdExec.ExecuteNonQuery(cmd);
         }
 
-        public T GetById<T>(object id) where T : class, new()
+        public virtual T GetById<T>(object id) where T : class, new()
         {
             var cmd = SimpleCommandBuilder.Select.BuildById<T>(id);
             using (var reader = _cmdExec.ExecuteReader(cmd))
@@ -62,12 +62,12 @@ namespace DummyOrm.Db.Impl
             }
         }
 
-        public IQuery<T> Select<T>() where T : class, new()
+        public virtual IQuery<T> Select<T>() where T : class, new()
         {
             return new QueryImpl<T>(this);
         }
 
-        public IList<T> Select<T>(Command selectCommand) where T : class, new()
+        public virtual IList<T> Select<T>(Command selectCommand) where T : class, new()
         {
             using (var reader = _cmdExec.ExecuteReader(selectCommand))
             {
@@ -85,13 +85,15 @@ namespace DummyOrm.Db.Impl
             }
         }
 
-        public void Load<T, TProp>(IList<T> entities, Expression<Func<T, TProp>> propExp, Expression<Func<TProp, object>> includeProps = null) where T : class, new() where TProp : class, new()
+        public virtual void Load<T, TProp>(IList<T> entities, Expression<Func<T, TProp>> propExp, Expression<Func<TProp, object>> includeProps = null)
+            where T : class, new()
+            where TProp : class, new()
         {
             var colMeta = DbMeta.Instance.GetColumn(propExp);
             colMeta.Loader.Load(entities, this, includeProps);
         }
 
-        public void LoadMany<T, TProp>(IList<T> entities, Expression<Func<T, IList<TProp>>> listExp, Expression<Func<TProp, object>> includeProps = null)
+        public virtual void LoadMany<T, TProp>(IList<T> entities, Expression<Func<T, IList<TProp>>> listExp, Expression<Func<TProp, object>> includeProps = null)
             where T : class, new()
             where TProp : class, new()
         {
@@ -127,7 +129,7 @@ namespace DummyOrm.Db.Impl
             return dbCmd;
         }
 
-        public void BeginTransaction(IsolationLevel isolationLevel = IsolationLevel.ReadCommitted)
+        public virtual void BeginTransaction(IsolationLevel isolationLevel = IsolationLevel.ReadCommitted)
         {
             if (_tran != null)
             {
@@ -135,7 +137,7 @@ namespace DummyOrm.Db.Impl
             }
         }
 
-        public void Commit()
+        public virtual void Commit()
         {
             if (_tran != null)
             {
@@ -143,7 +145,7 @@ namespace DummyOrm.Db.Impl
             }
         }
 
-        public void Rollback()
+        public virtual void Rollback()
         {
             if (_tran != null)
             {
@@ -151,7 +153,7 @@ namespace DummyOrm.Db.Impl
             }
         }
 
-        public void Dispose()
+        public virtual void Dispose()
         {
             _conn.Dispose();
             if (_tran != null)
