@@ -2,7 +2,7 @@
 
 DummyOrm is the ORM tool that is designed for fast development. The main idea is:
 
-> Do no so complicated stuff with the ORM but for complex cases (group by, having, too many joins etc.) use inline sql queries or stored procedures.
+> Do simple stuff with the ORM but for complex cases (group by, having, too many joins etc.) use inline sql queries or stored procedures.
 
 So, DummyOrm does not support many features that are supported by popular ORMs
 
