@@ -93,14 +93,55 @@ Now introduce this entity to our DummyOrm.
 
 After this registration DummyOrm assumes there exists a User table in the database, with columns according to conventions described above. If there is a property named `Id` it is assumed as the autoincrement primary key.
 
-### Single Table Operations
+## Using DummyOrm
 
-Let's create an `IDb` instance which we will be using for database operations.
+While using DummyOrm `IDb` will be your friend for database operations. Creating a `IDb` instance is as simple as below. You must dispose the `IDb` instance when you are done with it.
 
     using (IDb db = DbFactory.Create())
     {
         
     }
+
+## ADO.NET Transactions
+
+To use ADO.NET transactions you can simply use `BeginTransaction`, `Commit` and `Rollback` methods.
+
+    using (IDb db = DbFactory.Create())
+    {
+		db.BeginTransaction(IsolationLevel.ReadCommited);
+	    try 
+	    {
+			// Do some db operations
+			db.Commit();   
+		}
+		catch 
+		{
+			db.Rollback(); 
+		}
+    }
+
+If `Commit` is not called after a `BeginTransaction` call, transaction will be `Rollback`ed during dispose.
+
+    using (IDb db = DbFactory.Create())
+    {
+		db.BeginTransaction();
+		// Do some db operations
+    } // Rollbacks the transaction
+
+## Distributed Transactions
+
+Since DummyOrm does not care the ADO.NET client implementation, distributed transaction support depends on the client implementation you use.
+
+    using (var tran = new TransactionScope())
+    {
+	    using (IDb db = DbFactory.Create())
+	    {
+	        // Do some db operations
+	    }
+	    tran.Complete();
+    }
+
+## Simple CRUD Operations
     
 ### Insert
 
@@ -843,7 +884,5 @@ If a registered entity does not have a property named `Id` then it is assumed to
 ## Stored Procedure
 
 ## View
-
-## Transactions
 
 ## Fluent Configuration
