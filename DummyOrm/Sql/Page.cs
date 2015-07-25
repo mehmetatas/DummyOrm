@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace DummyOrm.Sql.Select
+namespace DummyOrm.Sql
 {
     public class Page<T>
     {

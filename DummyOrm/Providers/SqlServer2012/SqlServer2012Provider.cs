@@ -1,10 +1,11 @@
 ﻿using System.Data;
-using DummyOrm.Sql;
+using DummyOrm.Sql.Command;
+using DummyOrm.Sql.Select;
 using DummyOrm.Sql.Where;
 
-namespace DummyOrm.Provider.Impl.SqlServer2014
+namespace DummyOrm.Providers.SqlServer2012
 {
-    public abstract class SqlServer2014Provider : IDbProvider
+    public abstract class SqlServer2012Provider : IDbProvider
     {
         public virtual char QuoteOpen
         {
@@ -23,17 +24,17 @@ namespace DummyOrm.Provider.Impl.SqlServer2014
 
         public virtual ISelectCommandBuilder CreateSelectCommandBuilder()
         {
-            return new SqlServer2014SelectCommandBuilder();
+            return new SqlServer2012SelectCommandBuilder();
         }
 
         public virtual IWhereCommandBuilder CreateWhereCommandBuilder()
         {
-            return new SqlServer2014WhereCommandBuilder();
+            return new SqlServer2012WhereCommandBuilder();
         }
 
         public virtual ICommandMetaBuilder CreateCommandMetaBuilder()
         {
-            return new SqlServer2014CommandMetaBuilder();
+            return new SqlServer2012CommandMetaBuilder();
         }
 
         public abstract IDbConnection CreateConnection();

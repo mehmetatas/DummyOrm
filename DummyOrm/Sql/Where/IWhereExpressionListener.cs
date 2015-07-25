@@ -1,8 +1,7 @@
 using System.Collections.Generic;
 using DummyOrm.Meta;
-using DummyOrm.Sql.Select;
 
-namespace DummyOrm.Sql
+namespace DummyOrm.Sql.Where
 {
     public interface IWhereExpressionListener
     {

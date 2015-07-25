@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using DummyOrm.Meta;
 
-namespace DummyOrm.Sql.SimpleCommands
+namespace DummyOrm.Sql.Command
 {
     abstract class SimpleCommandBuilder : ISimpleCommandBuilder
     {
@@ -88,22 +88,20 @@ namespace DummyOrm.Sql.SimpleCommands
 
             var paramMeta = cmdMeta.ParameterMeta.First();
 
-            return new Command
+            var parameters = new Dictionary<string, CommandParameter>
             {
-                CommandText = cmdMeta.CommandText,
-                Parameters = new Dictionary<string, CommandParameter>
+                {
+                    paramMeta.Key,
+                    new CommandParameter
                     {
-                        {
-                            paramMeta.Key,
-                            new CommandParameter
-                            {
-                                Value = id,
-                                Name = paramMeta.Key,
-                                ParameterMeta = paramMeta.Value.ParameterMeta
-                            }
-                        }
+                        Value = id,
+                        Name = paramMeta.Key,
+                        ParameterMeta = paramMeta.Value.ParameterMeta
                     }
+                }
             };
+
+            return Command.TextCommand(cmdMeta.CommandText, parameters);
         }
     }
 }

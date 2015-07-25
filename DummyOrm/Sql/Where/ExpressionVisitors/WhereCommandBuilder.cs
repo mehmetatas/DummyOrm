@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using DummyOrm.Meta;
+using DummyOrm.Sql.Command;
 using DummyOrm.Sql.Where.Expressions;
 
 namespace DummyOrm.Sql.Where.ExpressionVisitors
@@ -173,13 +174,9 @@ namespace DummyOrm.Sql.Where.ExpressionVisitors
             _sql.Append(")");
         }
 
-        public Command Build()
+        public Command.Command Build()
         {
-            return new Command
-            {
-                CommandText = _sql.ToString(),
-                Parameters = _parameters
-            };
+            return Command.Command.TextCommand(_sql.ToString(), _parameters);
         }
     }
 }

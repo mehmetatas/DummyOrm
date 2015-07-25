@@ -3,7 +3,7 @@ using System.Data;
 using System.Text;
 using DummyOrm.Meta;
 
-namespace DummyOrm.Sql
+namespace DummyOrm.Sql.Command
 {
     public class CommandBuilder
     {
@@ -50,11 +50,7 @@ namespace DummyOrm.Sql
 
         public Command Build()
         {
-            return new Command
-            {
-                CommandText = _cmd.ToString(),
-                Parameters = _params
-            };
+            return Command.TextCommand(_cmd.ToString().TrimEnd(), _params);
         }
     }
 }

@@ -1,8 +1,9 @@
 ﻿using System.Data;
-using DummyOrm.Sql;
+using DummyOrm.Sql.Command;
+using DummyOrm.Sql.Select;
 using DummyOrm.Sql.Where;
 
-namespace DummyOrm.Provider
+namespace DummyOrm.Providers
 {
     public interface IDbProvider
     {

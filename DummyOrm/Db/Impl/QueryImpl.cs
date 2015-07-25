@@ -5,6 +5,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using DummyOrm.Meta;
 using DummyOrm.Sql;
+using DummyOrm.Sql.Command;
 using DummyOrm.Sql.Select;
 using DummyOrm.Sql.Where;
 
@@ -13,14 +14,14 @@ namespace DummyOrm.Db.Impl
     class QueryImpl<T> : IQuery<T>, ISelectQueryBuilder<T> where T : class, new()
     {
         private readonly ICommandExecutor _queryExecuter;
-        private readonly SelectQueryImpl<T> _query;
+        private readonly SelectQueryImpl _query;
         private bool _autoIncludeFromColumns;
 
         internal string FromTableAlias { get { return _query.From.Alias; } }
 
         public QueryImpl(ICommandExecutor queryExecuter)
         {
-            _query = new SelectQueryImpl<T>();
+            _query = new SelectQueryImpl(typeof(T));
             _queryExecuter = queryExecuter;
             _autoIncludeFromColumns = true;
         }
@@ -219,7 +220,7 @@ namespace DummyOrm.Db.Impl
             return new Page<T>(1, top, list.Count, list.Take(top));
         }
 
-        public ISelectQuery<T> Build()
+        public ISelectQuery Build()
         {
             // If there is no column specified from the From table select all columns by default.
             if (_autoIncludeFromColumns) // && _query.SelectColumns.All(c => c.Value.Table != _query.From)

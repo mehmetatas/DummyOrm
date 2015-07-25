@@ -1,6 +1,6 @@
 using DummyOrm.Meta;
 
-namespace DummyOrm.Sql
+namespace DummyOrm.Sql.Command
 {
     public interface ICommandMetaBuilder
     {

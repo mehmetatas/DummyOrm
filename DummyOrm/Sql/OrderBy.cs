@@ -1,4 +1,4 @@
-namespace DummyOrm.Sql.Select
+namespace DummyOrm.Sql
 {
     public class OrderBy
     {

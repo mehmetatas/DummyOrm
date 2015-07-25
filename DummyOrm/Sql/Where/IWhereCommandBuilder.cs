@@ -3,6 +3,6 @@ namespace DummyOrm.Sql.Where
 {
     public interface IWhereCommandBuilder : IWhereExpressionVisitor
     {
-        Command Build();
+        Command.Command Build();
     }
 }

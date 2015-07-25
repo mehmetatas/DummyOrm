@@ -1,6 +1,6 @@
 using DummyOrm.Meta;
 
-namespace DummyOrm.Sql.SimpleCommands
+namespace DummyOrm.Sql.Command
 {
     interface ISimpleCommandBuilder
     {

@@ -5,12 +5,12 @@ using System.Linq.Expressions;
 using DummyOrm.Db;
 using DummyOrm.Db.Impl;
 using DummyOrm.Meta;
-using DummyOrm.Sql.Select;
+using DummyOrm.Sql;
 using DummyOrm.Sql.Where.Expressions;
 
 namespace DummyOrm.Dynamix.Impl
 {
-    public class OneToOneLoader : IAssociationLoader
+    class OneToOneLoader : IAssociationLoader
     {
         private readonly ColumnMeta _refProp;
 
@@ -31,7 +31,7 @@ namespace DummyOrm.Dynamix.Impl
 
             var childIds = parentEntities.Select(e => childIdGetter.Get(childObjGetterSetter.Get(e))).Distinct();
 
-            var children = GetChildren<T, TProp>(cmdExec, includeProps, childIds);
+            var children = GetChildren(cmdExec, includeProps, childIds);
 
             foreach (var child in children)
             {
@@ -43,8 +43,8 @@ namespace DummyOrm.Dynamix.Impl
             }
         }
 
-        private IList<TProp> GetChildren<T, TProp>(ICommandExecutor cmdExec, Expression<Func<TProp, object>> includeProps, IEnumerable<object> childIds)
-            where T : class, new() where TProp : class, new()
+        private IList<TProp> GetChildren<TProp>(ICommandExecutor cmdExec, Expression<Func<TProp, object>> includeProps, IEnumerable<object> childIds)
+            where TProp : class, new()
         {
             var query = new QueryImpl<TProp>(cmdExec);
 

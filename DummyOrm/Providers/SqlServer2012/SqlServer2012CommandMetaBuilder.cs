@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using DummyOrm.Meta;
-using DummyOrm.Sql;
+using DummyOrm.Sql.Command;
 
-namespace DummyOrm.Provider.Impl.SqlServer2014
+namespace DummyOrm.Providers.SqlServer2012
 {
-    public class SqlServer2014CommandMetaBuilder : ICommandMetaBuilder
+    public class SqlServer2012CommandMetaBuilder : ICommandMetaBuilder
     {
         public CommandMeta BuildInsertCommandMeta(TableMeta table)
         {

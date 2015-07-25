@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using DummyOrm.Meta;
 
-namespace DummyOrm.Sql
+namespace DummyOrm.Sql.Command
 {
     public class CommandMeta
     {
@@ -32,11 +32,7 @@ namespace DummyOrm.Sql
                 });
             }
 
-            return new Command
-            {
-                CommandText = CommandText,
-                Parameters = parameters
-            };
+            return Command.TextCommand(CommandText, parameters);
         }
     }
 }

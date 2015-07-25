@@ -1,6 +1,4 @@
 
-using DummyOrm.Sql.Select;
-
 namespace DummyOrm.Sql.Where.Expressions
 {
     public class ColumnExpression : IWhereExpression

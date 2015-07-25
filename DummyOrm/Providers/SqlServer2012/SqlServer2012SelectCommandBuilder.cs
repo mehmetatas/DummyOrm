@@ -1,19 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using DummyOrm.Meta;
 using DummyOrm.Sql;
+using DummyOrm.Sql.Command;
+using DummyOrm.Sql.Select;
 using DummyOrm.Sql.Where.Expressions;
 
-namespace DummyOrm.Provider.Impl.SqlServer2014
+namespace DummyOrm.Providers.SqlServer2012
 {
-    public class SqlServer2014SelectCommandBuilder : ISelectCommandBuilder
+    public class SqlServer2012SelectCommandBuilder : ISelectCommandBuilder
     {
         private readonly StringBuilder _cmd = new StringBuilder();
         private readonly Dictionary<string, CommandParameter> _param = new Dictionary<string, CommandParameter>();
 
-        public Command Build<T>(ISelectQuery<T> query) where T : class, new()
+        public Command Build(ISelectQuery query)
         {
             if (query.IsPaging())
             {
@@ -38,18 +41,14 @@ namespace DummyOrm.Provider.Impl.SqlServer2014
 
             if (query.IsPaging())
             {
-                AppendPaging(query);
+                AppendPagingEnd(query);
             }
             else if (query.OrderByColumns.Any())
             {
                 AppendOrderBy(query);
             }
 
-            return new Command
-            {
-                CommandText = _cmd.ToString().TrimEnd(),
-                Parameters = _param
-            };
+            return Command.TextCommand(_cmd.ToString(), _param);
         }
 
         private void AppendPagingStart()
@@ -62,12 +61,12 @@ namespace DummyOrm.Provider.Impl.SqlServer2014
             _cmd.Append("SELECT");
         }
 
-        private void AppendTop<T>(ISelectQuery<T> query) where T : class, new()
+        private void AppendTop(ISelectQuery query)
         {
             _cmd.AppendFormat(" TOP {0}", query.PageSize);
         }
 
-        private void AppendColumnsAndFrom<T>(ISelectQuery<T> query) where T : class, new()
+        private void AppendColumnsAndFrom(ISelectQuery query)
         {
             _cmd.AppendLine()
                 .AppendLine(String.Join(",\n", query.SelectColumns.Values.Select(
@@ -76,19 +75,53 @@ namespace DummyOrm.Provider.Impl.SqlServer2014
                 .AppendLine();
         }
 
-        private void AppendOrderBy<T>(ISelectQuery<T> query) where T : class, new()
+        private void AppendJoins(ISelectQuery query)
         {
-            _cmd.Append("ORDER BY ");
-            var comma = "";
-            foreach (var col in query.OrderByColumns)
+            foreach (var join in query.Joins.Select(j => j.Value))
             {
-                _cmd.AppendFormat("{0}{1}.{2} {3}", comma, col.Column.Table.Alias, col.Column.Meta.ColumnName,
-                    col.Desc ? "DESC" : "ASC");
-                comma = ",";
+                _cmd.AppendFormat("  {0} JOIN [{1}] {2} ON {3}.{4} = {2}.{5}",
+                    join.Type.ToString().ToUpperInvariant(),
+                    join.RightColumn.Table.Meta.TableName,
+                    join.RightColumn.Table.Alias,
+                    join.LeftColumn.Table.Alias,
+                    join.LeftColumn.Meta.ColumnName,
+                    join.RightColumn.Meta.ColumnName)
+                    .AppendLine();
             }
         }
 
-        private void AppendPaging<T>(ISelectQuery<T> query) where T : class, new()
+        private void AppendWhere(ISelectQuery query)
+        {
+            var where = new LogicalExpression
+            {
+                Operand1 = query.WhereExpressions[0],
+                Operator = Operator.And
+            };
+
+            foreach (var whereExpression in query.WhereExpressions.Skip(1))
+            {
+                where.Operand2 = whereExpression;
+                where = new LogicalExpression
+                {
+                    Operand1 = where,
+                    Operator = Operator.And
+                };
+            }
+
+            var whereExp = where.Operand1;
+            var builder = DbMeta.Instance.DbProvider.CreateWhereCommandBuilder();
+            whereExp.Accept(builder);
+            var whereCmd = builder.Build();
+
+            _cmd.AppendLine("WHERE")
+                .AppendLine(whereCmd.CommandText);
+            foreach (var sqlParameter in whereCmd.Parameters)
+            {
+                _param.Add(sqlParameter.Key, sqlParameter.Value);
+            }
+        }
+
+        private void AppendPagingEnd(ISelectQuery query)
         {
             /*
                  with
@@ -128,55 +161,36 @@ namespace DummyOrm.Provider.Impl.SqlServer2014
                 _cmd.AppendFormat("__DATA.{0}", fromCol.Alias);
             }
 
-            _cmd.AppendLine()
-                .AppendFormat("OFFSET {0} ROWS FETCH NEXT {1} ROWS ONLY",
-                    (query.Page - 1) * query.PageSize,
-                    query.PageSize);
-        }
-
-        private void AppendWhere<T>(ISelectQuery<T> query) where T : class, new()
-        {
-            var where = new LogicalExpression
+            var offsetParam = new CommandParameter
             {
-                Operand1 = query.WhereExpressions[0],
-                Operator = Operator.And
+                Name = "pOffset",
+                Value = (query.Page - 1) * query.PageSize,
+                ParameterMeta = new ParameterMeta { DbType = DbType.Int32 }
             };
 
-            foreach (var whereExpression in query.WhereExpressions.Skip(1))
+            var limitParam = new CommandParameter
             {
-                @where.Operand2 = whereExpression;
-                @where = new LogicalExpression
-                {
-                    Operand1 = @where,
-                    Operator = Operator.And
-                };
-            }
+                Name = "pLimit",
+                Value = query.PageSize,
+                ParameterMeta = new ParameterMeta { DbType = DbType.Int32 }
+            };
+            
+            _param.Add(offsetParam.Name, offsetParam);
+            _param.Add(limitParam.Name, limitParam);
 
-            var whereExp = @where.Operand1;
-            var builder = DbMeta.Instance.DbProvider.CreateWhereCommandBuilder();
-            whereExp.Accept(builder);
-            var whereCmd = builder.Build();
-
-            _cmd.AppendLine("WHERE")
-                .AppendLine(whereCmd.CommandText);
-            foreach (var sqlParameter in whereCmd.Parameters)
-            {
-                _param.Add(sqlParameter.Key, sqlParameter.Value);
-            }
+            _cmd.AppendLine()
+                .Append("OFFSET @pOffset ROWS FETCH NEXT @pLimit ROWS ONLY");
         }
 
-        private void AppendJoins<T>(ISelectQuery<T> query) where T : class, new()
+        private void AppendOrderBy(ISelectQuery query)
         {
-            foreach (var join in query.Joins.Select(j => j.Value))
+            _cmd.Append("ORDER BY ");
+            var comma = "";
+            foreach (var col in query.OrderByColumns)
             {
-                _cmd.AppendFormat("  {0} JOIN [{1}] {2} ON {3}.{4} = {2}.{5}",
-                    @join.Type.ToString().ToUpperInvariant(),
-                    @join.RightColumn.Table.Meta.TableName,
-                    @join.RightColumn.Table.Alias,
-                    @join.LeftColumn.Table.Alias,
-                    @join.LeftColumn.Meta.ColumnName,
-                    @join.RightColumn.Meta.ColumnName)
-                    .AppendLine();
+                _cmd.AppendFormat("{0}{1}.{2} {3}", comma, col.Column.Table.Alias, col.Column.Meta.ColumnName,
+                    col.Desc ? "DESC" : "ASC");
+                comma = ",";
             }
         }
     }

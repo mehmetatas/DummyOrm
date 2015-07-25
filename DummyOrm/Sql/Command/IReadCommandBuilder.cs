@@ -1,4 +1,4 @@
-﻿namespace DummyOrm.Sql.SimpleCommands
+﻿namespace DummyOrm.Sql.Command
 {
     interface IReadCommandBuilder : ISimpleCommandBuilder
     {

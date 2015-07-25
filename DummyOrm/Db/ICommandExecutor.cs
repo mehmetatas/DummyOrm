@@ -1,5 +1,5 @@
 using System.Data;
-using DummyOrm.Sql;
+using DummyOrm.Sql.Command;
 
 namespace DummyOrm.Db
 {

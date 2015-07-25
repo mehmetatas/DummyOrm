@@ -1,7 +1,7 @@
-﻿namespace DummyOrm.Sql
+﻿namespace DummyOrm.Sql.Select
 {
     public interface ISelectQueryBuilder<T> where T : class, new()
     {
-        ISelectQuery<T> Build();
+        ISelectQuery Build();
     }
 }

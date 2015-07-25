@@ -5,11 +5,10 @@ using DummyOrm.ConsoleApp.Models;
 using DummyOrm.Db;
 using DummyOrm.Db.Impl;
 using DummyOrm.Meta;
-using DummyOrm.Provider.Impl.SqlServer2014;
+using DummyOrm.Providers.SqlServer2012;
 using DummyOrm.Sql;
-using DummyOrm.Sql.Select;
+using DummyOrm.Sql.Command;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
@@ -22,17 +21,17 @@ namespace DummyOrm.ConsoleApp
         {
             Init();
 
-            //Readme();
+            Readme();
 
-            //JoinTest();
-            //SelectWall();
+            JoinTest();
+            SelectWall();
             SelectModel();
-            //SimpleCrudTestsAssociationEntity();
-            //SimpleCrudTestsEntity();
-            //SelectTests();
-            //SelectOneToOne();
-            //SelectOneToMany();
-            //SelectManyToMany();
+            SimpleCrudTestsAssociationEntity();
+            SimpleCrudTestsEntity();
+            SelectTests();
+            SelectOneToOne();
+            SelectOneToMany();
+            SelectManyToMany();
 
             Console.WriteLine("OK!");
             Console.ReadLine();
@@ -129,7 +128,7 @@ group by
 
             using (var db = OpenConnection())
             {
-                var list = db.Select<PostListModel>(cmd);
+                var list = db.ExecuteQuery<PostListModel>(cmd);
 
                 foreach (var post in list)
                 {
@@ -279,7 +278,7 @@ group by
         }
     }
 
-    public class TestDbProvider : SqlServer2014Provider
+    public class TestDbProvider : SqlServer2012Provider
     {
         public override IDbConnection CreateConnection()
         {

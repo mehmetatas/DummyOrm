@@ -9,7 +9,7 @@ using DummyOrm.Sql.Where.ExpressionVisitors;
 
 namespace DummyOrm.Sql.Select
 {
-    class SelectQueryImpl<T> : ISelectQuery<T>, IWhereExpressionListener where T : class, new()
+    class SelectQueryImpl : ISelectQuery, IWhereExpressionListener
     {
         private readonly AliasContext _aliasCtx = new AliasContext();
         private readonly Dictionary<string, Table> _tables = new Dictionary<string, Table>();
@@ -24,14 +24,14 @@ namespace DummyOrm.Sql.Select
         public int Page { get; private set; }
         public int PageSize { get; private set; }
         
-        public SelectQueryImpl()
+        public SelectQueryImpl(Type fromType)
         {
             SelectColumns = new Dictionary<string, Column>();
             WhereExpressions = new List<IWhereExpression>();
             Joins = new Dictionary<string, Join>();
             OrderByColumns = new List<OrderBy>();
 
-            var fromTableMeta = DbMeta.Instance.GetTable<T>();
+            var fromTableMeta = DbMeta.Instance.GetTable(fromType);
             From = GetOrAddTable(fromTableMeta.TableName, fromTableMeta);
         }
 
@@ -79,13 +79,13 @@ namespace DummyOrm.Sql.Select
             EnsureJoined(props);
         }
 
-        public void Where(Expression<Func<T, bool>> filter)
+        public void Where<T>(Expression<Func<T, bool>> filter)
         {
             var whereExp = WhereExpressionVisitor.Build(filter, this);
             Where(whereExp);
         }
 
-        internal void Where(IWhereExpression whereExp)
+        public void Where(IWhereExpression whereExp)
         {
             WhereExpressions.Add(whereExp);
         }

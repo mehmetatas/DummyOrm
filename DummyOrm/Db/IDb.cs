@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq.Expressions;
-using DummyOrm.Sql;
+using DummyOrm.Sql.Command;
 
 namespace DummyOrm.Db
 {
@@ -24,7 +24,11 @@ namespace DummyOrm.Db
 
         IQuery<T> Select<T>() where T : class, new();
 
-        IList<T> Select<T>(Command selectCommand) where T : class, new();
+        IList<T> ExecuteQuery<T>(Command cmd) where T : class, new();
+        
+        int ExecuteNonQuery(Command cmd);
+        
+        object ExecuteScalar(Command cmd);
 
         void Load<T, TProp>(IList<T> parentEntities, Expression<Func<T, TProp>> childPropExp, Expression<Func<TProp, object>> includeChildProps = null)
             where T : class, new()

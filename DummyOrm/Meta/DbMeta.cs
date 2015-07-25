@@ -6,8 +6,8 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using DummyOrm.Dynamix.Impl;
-using DummyOrm.Provider;
-using DummyOrm.Sql.SimpleCommands;
+using DummyOrm.Providers;
+using DummyOrm.Sql.Command;
 
 namespace DummyOrm.Meta
 {

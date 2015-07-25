@@ -1,7 +1,7 @@
 using System;
 using DummyOrm.Meta;
 
-namespace DummyOrm.Sql.Select
+namespace DummyOrm.Sql
 {
     public class Column
     {

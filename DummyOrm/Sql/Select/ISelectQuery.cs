@@ -1,10 +1,9 @@
 using System.Collections.Generic;
-using DummyOrm.Sql.Select;
 using DummyOrm.Sql.Where;
 
-namespace DummyOrm.Sql
+namespace DummyOrm.Sql.Select
 {
-    public interface ISelectQuery<T> where T : class, new()
+    public interface ISelectQuery
     {
         Table From { get; }
         IDictionary<string, Column> SelectColumns { get; }
@@ -18,11 +17,11 @@ namespace DummyOrm.Sql
 
     public static class SelectQueryExtensions
     {
-        public static bool IsPaging<T>(this ISelectQuery<T> query) where T : class, new()
+        public static bool IsPaging(this ISelectQuery query)
         {
             return query.Page > 0 && query.PageSize > 0;
         }
-        public static bool IsTop<T>(this ISelectQuery<T> query) where T : class, new()
+        public static bool IsTop(this ISelectQuery query)
         {
             return query.Page < 1 && query.PageSize > 0;
         }

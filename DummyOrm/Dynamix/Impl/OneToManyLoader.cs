@@ -6,12 +6,12 @@ using System.Linq.Expressions;
 using DummyOrm.Db;
 using DummyOrm.Db.Impl;
 using DummyOrm.Meta;
-using DummyOrm.Sql.Select;
+using DummyOrm.Sql;
 using DummyOrm.Sql.Where.Expressions;
 
 namespace DummyOrm.Dynamix.Impl
 {
-    public class OneToManyLoader : IAssociationLoader
+    class OneToManyLoader : IAssociationLoader
     {
         private readonly OneToManyMeta _meta;
 

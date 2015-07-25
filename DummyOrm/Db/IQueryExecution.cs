@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using DummyOrm.Sql.Select;
+using DummyOrm.Sql;
 
 namespace DummyOrm.Db
 {
