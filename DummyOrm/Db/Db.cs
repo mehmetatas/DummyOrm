@@ -15,6 +15,7 @@ namespace DummyOrm.Db
             {
                 _defaultProvider = provider;
             }
+            DbMeta.Push(provider.Meta);
             return new DbMetaBuilder(provider);
         }
 

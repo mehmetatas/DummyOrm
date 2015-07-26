@@ -25,14 +25,16 @@ namespace DummyOrm.Meta.Builders
             where TOne : class, new()
             where TMany : class, new()
         {
-            throw new NotImplementedException();
+            _meta.OneToMany(listPropExp, foreignPropExp);
+            return this;
         }
 
         public IDbMetaBuilder ManyToMany<TParent, TAssoc>(Expression<Func<TParent, IList>> listPropExp)
             where TParent : class, new()
             where TAssoc : class, new()
         {
-            throw new NotImplementedException();
+            _meta.ManyToMany<TParent, TAssoc>(listPropExp);
+            return this;
         }
     }
 }

@@ -1,7 +1,6 @@
 ﻿using DummyOrm.ConsoleApp.Entities;
 using DummyOrm.ConsoleApp.Models;
 using DummyOrm.Db;
-using DummyOrm.Meta;
 using DummyOrm.Providers.SqlServer2012;
 using DummyOrm.Sql;
 using DummyOrm.Sql.Command;
@@ -10,7 +9,6 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Linq;
-using System.Reflection;
 
 namespace DummyOrm.ConsoleApp
 {
@@ -62,9 +60,10 @@ namespace DummyOrm.ConsoleApp
 
             builder.Table<Post>()
                 .Table<User>()
-                .Table<Like>()
                 .Table<Tag>()
-                .Table<PostTag>();
+                .Table<PostTag>()
+                .Table<Like>()
+                .Table<FollowUser>();
 
             builder
                 .OneToMany<User, Post>(u => u.Posts, p => p.User)
