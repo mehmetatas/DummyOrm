@@ -11,28 +11,47 @@ using DummyOrm.Sql.Command;
 
 namespace DummyOrm.Meta
 {
-    public class DbMeta
+    public interface IDbMeta
+    {
+        IDbProvider DbProvider { get; }
+
+        TableMeta RegisterEntity(Type type);
+
+        TableMeta GetTable(Type type);
+
+        ColumnMeta GetColumn(PropertyInfo prop);
+
+        IAssociationMeta GetAssociation(PropertyInfo prop);
+
+        ManyToManyMeta ManyToMany<TParent, TAssoc>(Expression<Func<TParent, IList>> listPropExp)
+            where TParent : class, new()
+            where TAssoc : class, new();
+
+        OneToManyMeta OneToMany<TOne, TMany>(Expression<Func<TOne, IEnumerable<TMany>>> listPropExp,
+            Expression<Func<TMany, TOne>> foreignPropExp)
+            where TOne : class, new()
+            where TMany : class, new();
+    }
+
+    class DbMeta : IDbMeta
     {
         private readonly Hashtable _tables = new Hashtable();
         private readonly Hashtable _columns = new Hashtable();
         private readonly Hashtable _associations = new Hashtable();
 
-        public static readonly DbMeta Instance = new DbMeta();
+        public static IDbMeta Current
+        {
+            get { return Stack.Peek(); }
+        }
 
         public IDbProvider DbProvider { get; private set; }
 
-        private DbMeta()
-        {
-
-        }
-
-        public DbMeta SetProvider(IDbProvider provider)
+        public DbMeta (IDbProvider provider)
         {
             DbProvider = provider;
-            return this;
         }
 
-        public DbMeta OneToMany<TOne, TMany>(Expression<Func<TOne, IEnumerable<TMany>>> listPropExp, Expression<Func<TMany, TOne>> foreignPropExp)
+        public OneToManyMeta OneToMany<TOne, TMany>(Expression<Func<TOne, IEnumerable<TMany>>> listPropExp, Expression<Func<TMany, TOne>> foreignPropExp)
             where TOne : class, new()
             where TMany : class, new()
         {
@@ -57,15 +76,15 @@ namespace DummyOrm.Meta
 
             _associations.Add(listProp, assoc);
 
-            return this;
+            return assoc;
         }
 
-        public DbMeta ManyToMany<TParent, TAssoc>(Expression<Func<TParent, IList>> listPropExp)
+        public ManyToManyMeta ManyToMany<TParent, TAssoc>(Expression<Func<TParent, IList>> listPropExp)
             where TParent : class, new()
             where TAssoc : class, new()
         {
             EnsureReferences();
-            
+
             var listProp = listPropExp.GetPropertyInfo();
 
             var parentType = listProp.DeclaringType;
@@ -90,7 +109,7 @@ namespace DummyOrm.Meta
 
             _associations.Add(listProp, assoc);
 
-            return this;
+            return assoc;
         }
 
         public DbMeta RegisterModel(Type type)
@@ -99,7 +118,7 @@ namespace DummyOrm.Meta
             return this;
         }
 
-        public DbMeta RegisterEntity(Type type)
+        public TableMeta RegisterEntity(Type type)
         {
             var tableMeta = new TableMeta
             {
@@ -171,23 +190,23 @@ namespace DummyOrm.Meta
 
             SimpleCommandBuilder.RegisterAll(tableMeta);
             PocoDeserializer.RegisterEntity(type);
-            
+
             EnsureReferences();
 
-            return this;
+            return tableMeta;
         }
 
-        internal TableMeta GetTable(Type type)
+        public TableMeta GetTable(Type type)
         {
             return (TableMeta)_tables[type];
         }
 
-        internal ColumnMeta GetColumn(PropertyInfo prop)
+        public ColumnMeta GetColumn(PropertyInfo prop)
         {
             return (ColumnMeta)_columns[prop];
         }
 
-        internal IAssociationMeta GetAssociation(PropertyInfo prop)
+        public IAssociationMeta GetAssociation(PropertyInfo prop)
         {
             var assoc = _associations[prop] as IAssociationMeta;
 
@@ -208,6 +227,31 @@ namespace DummyOrm.Meta
                     column.ReferencedTable = GetTable(column.Property.PropertyType);
                 }
             }
+        }
+
+        // TODO: Make it web thread safe
+        [ThreadStatic]
+        private static Stack<IDbMeta> _stack;
+        private static Stack<IDbMeta> Stack
+        {
+            get
+            {
+                if (_stack == null)
+                {
+                    _stack = new Stack<IDbMeta>();
+                }
+                return _stack;
+            }
+        }
+
+        public static void Push(IDbMeta meta)
+        {
+            Stack.Push(meta);
+        }
+
+        public static void Pop()
+        {
+            Stack.Pop();
         }
     }
 }

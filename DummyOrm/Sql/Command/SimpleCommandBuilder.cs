@@ -50,7 +50,7 @@ namespace DummyOrm.Sql.Command
     {
         protected override CommandMeta CreateCommandMeta(TableMeta tableMeta)
         {
-            return DbMeta.Instance.DbProvider.CreateCommandMetaBuilder().BuildInsertCommandMeta(tableMeta);
+            return DbMeta.Current.DbProvider.CreateCommandMetaBuilder().BuildInsertCommandMeta(tableMeta);
         }
     }
 
@@ -58,7 +58,7 @@ namespace DummyOrm.Sql.Command
     {
         protected override CommandMeta CreateCommandMeta(TableMeta tableMeta)
         {
-            return DbMeta.Instance.DbProvider.CreateCommandMetaBuilder().BuildUpdateCommandMeta(tableMeta);
+            return DbMeta.Current.DbProvider.CreateCommandMetaBuilder().BuildUpdateCommandMeta(tableMeta);
         }
     }
 
@@ -66,7 +66,7 @@ namespace DummyOrm.Sql.Command
     {
         protected override CommandMeta CreateCommandMeta(TableMeta tableMeta)
         {
-            return DbMeta.Instance.DbProvider.CreateCommandMetaBuilder().BuildDeleteCommandMeta(tableMeta);
+            return DbMeta.Current.DbProvider.CreateCommandMetaBuilder().BuildDeleteCommandMeta(tableMeta);
         }
     }
 
@@ -74,7 +74,7 @@ namespace DummyOrm.Sql.Command
     {
         protected override CommandMeta CreateCommandMeta(TableMeta tableMeta)
         {
-            return DbMeta.Instance.DbProvider.CreateCommandMetaBuilder().BuildGetByIdCommandMeta(tableMeta);
+            return DbMeta.Current.DbProvider.CreateCommandMetaBuilder().BuildGetByIdCommandMeta(tableMeta);
         }
 
         public Command BuildById<T>(object id)

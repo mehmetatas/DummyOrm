@@ -82,7 +82,7 @@ namespace DummyOrm.Sql.Where.ExpressionVisitors
             }
 
             var paramName = String.Format("wp{0}", _parameters.Count);
-            _sql.AppendFormat("{0}{1}", DbMeta.Instance.DbProvider.ParameterPrefix, paramName);
+            _sql.AppendFormat("{0}{1}", DbMeta.Current.DbProvider.ParameterPrefix, paramName);
             _parameters.Add(paramName, new CommandParameter
             {
                 Name = paramName,

@@ -116,7 +116,7 @@ namespace DummyOrm.Dynamix.Impl
 
         public static void RegisterEntity(Type type)
         {
-            var tableMeta = DbMeta.Instance.GetTable(type);
+            var tableMeta = DbMeta.Current.GetTable(type);
 
             var propChain = tableMeta.Columns.ToDictionary(c => c.ColumnName, c => (IEnumerable<ColumnMeta>)new[] { c });
 

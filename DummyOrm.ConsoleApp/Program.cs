@@ -1,14 +1,13 @@
-﻿using System.Data;
-using System.Data.SqlClient;
-using DummyOrm.ConsoleApp.Entities;
+﻿using DummyOrm.ConsoleApp.Entities;
 using DummyOrm.ConsoleApp.Models;
 using DummyOrm.Db;
-using DummyOrm.Db.Impl;
 using DummyOrm.Meta;
 using DummyOrm.Providers.SqlServer2012;
 using DummyOrm.Sql;
 using DummyOrm.Sql.Command;
 using System;
+using System.Data;
+using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
@@ -21,17 +20,17 @@ namespace DummyOrm.ConsoleApp
         {
             Init();
 
-            //Readme();
+            Readme();
 
-            //JoinTest();
-            //SelectWall();
+            JoinTest();
+            SelectWall();
             //SelectModel();
-            //SimpleCrudTestsAssociationEntity();
-            //SimpleCrudTestsEntity();
-            //SelectTests();
-            //SelectOneToOne();
-            //SelectOneToMany();
-            //SelectManyToMany();
+            SimpleCrudTestsAssociationEntity();
+            SimpleCrudTestsEntity();
+            SelectTests();
+            SelectOneToOne();
+            SelectOneToMany();
+            SelectManyToMany();
             DeleteMany();
 
             Console.WriteLine("OK!");
@@ -59,27 +58,15 @@ namespace DummyOrm.ConsoleApp
 
         private static void Init()
         {
-            var entityClasses = Assembly.GetExecutingAssembly()
-                .GetTypes()
-                .Where(t => t.Namespace == "DummyOrm.ConsoleApp.Entities" && t.IsClass);
+            var builder = Db.Db.Setup(new TestDbProvider());
 
-            var modelClasses = Assembly.GetExecutingAssembly()
-                .GetTypes()
-                .Where(t => t.Namespace == "DummyOrm.ConsoleApp.Models" && t.IsClass);
+            builder.Table<Post>()
+                .Table<User>()
+                .Table<Like>()
+                .Table<Tag>()
+                .Table<PostTag>();
 
-            DbMeta.Instance.SetProvider(new TestDbProvider());
-
-            foreach (var entityClass in entityClasses)
-            {
-                DbMeta.Instance.RegisterEntity(entityClass);
-            }
-
-            foreach (var modelClass in modelClasses)
-            {
-                DbMeta.Instance.RegisterModel(modelClass);
-            }
-
-            DbMeta.Instance
+            builder
                 .OneToMany<User, Post>(u => u.Posts, p => p.User)
                 .ManyToMany<Post, PostTag>(p => p.Tags);
         }
@@ -284,7 +271,7 @@ group by
 
         private static IDb OpenConnection()
         {
-            return DbFactory.Create();
+            return Db.Db.Create();
         }
     }
 

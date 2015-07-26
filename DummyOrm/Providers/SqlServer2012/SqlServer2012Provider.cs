@@ -1,4 +1,5 @@
 ﻿using System.Data;
+using DummyOrm.Meta;
 using DummyOrm.Sql.Command;
 using DummyOrm.Sql.Delete;
 using DummyOrm.Sql.Select;
@@ -8,6 +9,11 @@ namespace DummyOrm.Providers.SqlServer2012
 {
     public abstract class SqlServer2012Provider : IDbProvider
     {
+        protected SqlServer2012Provider()
+        {
+            Meta = new DbMeta(this);
+        }
+
         public virtual char QuoteOpen
         {
             get { return '['; }
@@ -22,6 +28,8 @@ namespace DummyOrm.Providers.SqlServer2012
         {
             get { return '@'; }
         }
+
+        public virtual IDbMeta Meta { get; private set; }
 
         public virtual ISelectCommandBuilder CreateSelectCommandBuilder()
         {

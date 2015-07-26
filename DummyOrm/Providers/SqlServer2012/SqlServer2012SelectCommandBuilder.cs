@@ -109,7 +109,7 @@ namespace DummyOrm.Providers.SqlServer2012
             }
 
             var whereExp = where.Operand1;
-            var builder = DbMeta.Instance.DbProvider.CreateWhereCommandBuilder();
+            var builder = DbMeta.Current.DbProvider.CreateWhereCommandBuilder();
             whereExp.Accept(builder);
             var whereCmd = builder.Build();
 

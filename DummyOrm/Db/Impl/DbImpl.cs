@@ -4,6 +4,7 @@ using System.Data;
 using System.Linq.Expressions;
 using DummyOrm.Dynamix.Impl;
 using DummyOrm.Meta;
+using DummyOrm.Providers;
 using DummyOrm.Sql.Command;
 
 namespace DummyOrm.Db.Impl
@@ -13,9 +14,9 @@ namespace DummyOrm.Db.Impl
         private IDbTransaction _tran;
         private readonly IDbConnection _conn;
 
-        protected internal DbImpl()
+        protected internal DbImpl(IDbProvider provider)
         {
-            _conn = DbMeta.Instance.DbProvider.CreateConnection();
+            _conn = provider.CreateConnection();
             _conn.Open();
         }
 
@@ -53,7 +54,7 @@ namespace DummyOrm.Db.Impl
                 return;
             }
 
-            var tableMeta = DbMeta.Instance.GetTable<T>();
+            var tableMeta = DbMeta.Current.GetTable<T>();
             tableMeta.IdColumn.GetterSetter.Set(entity, id);
         }
 
@@ -71,7 +72,7 @@ namespace DummyOrm.Db.Impl
 
         public virtual void DeleteMany<T>(Expression<Func<T, bool>> filter) where T : class, new()
         {
-            var builder = DbMeta.Instance.DbProvider.CreateDeleteManyCommandBuilder();
+            var builder = DbMeta.Current.DbProvider.CreateDeleteManyCommandBuilder();
             var cmd = builder.Build(filter);
             ExecuteNonQuery(cmd);
         }
@@ -133,7 +134,7 @@ namespace DummyOrm.Db.Impl
             where T : class, new()
             where TProp : class, new()
         {
-            var colMeta = DbMeta.Instance.GetColumn(propExp);
+            var colMeta = DbMeta.Current.GetColumn(propExp);
             colMeta.Loader.Load(entities, this, includeProps);
         }
 
@@ -141,16 +142,23 @@ namespace DummyOrm.Db.Impl
             where T : class, new()
             where TProp : class, new()
         {
-            var assoc = DbMeta.Instance.GetAssociation(listExp);
+            var assoc = DbMeta.Current.GetAssociation(listExp);
             assoc.Loader.Load(entities, this, includeProps);
         }
 
         public virtual void Dispose()
         {
-            _conn.Dispose();
-            if (_tran != null)
+            try
             {
-                _tran.Dispose();
+                _conn.Dispose();
+                if (_tran != null)
+                {
+                    _tran.Dispose();
+                }
+            }
+            finally
+            {
+                DbMeta.Pop();   
             }
         }
 
@@ -188,8 +196,9 @@ namespace DummyOrm.Db.Impl
                 param.Value = sqlParameter.Value.Value ?? DBNull.Value;
 
                 param.DbType = paramMeta.DbType;
-                param.Precision = paramMeta.DecimalPrecision;
-                param.Size = paramMeta.StringLength;
+                param.Size = paramMeta.Size;
+                param.Scale = paramMeta.Scale;
+                param.Precision = paramMeta.Precision;
 
                 dbCmd.Parameters.Add(param);
             }

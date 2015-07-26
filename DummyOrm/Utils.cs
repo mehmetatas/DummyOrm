@@ -127,7 +127,7 @@ namespace DummyOrm
                 var propInf = (PropertyInfo)memberExpression.Member;
                 if (propInf.IsReferenceProperty() || !onlyRef)
                 {
-                    chain.Insert(0, DbMeta.Instance.GetColumn(propInf));
+                    chain.Insert(0, DbMeta.Current.GetColumn(propInf));
                 }
                 memberExpression = memberExpression.Expression as MemberExpression;
             }

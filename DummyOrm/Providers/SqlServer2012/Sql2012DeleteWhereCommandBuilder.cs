@@ -15,9 +15,9 @@ namespace DummyOrm.Providers.SqlServer2012
 
         public Command Build<T>(Expression<Func<T, bool>> filter) where T : class, new()
         {
-            _table = DbMeta.Instance.GetTable<T>();
+            _table = DbMeta.Current.GetTable<T>();
 
-            var whereBuilder = DbMeta.Instance.DbProvider.CreateWhereCommandBuilder();
+            var whereBuilder = DbMeta.Current.DbProvider.CreateWhereCommandBuilder();
 
             var cmd = whereBuilder.Build(filter, this);
 

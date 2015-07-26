@@ -1,4 +1,5 @@
 ﻿using System.Data;
+using DummyOrm.Meta;
 using DummyOrm.Sql.Command;
 using DummyOrm.Sql.Delete;
 using DummyOrm.Sql.Select;
@@ -13,6 +14,8 @@ namespace DummyOrm.Providers
         char QuoteClose { get; }
 
         char ParameterPrefix { get; }
+
+        IDbMeta Meta { get; }
 
         ISelectCommandBuilder CreateSelectCommandBuilder();
 

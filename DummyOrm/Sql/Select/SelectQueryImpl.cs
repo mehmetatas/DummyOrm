@@ -31,7 +31,7 @@ namespace DummyOrm.Sql.Select
             Joins = new Dictionary<string, Join>();
             OrderByColumns = new List<OrderBy>();
 
-            var fromTableMeta = DbMeta.Instance.GetTable(fromType);
+            var fromTableMeta = DbMeta.Current.GetTable(fromType);
             From = GetOrAddTable(fromTableMeta.TableName, fromTableMeta);
         }
 
