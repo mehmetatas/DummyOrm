@@ -21,20 +21,30 @@ namespace DummyOrm.ConsoleApp
         {
             Init();
 
-            Readme();
+            //Readme();
 
-            JoinTest();
-            SelectWall();
-            SelectModel();
-            SimpleCrudTestsAssociationEntity();
-            SimpleCrudTestsEntity();
-            SelectTests();
-            SelectOneToOne();
-            SelectOneToMany();
-            SelectManyToMany();
+            //JoinTest();
+            //SelectWall();
+            //SelectModel();
+            //SimpleCrudTestsAssociationEntity();
+            //SimpleCrudTestsEntity();
+            //SelectTests();
+            //SelectOneToOne();
+            //SelectOneToMany();
+            //SelectManyToMany();
+            DeleteMany();
 
             Console.WriteLine("OK!");
             Console.ReadLine();
+        }
+
+        private static void DeleteMany()
+        {
+            using (var db = OpenConnection())
+            {
+                db.BeginTransaction();
+                db.DeleteMany<Like>(l => l.LikedDate == DateTime.Now);
+            }
         }
 
         private static void Readme()

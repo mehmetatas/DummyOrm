@@ -69,6 +69,13 @@ namespace DummyOrm.Db.Impl
             ExecuteNonQuery(cmd);
         }
 
+        public virtual void DeleteMany<T>(Expression<Func<T, bool>> filter) where T : class, new()
+        {
+            var builder = DbMeta.Instance.DbProvider.CreateDeleteManyCommandBuilder();
+            var cmd = builder.Build(filter);
+            ExecuteNonQuery(cmd);
+        }
+
         public virtual T GetById<T>(object id) where T : class, new()
         {
             var cmd = SimpleCommandBuilder.Select.BuildById<T>(id);
@@ -166,9 +173,11 @@ namespace DummyOrm.Db.Impl
         {
             var dbCmd = _conn.CreateCommand();
 
+            dbCmd.Transaction = _tran;
+
             dbCmd.CommandText = cmd.CommandText;
             dbCmd.CommandType = cmd.Type;
-            
+
             foreach (var sqlParameter in cmd.Parameters)
             {
                 var param = dbCmd.CreateParameter();

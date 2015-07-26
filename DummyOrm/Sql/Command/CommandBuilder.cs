@@ -28,6 +28,12 @@ namespace DummyOrm.Sql.Command
             return this;
         }
 
+        public CommandBuilder AddParameter(CommandParameter param)
+        {
+            _params.Add(param.Name, param);
+            return this;
+        }
+
         public CommandBuilder AddParameter(string name, object value, ParameterMeta meta = null)
         {
             if (meta == null)
@@ -38,14 +44,12 @@ namespace DummyOrm.Sql.Command
                 };
             }
 
-            _params.Add(name, new CommandParameter
+            return AddParameter(new CommandParameter
             {
                 Name = name,
                 Value = value,
                 ParameterMeta = meta
             });
-
-            return this;
         }
 
         public Command Build()

@@ -64,7 +64,14 @@ namespace DummyOrm.Sql.Where.ExpressionVisitors
 
         public virtual void Visit(ColumnExpression e)
         {
-            _sql.AppendFormat("{0}.{1}", e.Column.Table.Alias, e.Column.Meta.ColumnName);
+            if (String.IsNullOrWhiteSpace(e.Column.Table.Alias))
+            {
+                _sql.Append(e.Column.Meta.ColumnName);
+            }
+            else
+            {
+                _sql.AppendFormat("{0}.{1}", e.Column.Table.Alias, e.Column.Meta.ColumnName);
+            }
         }
 
         public virtual void Visit(ValueExpression e)

@@ -1,5 +1,6 @@
 ﻿using System.Data;
 using DummyOrm.Sql.Command;
+using DummyOrm.Sql.Delete;
 using DummyOrm.Sql.Select;
 using DummyOrm.Sql.Where;
 
@@ -35,6 +36,11 @@ namespace DummyOrm.Providers.SqlServer2012
         public virtual ICommandMetaBuilder CreateCommandMetaBuilder()
         {
             return new SqlServer2012CommandMetaBuilder();
+        }
+
+        public IDeleteManyCommandBuilder CreateDeleteManyCommandBuilder()
+        {
+            return new Sql2012DeleteWhereCommandBuilder();
         }
 
         public abstract IDbConnection CreateConnection();

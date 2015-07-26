@@ -19,6 +19,8 @@ namespace DummyOrm.Db
         void Update<T>(T entity) where T : class, new();
 
         void Delete<T>(T entity) where T : class, new();
+        
+        void DeleteMany<T>(Expression<Func<T, bool>> filter) where T : class, new();
 
         T GetById<T>(object id) where T : class, new();
 

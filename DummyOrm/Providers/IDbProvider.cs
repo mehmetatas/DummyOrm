@@ -1,5 +1,6 @@
 ﻿using System.Data;
 using DummyOrm.Sql.Command;
+using DummyOrm.Sql.Delete;
 using DummyOrm.Sql.Select;
 using DummyOrm.Sql.Where;
 
@@ -18,6 +19,8 @@ namespace DummyOrm.Providers
         IWhereCommandBuilder CreateWhereCommandBuilder();
 
         ICommandMetaBuilder CreateCommandMetaBuilder();
+
+        IDeleteManyCommandBuilder CreateDeleteManyCommandBuilder();
 
         IDbConnection CreateConnection();
     }

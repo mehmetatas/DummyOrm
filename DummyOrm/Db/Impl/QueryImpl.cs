@@ -11,7 +11,7 @@ using DummyOrm.Sql.Where;
 
 namespace DummyOrm.Db.Impl
 {
-    class QueryImpl<T> : IQuery<T>, ISelectQueryBuilder<T> where T : class, new()
+    class QueryImpl<T> : IQuery<T>, ISelectQueryBuilder where T : class, new()
     {
         private readonly ICommandExecutor _queryExecuter;
         private readonly SelectQueryImpl _query;

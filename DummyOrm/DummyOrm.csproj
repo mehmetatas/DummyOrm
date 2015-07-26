@@ -65,12 +65,14 @@
     <Compile Include="Meta\TableMeta.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Providers\IDbProvider.cs" />
+    <Compile Include="Providers\SqlServer2012\Sql2012DeleteWhereCommandBuilder.cs" />
     <Compile Include="Providers\SqlServer2012\SqlServer2012CommandMetaBuilder.cs" />
     <Compile Include="Providers\SqlServer2012\SqlServer2012Provider.cs" />
     <Compile Include="Providers\SqlServer2012\SqlServer2012WhereCommandBuilder.cs" />
     <Compile Include="Sql\Command\Command.cs" />
     <Compile Include="Sql\Command\CommandBuilder.cs" />
     <Compile Include="Sql\Command\CommandParameter.cs" />
+    <Compile Include="Sql\Delete\IDeleteManyCommandBuilder.cs" />
     <Compile Include="Sql\Select\ISelectQueryBuilder.cs" />
     <Compile Include="Sql\Column.cs" />
     <Compile Include="Sql\Select\ISelectQuery.cs" />
