@@ -108,11 +108,6 @@ namespace DummyOrm
                 : (MemberExpression)propExpression.Body;
         }
 
-        public static List<ColumnMeta> GetPropertyChain(this LambdaExpression propExpression, IDbMeta meta, bool onlyRef = true)
-        {
-            return propExpression.GetMemberExpression().GetPropertyChain(meta, onlyRef);
-        }
-
         public static List<ColumnMeta> GetPropertyChain<T, TProp>(this Expression<Func<T, TProp>> propExpression, IDbMeta meta, bool onlyRef = true)
         {
             return propExpression.GetMemberExpression().GetPropertyChain(meta, onlyRef);

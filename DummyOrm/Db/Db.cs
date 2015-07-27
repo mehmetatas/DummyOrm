@@ -1,4 +1,5 @@
 ﻿using DummyOrm.Db.Builders;
+using DummyOrm.Db.Builders.Impl;
 using DummyOrm.Providers;
 
 namespace DummyOrm.Db

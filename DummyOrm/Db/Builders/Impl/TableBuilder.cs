@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using DummyOrm.Meta;
 
-namespace DummyOrm.Db.Builders
+namespace DummyOrm.Db.Builders.Impl
 {
     class TableBuilder<T> : ITableBuilder<T> where T : class ,new()
     {
@@ -48,6 +48,11 @@ namespace DummyOrm.Db.Builders
             where TAssoc : class, new()
         {
             return _parentBuilder.ManyToMany<TParent, TAssoc>(listPropExp);
+        }
+
+        public IDbFactory BuildFactory()
+        {
+            return _parentBuilder.BuildFactory();
         }
     }
 }

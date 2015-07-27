@@ -1,138 +1,63 @@
-﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using DummyOrm.Meta;
 
 namespace DummyOrm.Sql.Command
 {
-    abstract class SimpleCommandBuilder : ISimpleCommandBuilder
+    class SimpleCommandBuilder : ISimpleCommandBuilder
     {
-        public static ISimpleCommandBuilder Insert { get; private set; }
-        public static ISimpleCommandBuilder Update { get; private set; }
-        public static ISimpleCommandBuilder Delete { get; private set; }
-        public static IReadCommandBuilder Select { get; private set; }
+        private readonly TableMeta _tableMeta;
+        private readonly CommandMeta _insertCommandMeta;
+        private readonly CommandMeta _updateCommandMeta;
+        private readonly CommandMeta _deleteCommandMeta;
+        private readonly CommandMeta _getByIdCommandMeta;
 
-        public static void Init(IDbMeta meta)
+        public SimpleCommandBuilder(TableMeta tableMeta)
         {
-            Insert = new InsertCommandBuilder(meta);
-            Update = new UpdateCommandBuilder(meta);
-            Delete = new DeleteCommandBuilder(meta);
-            Select = new SelectCommandBuilder(meta);
+            _tableMeta = tableMeta;
+
+            var builder = tableMeta.DbMeta.DbProvider.CreateCommandMetaBuilder(tableMeta.DbMeta);
+
+            _insertCommandMeta = builder.BuildInsertCommandMeta(tableMeta);
+            _updateCommandMeta = builder.BuildUpdateCommandMeta(tableMeta);
+            _deleteCommandMeta = builder.BuildDeleteCommandMeta(tableMeta);
+            _getByIdCommandMeta = builder.BuildGetByIdCommandMeta(tableMeta);
         }
 
-        public static void RegisterAll(TableMeta tableMeta)
+        public Command BuildInsertCommand(object entity)
         {
-            Insert.Register(tableMeta);
-            Update.Register(tableMeta);
-            Delete.Register(tableMeta);
-            Select.Register(tableMeta);
+            return _insertCommandMeta.CreateCommand(entity);
         }
 
-        private readonly Hashtable _commands = new Hashtable();
-
-        protected SimpleCommandBuilder(IDbMeta dbMeta)
+        public Command BuildUpdateCommand(object entity)
         {
-            DbMeta = dbMeta;
+            return _updateCommandMeta.CreateCommand(entity);
         }
 
-        protected IDbMeta DbMeta { get; private set; }
-
-        protected CommandMeta GetCommandMeta(Type type)
+        public Command BuildDeleteCommand(object entity)
         {
-            return (CommandMeta)_commands[type];
+            return _deleteCommandMeta.CreateCommand(entity);
         }
 
-        public void Register(TableMeta tableMeta)
+        public Command BuildGetByIdCommand(object id)
         {
-            var cmdMeta = CreateCommandMeta(tableMeta);
-            _commands.Add(tableMeta.Type, cmdMeta);
-        }
-
-        public Command Build(object entity)
-        {
-            var type = entity.GetType();
-
-            var cmdMeta = GetCommandMeta(type);
-
-            return cmdMeta.CreateCommand(entity);
-        }
-
-        protected abstract CommandMeta CreateCommandMeta(TableMeta tableMeta);
-    }
-
-    class InsertCommandBuilder : SimpleCommandBuilder
-    {
-        public InsertCommandBuilder(IDbMeta dbMeta) : base(dbMeta)
-        {
-        }
-
-        protected override CommandMeta CreateCommandMeta(TableMeta tableMeta)
-        {
-            return DbMeta.DbProvider.CreateCommandMetaBuilder().BuildInsertCommandMeta(tableMeta);
-        }
-    }
-
-    class UpdateCommandBuilder : SimpleCommandBuilder
-    {
-        public UpdateCommandBuilder(IDbMeta dbMeta) : base(dbMeta)
-        {
-        }
-
-        protected override CommandMeta CreateCommandMeta(TableMeta tableMeta)
-        {
-            return DbMeta.DbProvider.CreateCommandMetaBuilder().BuildUpdateCommandMeta(tableMeta);
-        }
-    }
-
-    class DeleteCommandBuilder : SimpleCommandBuilder
-    {
-        public DeleteCommandBuilder(IDbMeta dbMeta) : base(dbMeta)
-        {
-        }
-
-        protected override CommandMeta CreateCommandMeta(TableMeta tableMeta)
-        {
-            return DbMeta.DbProvider.CreateCommandMetaBuilder().BuildDeleteCommandMeta(tableMeta);
-        }
-    }
-
-    class SelectCommandBuilder : SimpleCommandBuilder, IReadCommandBuilder
-    {
-        public SelectCommandBuilder(IDbMeta dbMeta) : base(dbMeta)
-        {
-        }
-
-        protected override CommandMeta CreateCommandMeta(TableMeta tableMeta)
-        {
-            return DbMeta.DbProvider.CreateCommandMetaBuilder().BuildGetByIdCommandMeta(tableMeta);
-        }
-
-        public Command BuildById<T>(object id)
-        {
-            if (id is T)
+            if (_tableMeta.Type == id.GetType())
             {
-                return Build(id);
+                return _getByIdCommandMeta.CreateCommand(id);
             }
 
-            var cmdMeta = GetCommandMeta(typeof(T));
-
-            var paramMeta = cmdMeta.ParameterMeta.First();
-
-            var parameters = new Dictionary<string, CommandParameter>
+            var paramMeta = _getByIdCommandMeta.ParameterMeta.First();
+            return Command.TextCommand(_getByIdCommandMeta.CommandText, new Dictionary<string, CommandParameter>
             {
                 {
-                    paramMeta.Key,
-                    new CommandParameter
+                    paramMeta.Key, new CommandParameter
                     {
                         Value = id,
                         Name = paramMeta.Key,
                         ParameterMeta = paramMeta.Value.ParameterMeta
                     }
                 }
-            };
-
-            return Command.TextCommand(cmdMeta.CommandText, parameters);
+            });
         }
     }
 }

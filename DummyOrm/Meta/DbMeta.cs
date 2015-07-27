@@ -22,8 +22,6 @@ namespace DummyOrm.Meta
         public DbMeta (IDbProvider provider)
         {
             DbProvider = provider;
-            provider.DbMeta = this;
-            SimpleCommandBuilder.Init(this);
         }
 
         public OneToManyMeta OneToMany<TOne, TMany>(Expression<Func<TOne, IEnumerable<TMany>>> listPropExp, Expression<Func<TMany, TOne>> foreignPropExp)
@@ -161,9 +159,10 @@ namespace DummyOrm.Meta
                 _columns.Add(column.Property, column);
             }
 
-            _tables.Add(type, tableMeta);
+            tableMeta.SimpleCommandBuilder = new SimpleCommandBuilder(tableMeta);
 
-            SimpleCommandBuilder.RegisterAll(tableMeta);
+            _tables.Add(type, tableMeta);
+            
             PocoDeserializer.RegisterEntity(tableMeta);
 
             EnsureReferences();
@@ -176,9 +175,9 @@ namespace DummyOrm.Meta
             return (TableMeta)_tables[type];
         }
 
-        public ColumnMeta GetColumn(PropertyInfo prop)
+        public ColumnMeta GetColumn(PropertyInfo propInf)
         {
-            return (ColumnMeta)_columns[prop];
+            return (ColumnMeta)_columns[propInf];
         }
 
         public IAssociationMeta GetAssociation(PropertyInfo prop)

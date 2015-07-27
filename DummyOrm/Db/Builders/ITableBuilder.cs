@@ -18,5 +18,6 @@ namespace DummyOrm.Db.Builders
         IDbBuilder ManyToMany<TParent, TAssoc>(Expression<Func<TParent, IList>> listPropExp)
             where TParent : class, new()
             where TAssoc : class, new();
+        IDbFactory BuildFactory();
     }
 }

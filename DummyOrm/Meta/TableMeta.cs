@@ -1,4 +1,5 @@
 using System;
+using DummyOrm.Sql.Command;
 
 namespace DummyOrm.Meta
 {
@@ -16,6 +17,7 @@ namespace DummyOrm.Meta
         public string TableName { get; set; }
         public bool AssociationTable { get; set; }
         public ColumnMeta IdColumn { get; set; }
+        public ISimpleCommandBuilder SimpleCommandBuilder { get; set; }
 
         public Func<object> Factory { get; set; }
 

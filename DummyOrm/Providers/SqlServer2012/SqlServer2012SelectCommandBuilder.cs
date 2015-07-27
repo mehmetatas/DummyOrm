@@ -115,7 +115,7 @@ namespace DummyOrm.Providers.SqlServer2012
             }
 
             var whereExp = where.Operand1;
-            var builder = _meta.DbProvider.CreateWhereCommandBuilder();
+            var builder = _meta.DbProvider.CreateWhereCommandBuilder(_meta);
             whereExp.Accept(builder);
             var whereCmd = builder.Build();
 

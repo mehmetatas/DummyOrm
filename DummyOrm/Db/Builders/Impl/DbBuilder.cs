@@ -6,7 +6,7 @@ using DummyOrm.Db.Impl;
 using DummyOrm.Meta;
 using DummyOrm.Providers;
 
-namespace DummyOrm.Db.Builders
+namespace DummyOrm.Db.Builders.Impl
 {
     class DbBuilder : IDbBuilder
     {

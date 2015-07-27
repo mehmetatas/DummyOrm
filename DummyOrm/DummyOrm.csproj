@@ -58,12 +58,12 @@
     <Compile Include="Dynamix\IPocoDeserializer.cs" />
     <Compile Include="Dynamix\IProxy.cs" />
     <Compile Include="Dynamix\IProxyValues.cs" />
-    <Compile Include="Db\Builders\ColumnBuilder.cs" />
-    <Compile Include="Db\Builders\DbBuilder.cs" />
+    <Compile Include="Db\Builders\Impl\ColumnBuilder.cs" />
+    <Compile Include="Db\Builders\Impl\DbBuilder.cs" />
     <Compile Include="Db\Builders\IColumnBuilder.cs" />
     <Compile Include="Db\Builders\IDbBuilder.cs" />
     <Compile Include="Db\Builders\ITableBuilder.cs" />
-    <Compile Include="Db\Builders\TableBuilder.cs" />
+    <Compile Include="Db\Builders\Impl\TableBuilder.cs" />
     <Compile Include="Meta\IAssociationMeta.cs" />
     <Compile Include="Meta\IDbMeta.cs" />
     <Compile Include="Meta\ManyToManyMeta.cs" />
@@ -82,6 +82,7 @@
     <Compile Include="Sql\Command\Command.cs" />
     <Compile Include="Sql\Command\CommandBuilder.cs" />
     <Compile Include="Sql\Command\CommandParameter.cs" />
+    <Compile Include="Sql\Command\SimpleCommandBuilder.cs" />
     <Compile Include="Sql\Delete\IDeleteManyCommandBuilder.cs" />
     <Compile Include="Sql\Select\ISelectQueryBuilder.cs" />
     <Compile Include="Sql\Column.cs" />
@@ -94,9 +95,7 @@
     <Compile Include="Sql\Select\SelectQueryImpl.cs" />
     <Compile Include="Sql\Table.cs" />
     <Compile Include="Sql\Command\ICommandMetaBuilder.cs" />
-    <Compile Include="Sql\Command\IReadCommandBuilder.cs" />
     <Compile Include="Sql\Command\ISimpleCommandBuilder.cs" />
-    <Compile Include="Sql\Command\SimpleCommandBuilder.cs" />
     <Compile Include="Sql\Command\CommandMeta.cs" />
     <Compile Include="Sql\Select\ISelectCommandBuilder.cs" />
     <Compile Include="Providers\SqlServer2012\SqlServer2012SelectCommandBuilder.cs" />

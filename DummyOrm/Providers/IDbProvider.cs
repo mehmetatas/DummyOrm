@@ -15,15 +15,13 @@ namespace DummyOrm.Providers
 
         char ParameterPrefix { get; }
 
-        IDbMeta DbMeta { get; set; }
+        ISelectCommandBuilder CreateSelectCommandBuilder(IDbMeta meta);
 
-        ISelectCommandBuilder CreateSelectCommandBuilder();
+        IWhereCommandBuilder CreateWhereCommandBuilder(IDbMeta meta);
 
-        IWhereCommandBuilder CreateWhereCommandBuilder();
+        ICommandMetaBuilder CreateCommandMetaBuilder(IDbMeta meta);
 
-        ICommandMetaBuilder CreateCommandMetaBuilder();
-
-        IDeleteManyCommandBuilder CreateDeleteManyCommandBuilder();
+        IDeleteManyCommandBuilder CreateDeleteManyCommandBuilder(IDbMeta meta);
 
         IDbConnection CreateConnection();
     }

@@ -255,7 +255,7 @@ namespace DummyOrm.Db.Impl
         private Command BuildCommand()
         {
             var query = Build();
-            return _meta.DbProvider.CreateSelectCommandBuilder().Build(query);
+            return _meta.DbProvider.CreateSelectCommandBuilder(_meta).Build(query);
         }
     }
 }

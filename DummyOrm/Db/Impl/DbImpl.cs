@@ -47,7 +47,7 @@ namespace DummyOrm.Db.Impl
 
         public virtual void Insert<T>(T entity) where T : class, new()
         {
-            var cmd = SimpleCommandBuilder.Insert.Build(entity);
+            var cmd = SimpleCmd<T>().BuildInsertCommand(entity);
             var id = ExecuteScalar(cmd);
 
             if (id == null)
@@ -61,26 +61,26 @@ namespace DummyOrm.Db.Impl
 
         public virtual void Update<T>(T entity) where T : class, new()
         {
-            var cmd = SimpleCommandBuilder.Update.Build(entity);
+            var cmd = SimpleCmd<T>().BuildUpdateCommand(entity);
             ExecuteNonQuery(cmd);
         }
 
         public virtual void Delete<T>(T entity) where T : class, new()
         {
-            var cmd = SimpleCommandBuilder.Delete.Build(entity);
+            var cmd = SimpleCmd<T>().BuildDeleteCommand(entity);
             ExecuteNonQuery(cmd);
         }
 
         public virtual void DeleteMany<T>(Expression<Func<T, bool>> filter) where T : class, new()
         {
-            var builder = _meta.DbProvider.CreateDeleteManyCommandBuilder();
+            var builder = _meta.DbProvider.CreateDeleteManyCommandBuilder(_meta);
             var cmd = builder.Build(filter);
             ExecuteNonQuery(cmd);
         }
 
         public virtual T GetById<T>(object id) where T : class, new()
         {
-            var cmd = SimpleCommandBuilder.Select.BuildById<T>(id);
+            var cmd = SimpleCmd<T>().BuildGetByIdCommand(id);
             using (var reader = ExecuteReaderInternal(cmd))
             {
                 if (!reader.Read())
@@ -169,6 +169,11 @@ namespace DummyOrm.Db.Impl
         object ICommandExecutor.ExecuteScalar(Command cmd)
         {
             return ExecuteScalar(cmd);
+        }
+
+        private ISimpleCommandBuilder SimpleCmd<T>() where T : class, new()
+        {
+            return _meta.GetTable<T>().SimpleCommandBuilder;
         }
 
         private IDbCommand CreateCommand(Command cmd)

@@ -1,10 +1,13 @@
-using DummyOrm.Meta;
-
 namespace DummyOrm.Sql.Command
 {
-    interface ISimpleCommandBuilder
+    public interface ISimpleCommandBuilder
     {
-        void Register(TableMeta tableMeta);
-        Command Build(object entity);
+        Command BuildInsertCommand(object entity);
+        
+        Command BuildDeleteCommand(object entity);
+        
+        Command BuildUpdateCommand(object entity);
+
+        Command BuildGetByIdCommand(object id);
     }
 }

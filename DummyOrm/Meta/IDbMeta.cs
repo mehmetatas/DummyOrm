@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using DummyOrm.Providers;
+using DummyOrm.Sql.Command;
 
 namespace DummyOrm.Meta
 {
@@ -15,7 +16,7 @@ namespace DummyOrm.Meta
 
         TableMeta GetTable(Type type);
 
-        ColumnMeta GetColumn(PropertyInfo prop);
+        ColumnMeta GetColumn(PropertyInfo propInf);
 
         IAssociationMeta GetAssociation(PropertyInfo prop);
 

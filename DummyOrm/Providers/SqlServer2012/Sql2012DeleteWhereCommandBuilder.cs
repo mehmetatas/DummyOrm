@@ -23,7 +23,7 @@ namespace DummyOrm.Providers.SqlServer2012
         {
             _table = _meta.GetTable<T>();
 
-            var whereBuilder = _meta.DbProvider.CreateWhereCommandBuilder();
+            var whereBuilder = _meta.DbProvider.CreateWhereCommandBuilder(_meta);
 
             var cmd = whereBuilder.Build(_meta, filter, this);
 

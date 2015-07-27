@@ -24,26 +24,24 @@ namespace DummyOrm.Providers.SqlServer2012
             get { return '@'; }
         }
 
-        public IDbMeta DbMeta { get; set; }
-
-        public virtual ISelectCommandBuilder CreateSelectCommandBuilder()
+        public virtual ISelectCommandBuilder CreateSelectCommandBuilder(IDbMeta meta)
         {
-            return new SqlServer2012SelectCommandBuilder(DbMeta);
+            return new SqlServer2012SelectCommandBuilder(meta);
         }
 
-        public virtual IWhereCommandBuilder CreateWhereCommandBuilder()
+        public virtual IWhereCommandBuilder CreateWhereCommandBuilder(IDbMeta meta)
         {
             return new SqlServer2012WhereCommandBuilder(this);
         }
 
-        public virtual ICommandMetaBuilder CreateCommandMetaBuilder()
+        public virtual ICommandMetaBuilder CreateCommandMetaBuilder(IDbMeta meta)
         {
             return new SqlServer2012CommandMetaBuilder();
         }
 
-        public IDeleteManyCommandBuilder CreateDeleteManyCommandBuilder()
+        public IDeleteManyCommandBuilder CreateDeleteManyCommandBuilder(IDbMeta meta)
         {
-            return new Sql2012DeleteWhereCommandBuilder(DbMeta);
+            return new Sql2012DeleteWhereCommandBuilder(meta);
         }
 
         public abstract IDbConnection CreateConnection();
