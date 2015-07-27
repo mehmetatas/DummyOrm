@@ -11,15 +11,21 @@ namespace DummyOrm.Providers.SqlServer2012
 {
     public class Sql2012DeleteWhereCommandBuilder : IDeleteManyCommandBuilder, IWhereExpressionListener
     {
+        private readonly IDbMeta _meta;
         private TableMeta _table;
+
+        public Sql2012DeleteWhereCommandBuilder(IDbMeta meta)
+        {
+            _meta = meta;
+        }
 
         public Command Build<T>(Expression<Func<T, bool>> filter) where T : class, new()
         {
-            _table = DbMeta.Current.GetTable<T>();
+            _table = _meta.GetTable<T>();
 
-            var whereBuilder = DbMeta.Current.DbProvider.CreateWhereCommandBuilder();
+            var whereBuilder = _meta.DbProvider.CreateWhereCommandBuilder();
 
-            var cmd = whereBuilder.Build(filter, this);
+            var cmd = whereBuilder.Build(_meta, filter, this);
 
             var cmdBuilder = new CommandBuilder()
                 .AppendFormat("DELETE FROM [{0}] WHERE ", _table.TableName)

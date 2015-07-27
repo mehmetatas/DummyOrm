@@ -109,20 +109,13 @@ namespace DummyOrm.Dynamix.Impl
             return GetDefault(typeof(T));
         }
 
-        public static void RegisterEntity<T>() where T : class,new()
+        public static void RegisterEntity(TableMeta tableMeta)
         {
-            RegisterEntity(typeof(T));
-        }
-
-        public static void RegisterEntity(Type type)
-        {
-            var tableMeta = DbMeta.Current.GetTable(type);
-
             var propChain = tableMeta.Columns.ToDictionary(c => c.ColumnName, c => (IEnumerable<ColumnMeta>)new[] { c });
 
             var deserializer = new EntityDeserializer(tableMeta.Factory, propChain);
 
-            DefaultDeserializers.Add(type, deserializer);
+            DefaultDeserializers.Add(tableMeta.Type, deserializer);
         }
 
         public static void RegisterModel<T>() where T : class,new()

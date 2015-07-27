@@ -11,6 +11,7 @@ namespace DummyOrm.Sql.Select
 {
     class SelectQueryImpl : ISelectQuery, IWhereExpressionListener
     {
+        private readonly TableMeta _fromTableMeta;
         private readonly AliasContext _aliasCtx = new AliasContext();
         private readonly Dictionary<string, Table> _tables = new Dictionary<string, Table>();
         private readonly Dictionary<string, IEnumerable<ColumnMeta>> _outputMappings = new Dictionary<string, IEnumerable<ColumnMeta>>();
@@ -23,15 +24,15 @@ namespace DummyOrm.Sql.Select
 
         public int Page { get; private set; }
         public int PageSize { get; private set; }
-        
-        public SelectQueryImpl(Type fromType)
+
+        public SelectQueryImpl(TableMeta fromTableMeta)
         {
+            _fromTableMeta = fromTableMeta;
             SelectColumns = new Dictionary<string, Column>();
             WhereExpressions = new List<IWhereExpression>();
             Joins = new Dictionary<string, Join>();
             OrderByColumns = new List<OrderBy>();
 
-            var fromTableMeta = DbMeta.Current.GetTable(fromType);
             From = GetOrAddTable(fromTableMeta.TableName, fromTableMeta);
         }
 
@@ -81,7 +82,7 @@ namespace DummyOrm.Sql.Select
 
         public void Where<T>(Expression<Func<T, bool>> filter)
         {
-            var whereExp = WhereExpressionVisitor.Build(filter, this);
+            var whereExp = WhereExpressionVisitor.Build(_fromTableMeta.DbMeta, filter, this);
             Where(whereExp);
         }
 

@@ -30,7 +30,7 @@ namespace DummyOrm.Dynamix.Impl
 
             var parentIds = parentEntities.Select(parentIdGetter.Get).Distinct();
 
-            var query = new QueryImpl<TAssoc>(cmdExec);
+            var query = new QueryImpl<TAssoc>(_meta.DbMeta, cmdExec);
 
             query.Join(new List<ColumnMeta> { _meta.ChildColumn }, includeProps);
 

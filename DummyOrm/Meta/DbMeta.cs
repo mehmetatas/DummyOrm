@@ -11,22 +11,19 @@ using DummyOrm.Sql.Command;
 
 namespace DummyOrm.Meta
 {
-    public class DbMeta : IDbMeta
+    class DbMeta : IDbMeta
     {
         private readonly Hashtable _tables = new Hashtable();
         private readonly Hashtable _columns = new Hashtable();
         private readonly Hashtable _associations = new Hashtable();
-
-        public static IDbMeta Current
-        {
-            get { return Stack.Peek(); }
-        }
 
         public IDbProvider DbProvider { get; private set; }
 
         public DbMeta (IDbProvider provider)
         {
             DbProvider = provider;
+            provider.DbMeta = this;
+            SimpleCommandBuilder.Init(this);
         }
 
         public OneToManyMeta OneToMany<TOne, TMany>(Expression<Func<TOne, IEnumerable<TMany>>> listPropExp, Expression<Func<TMany, TOne>> foreignPropExp)
@@ -42,7 +39,7 @@ namespace DummyOrm.Meta
 
             var childCol = GetColumn(foreignPropExp.GetPropertyInfo());
 
-            var assoc = new OneToManyMeta
+            var assoc = new OneToManyMeta(this)
             {
                 ListFactory = PocoFactory.CreateListFactory(listProp.PropertyType),
                 ListGetterSetter = GetterSetter.Create(listProp),
@@ -75,7 +72,7 @@ namespace DummyOrm.Meta
             var parentColumn = assocTable.Columns.First(c => c.ReferencedTable == parentTable);
             var childColumn = assocTable.Columns.First(c => c.ReferencedTable == childTable);
 
-            var assoc = new ManyToManyMeta
+            var assoc = new ManyToManyMeta(this)
             {
                 ListFactory = PocoFactory.CreateListFactory(listProp.PropertyType),
                 ListGetterSetter = GetterSetter.Create(listProp),
@@ -98,7 +95,7 @@ namespace DummyOrm.Meta
 
         public TableMeta RegisterEntity(Type type)
         {
-            var tableMeta = new TableMeta
+            var tableMeta = new TableMeta(this)
             {
                 Type = type,
                 TableName = type.Name,
@@ -119,7 +116,7 @@ namespace DummyOrm.Meta
             {
                 var isReference = prop.IsReferenceProperty();
 
-                var columnMeta = new ColumnMeta
+                var columnMeta = new ColumnMeta(this)
                 {
                     Table = tableMeta,
                     Property = prop,
@@ -167,7 +164,7 @@ namespace DummyOrm.Meta
             _tables.Add(type, tableMeta);
 
             SimpleCommandBuilder.RegisterAll(tableMeta);
-            PocoDeserializer.RegisterEntity(type);
+            PocoDeserializer.RegisterEntity(tableMeta);
 
             EnsureReferences();
 
@@ -205,31 +202,6 @@ namespace DummyOrm.Meta
                     column.ReferencedTable = GetTable(column.Property.PropertyType);
                 }
             }
-        }
-
-        // TODO: Make it web thread safe
-        [ThreadStatic]
-        private static Stack<IDbMeta> _stack;
-        private static Stack<IDbMeta> Stack
-        {
-            get
-            {
-                if (_stack == null)
-                {
-                    _stack = new Stack<IDbMeta>();
-                }
-                return _stack;
-            }
-        }
-
-        public static void Push(IDbMeta meta)
-        {
-            Stack.Push(meta);
-        }
-
-        public static void Pop()
-        {
-            Stack.Pop();
         }
     }
 }

@@ -13,22 +13,24 @@ namespace DummyOrm.Db.Impl
 {
     class QueryImpl<T> : IQuery<T>, ISelectQueryBuilder where T : class, new()
     {
+        private readonly IDbMeta _meta;
         private readonly ICommandExecutor _queryExecuter;
         private readonly SelectQueryImpl _query;
         private bool _autoIncludeFromColumns;
 
         internal string FromTableAlias { get { return _query.From.Alias; } }
 
-        public QueryImpl(ICommandExecutor queryExecuter)
+        public QueryImpl(IDbMeta meta, ICommandExecutor queryExecuter)
         {
-            _query = new SelectQueryImpl(typeof(T));
+            _query = new SelectQueryImpl(meta.GetTable<T>());
+            _meta = meta;
             _queryExecuter = queryExecuter;
             _autoIncludeFromColumns = true;
         }
 
         public IQuery<T> Join<TProp>(Expression<Func<T, TProp>> refProp, Expression<Func<TProp, object>> include = null) where TProp : class ,new()
         {
-            var propChain = refProp.GetPropertyChain();
+            var propChain = refProp.GetPropertyChain(_meta);
 
             // Build join
             _query.Join(propChain);
@@ -107,7 +109,7 @@ namespace DummyOrm.Db.Impl
                 ? new List<ColumnMeta>()
                 : new List<ColumnMeta>(rootChain);
 
-            list.AddRange(memberExp.GetPropertyChain(false));
+            list.AddRange(memberExp.GetPropertyChain(_meta, false));
             
             Include(join, list);
         }
@@ -145,13 +147,13 @@ namespace DummyOrm.Db.Impl
 
         public IOrderByQuery<T> OrderBy(Expression<Func<T, object>> props)
         {
-            _query.OrderBy(props.GetPropertyChain(false), false);
+            _query.OrderBy(props.GetPropertyChain(_meta, false), false);
             return this;
         }
 
         public IOrderByQuery<T> OrderByDesc(Expression<Func<T, object>> props)
         {
-            _query.OrderBy(props.GetPropertyChain(false), true);
+            _query.OrderBy(props.GetPropertyChain(_meta,false), true);
             return this;
         }
 
@@ -253,7 +255,7 @@ namespace DummyOrm.Db.Impl
         private Command BuildCommand()
         {
             var query = Build();
-            return DbMeta.Current.DbProvider.CreateSelectCommandBuilder().Build(query);
+            return _meta.DbProvider.CreateSelectCommandBuilder().Build(query);
         }
     }
 }

@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
-using DummyOrm.Meta;
+using DummyOrm.Providers;
 using DummyOrm.Sql.Command;
 using DummyOrm.Sql.Where.Expressions;
 
@@ -14,8 +14,14 @@ namespace DummyOrm.Sql.Where.ExpressionVisitors
     /// </summary>
     public abstract class WhereCommandBuilder : IWhereCommandBuilder
     {
+        private readonly IDbProvider _provider;
         private readonly StringBuilder _sql = new StringBuilder();
         private readonly IDictionary<string, CommandParameter> _parameters = new Dictionary<string, CommandParameter>();
+
+        protected WhereCommandBuilder(IDbProvider provider)
+        {
+            _provider = provider;
+        }
 
         public virtual void Visit(LogicalExpression e)
         {
@@ -82,7 +88,7 @@ namespace DummyOrm.Sql.Where.ExpressionVisitors
             }
 
             var paramName = String.Format("wp{0}", _parameters.Count);
-            _sql.AppendFormat("{0}{1}", DbMeta.Current.DbProvider.ParameterPrefix, paramName);
+            _sql.AppendFormat("{0}{1}", _provider.ParameterPrefix, paramName);
             _parameters.Add(paramName, new CommandParameter
             {
                 Name = paramName,

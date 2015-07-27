@@ -1,5 +1,4 @@
 ﻿using DummyOrm.Meta;
-using DummyOrm.Providers;
 
 namespace DummyOrm.Db.Impl
 {

@@ -4,6 +4,13 @@ namespace DummyOrm.Meta
 {
     public class TableMeta
     {
+        public TableMeta(IDbMeta dbMeta)
+        {
+            DbMeta = dbMeta;
+        }
+
+        public IDbMeta DbMeta { get; private set; }
+
         public Type Type { get; set; }
         public ColumnMeta[] Columns { get; set; }
         public string TableName { get; set; }

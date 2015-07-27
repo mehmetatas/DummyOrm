@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using DummyOrm.Meta;
 using DummyOrm.Sql.Where.ExpressionBuilders;
 using DummyOrm.Sql.Where.Expressions;
 
@@ -14,20 +15,22 @@ namespace DummyOrm.Sql.Where.ExpressionVisitors
     /// </summary>
     public class WhereExpressionVisitor : ExpressionVisitor
     {
+        private readonly IDbMeta _meta;
         private readonly IWhereExpressionListener _listener;
         private readonly Stack<IWhereExpressionBuilder> _stack = new Stack<IWhereExpressionBuilder>();
 
         private IWhereExpressionBuilder _current;
 
-        private WhereExpressionVisitor(IWhereExpressionListener listener)
+        private WhereExpressionVisitor(IDbMeta meta, IWhereExpressionListener listener)
         {
+            _meta = meta;
             _listener = listener;
         }
 
-        public static IWhereExpression Build(Expression whereExpression, IWhereExpressionListener listener)
+        public static IWhereExpression Build(IDbMeta meta, Expression whereExpression, IWhereExpressionListener listener)
         {
             var evaled = Evaluator.PartialEval(whereExpression);
-            var visitor = new WhereExpressionVisitor(listener);
+            var visitor = new WhereExpressionVisitor(meta, listener);
             visitor.Visit(evaled);
             return visitor._current.Build();
         }
@@ -202,7 +205,7 @@ namespace DummyOrm.Sql.Where.ExpressionVisitors
 
         protected override Expression VisitMember(MemberExpression memberExpression)
         {
-            var chain = memberExpression.GetPropertyChain(false);
+            var chain = memberExpression.GetPropertyChain(_meta, false);
             var column = _listener.RegisterColumn(chain);
 
             _current.Visit(new ColumnExpression

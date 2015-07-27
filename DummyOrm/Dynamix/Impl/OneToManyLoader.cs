@@ -24,7 +24,7 @@ namespace DummyOrm.Dynamix.Impl
             where T : class, new()
             where TProp : class, new()
         {
-            var query = new QueryImpl<TProp>(cmdExec);
+            var query = new QueryImpl<TProp>(_meta.DbMeta, cmdExec);
 
             var parentId = _meta.PrimaryKey;
             var parentIdGetter = parentId.GetterSetter;

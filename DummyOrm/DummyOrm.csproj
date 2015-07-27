@@ -64,6 +64,7 @@
     <Compile Include="Db\Builders\IDbBuilder.cs" />
     <Compile Include="Db\Builders\ITableBuilder.cs" />
     <Compile Include="Db\Builders\TableBuilder.cs" />
+    <Compile Include="Meta\IAssociationMeta.cs" />
     <Compile Include="Meta\IDbMeta.cs" />
     <Compile Include="Meta\ManyToManyMeta.cs" />
     <Compile Include="Meta\ColumnMeta.cs" />

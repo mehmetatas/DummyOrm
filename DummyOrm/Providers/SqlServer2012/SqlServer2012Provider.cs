@@ -9,11 +9,6 @@ namespace DummyOrm.Providers.SqlServer2012
 {
     public abstract class SqlServer2012Provider : IDbProvider
     {
-        protected SqlServer2012Provider()
-        {
-            Meta = new DbMeta(this);
-        }
-
         public virtual char QuoteOpen
         {
             get { return '['; }
@@ -29,16 +24,16 @@ namespace DummyOrm.Providers.SqlServer2012
             get { return '@'; }
         }
 
-        public virtual IDbMeta Meta { get; private set; }
+        public IDbMeta DbMeta { get; set; }
 
         public virtual ISelectCommandBuilder CreateSelectCommandBuilder()
         {
-            return new SqlServer2012SelectCommandBuilder();
+            return new SqlServer2012SelectCommandBuilder(DbMeta);
         }
 
         public virtual IWhereCommandBuilder CreateWhereCommandBuilder()
         {
-            return new SqlServer2012WhereCommandBuilder();
+            return new SqlServer2012WhereCommandBuilder(this);
         }
 
         public virtual ICommandMetaBuilder CreateCommandMetaBuilder()
@@ -48,7 +43,7 @@ namespace DummyOrm.Providers.SqlServer2012
 
         public IDeleteManyCommandBuilder CreateDeleteManyCommandBuilder()
         {
-            return new Sql2012DeleteWhereCommandBuilder();
+            return new Sql2012DeleteWhereCommandBuilder(DbMeta);
         }
 
         public abstract IDbConnection CreateConnection();

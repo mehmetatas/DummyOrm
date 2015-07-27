@@ -12,10 +12,11 @@ namespace DummyOrm.Db.Impl
     {
         private IDbTransaction _tran;
         private readonly IDbConnection _conn;
+        private readonly IDbMeta _meta;
 
         protected internal DbImpl(IDbMeta meta)
         {
-            DbMeta.Push(meta);
+            _meta = meta;
             _conn = meta.DbProvider.CreateConnection();
             _conn.Open();
         }
@@ -54,7 +55,7 @@ namespace DummyOrm.Db.Impl
                 return;
             }
 
-            var tableMeta = DbMeta.Current.GetTable<T>();
+            var tableMeta = _meta.GetTable<T>();
             tableMeta.IdColumn.GetterSetter.Set(entity, id);
         }
 
@@ -72,7 +73,7 @@ namespace DummyOrm.Db.Impl
 
         public virtual void DeleteMany<T>(Expression<Func<T, bool>> filter) where T : class, new()
         {
-            var builder = DbMeta.Current.DbProvider.CreateDeleteManyCommandBuilder();
+            var builder = _meta.DbProvider.CreateDeleteManyCommandBuilder();
             var cmd = builder.Build(filter);
             ExecuteNonQuery(cmd);
         }
@@ -93,7 +94,7 @@ namespace DummyOrm.Db.Impl
 
         public virtual IQuery<T> Select<T>() where T : class, new()
         {
-            return new QueryImpl<T>(this);
+            return new QueryImpl<T>(_meta, this);
         }
 
         public virtual IList<T> ExecuteQuery<T>(Command selectCommand) where T : class, new()
@@ -134,7 +135,7 @@ namespace DummyOrm.Db.Impl
             where T : class, new()
             where TProp : class, new()
         {
-            var colMeta = DbMeta.Current.GetColumn(propExp);
+            var colMeta = _meta.GetColumn(propExp);
             colMeta.Loader.Load(entities, this, includeProps);
         }
 
@@ -142,23 +143,16 @@ namespace DummyOrm.Db.Impl
             where T : class, new()
             where TProp : class, new()
         {
-            var assoc = DbMeta.Current.GetAssociation(listExp);
+            var assoc = _meta.GetAssociation(listExp);
             assoc.Loader.Load(entities, this, includeProps);
         }
 
         public virtual void Dispose()
         {
-            try
+            _conn.Dispose();
+            if (_tran != null)
             {
-                _conn.Dispose();
-                if (_tran != null)
-                {
-                    _tran.Dispose();
-                }
-            }
-            finally
-            {
-                DbMeta.Pop();   
+                _tran.Dispose();
             }
         }
 

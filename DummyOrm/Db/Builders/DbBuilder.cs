@@ -15,7 +15,6 @@ namespace DummyOrm.Db.Builders
         public DbBuilder(IDbProvider provider)
         {
             _meta = new DbMeta(provider);
-            DbMeta.Push(_meta);
         }
 
         public ITableBuilder<T> Table<T>() where T : class, new()
@@ -42,7 +41,6 @@ namespace DummyOrm.Db.Builders
 
         public IDbFactory BuildFactory()
         {
-            DbMeta.Pop();
             return new DbFactoryImpl(_meta);
         }
     }

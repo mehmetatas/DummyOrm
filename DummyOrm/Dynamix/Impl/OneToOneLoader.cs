@@ -46,7 +46,7 @@ namespace DummyOrm.Dynamix.Impl
         private IList<TProp> GetChildren<TProp>(ICommandExecutor cmdExec, Expression<Func<TProp, object>> includeProps, IEnumerable<object> childIds)
             where TProp : class, new()
         {
-            var query = new QueryImpl<TProp>(cmdExec);
+            var query = new QueryImpl<TProp>(_refProp.DbMeta, cmdExec);
 
             query.Where(new InExpression
             {

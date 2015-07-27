@@ -15,6 +15,8 @@ namespace DummyOrm.Providers
 
         char ParameterPrefix { get; }
 
+        IDbMeta DbMeta { get; set; }
+
         ISelectCommandBuilder CreateSelectCommandBuilder();
 
         IWhereCommandBuilder CreateWhereCommandBuilder();

@@ -108,17 +108,17 @@ namespace DummyOrm
                 : (MemberExpression)propExpression.Body;
         }
 
-        public static List<ColumnMeta> GetPropertyChain(this LambdaExpression propExpression, bool onlyRef = true)
+        public static List<ColumnMeta> GetPropertyChain(this LambdaExpression propExpression, IDbMeta meta, bool onlyRef = true)
         {
-            return propExpression.GetMemberExpression().GetPropertyChain(onlyRef);
+            return propExpression.GetMemberExpression().GetPropertyChain(meta, onlyRef);
         }
 
-        public static List<ColumnMeta> GetPropertyChain<T, TProp>(this Expression<Func<T, TProp>> propExpression, bool onlyRef = true)
+        public static List<ColumnMeta> GetPropertyChain<T, TProp>(this Expression<Func<T, TProp>> propExpression, IDbMeta meta, bool onlyRef = true)
         {
-            return propExpression.GetMemberExpression().GetPropertyChain(onlyRef);
+            return propExpression.GetMemberExpression().GetPropertyChain(meta, onlyRef);
         }
 
-        public static List<ColumnMeta> GetPropertyChain(this MemberExpression memberExpression, bool onlyRef = true)
+        public static List<ColumnMeta> GetPropertyChain(this MemberExpression memberExpression, IDbMeta meta, bool onlyRef = true)
         {
             var chain = new List<ColumnMeta>();
 
@@ -127,7 +127,7 @@ namespace DummyOrm
                 var propInf = (PropertyInfo)memberExpression.Member;
                 if (propInf.IsReferenceProperty() || !onlyRef)
                 {
-                    chain.Insert(0, DbMeta.Current.GetColumn(propInf));
+                    chain.Insert(0, meta.GetColumn(propInf));
                 }
                 memberExpression = memberExpression.Expression as MemberExpression;
             }

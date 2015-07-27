@@ -13,8 +13,14 @@ namespace DummyOrm.Providers.SqlServer2012
 {
     public class SqlServer2012SelectCommandBuilder : ISelectCommandBuilder
     {
+        private readonly IDbMeta _meta;
         private readonly StringBuilder _cmd = new StringBuilder();
         private readonly Dictionary<string, CommandParameter> _param = new Dictionary<string, CommandParameter>();
+
+        public SqlServer2012SelectCommandBuilder(IDbMeta meta)
+        {
+            _meta = meta;
+        }
 
         public Command Build(ISelectQuery query)
         {
@@ -109,7 +115,7 @@ namespace DummyOrm.Providers.SqlServer2012
             }
 
             var whereExp = where.Operand1;
-            var builder = DbMeta.Current.DbProvider.CreateWhereCommandBuilder();
+            var builder = _meta.DbProvider.CreateWhereCommandBuilder();
             whereExp.Accept(builder);
             var whereCmd = builder.Build();
 

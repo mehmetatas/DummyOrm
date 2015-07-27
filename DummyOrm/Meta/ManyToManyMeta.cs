@@ -4,13 +4,15 @@ using DummyOrm.Dynamix;
 
 namespace DummyOrm.Meta
 {
-    public interface IAssociationMeta
-    {
-        IAssociationLoader Loader { get; }
-    }
-
     public class ManyToManyMeta : IAssociationMeta
     {
+        public ManyToManyMeta(IDbMeta dbMeta)
+        {
+            DbMeta = dbMeta;
+        }
+
+        public IDbMeta DbMeta { get; private set; }
+
         public Func<IList> ListFactory { get; set; }
         public IGetterSetter ListGetterSetter { get; set; }
         public ColumnMeta ParentColumn { get; set; }
