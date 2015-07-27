@@ -14,6 +14,8 @@ namespace DummyOrm.ConsoleApp
 {
     class Program
     {
+        private static IDbFactory _factory;
+        
         static void Main()
         {
             Init();
@@ -65,9 +67,10 @@ namespace DummyOrm.ConsoleApp
                 .Table<Like>()
                 .Table<FollowUser>();
 
-            builder
+            _factory = builder
                 .OneToMany<User, Post>(u => u.Posts, p => p.User)
-                .ManyToMany<Post, PostTag>(p => p.Tags);
+                .ManyToMany<Post, PostTag>(p => p.Tags)
+                .BuildFactory();
         }
 
         private static void JoinTest()
@@ -270,7 +273,7 @@ group by
 
         private static IDb OpenConnection()
         {
-            return Db.Db.Create();
+            return _factory.Create();
         }
     }
 

@@ -37,6 +37,8 @@
     <Compile Include="Db\ICommandExecutor.cs" />
     <Compile Include="Db\IDb.cs" />
     <Compile Include="Db\Db.cs" />
+    <Compile Include="Db\IDbFactory.cs" />
+    <Compile Include="Db\Impl\DbFactoryImpl.cs" />
     <Compile Include="Db\Impl\DbImpl.cs" />
     <Compile Include="Db\Impl\QueryImpl.cs" />
     <Compile Include="Db\IOrderByQuery.cs" />
@@ -56,12 +58,12 @@
     <Compile Include="Dynamix\IPocoDeserializer.cs" />
     <Compile Include="Dynamix\IProxy.cs" />
     <Compile Include="Dynamix\IProxyValues.cs" />
-    <Compile Include="Meta\Builders\ColumnMetaBuilder.cs" />
-    <Compile Include="Meta\Builders\DbMetaBuilder.cs" />
-    <Compile Include="Meta\Builders\IColumnMetaBuilder.cs" />
-    <Compile Include="Meta\Builders\IDbMetaBuilder.cs" />
-    <Compile Include="Meta\Builders\ITableMetaBuilder.cs" />
-    <Compile Include="Meta\Builders\TableMetaBuilder.cs" />
+    <Compile Include="Db\Builders\ColumnBuilder.cs" />
+    <Compile Include="Db\Builders\DbBuilder.cs" />
+    <Compile Include="Db\Builders\IColumnBuilder.cs" />
+    <Compile Include="Db\Builders\IDbBuilder.cs" />
+    <Compile Include="Db\Builders\ITableBuilder.cs" />
+    <Compile Include="Db\Builders\TableBuilder.cs" />
     <Compile Include="Meta\IDbMeta.cs" />
     <Compile Include="Meta\ManyToManyMeta.cs" />
     <Compile Include="Meta\ColumnMeta.cs" />

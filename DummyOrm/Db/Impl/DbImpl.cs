@@ -4,7 +4,6 @@ using System.Data;
 using System.Linq.Expressions;
 using DummyOrm.Dynamix.Impl;
 using DummyOrm.Meta;
-using DummyOrm.Providers;
 using DummyOrm.Sql.Command;
 
 namespace DummyOrm.Db.Impl
@@ -14,9 +13,10 @@ namespace DummyOrm.Db.Impl
         private IDbTransaction _tran;
         private readonly IDbConnection _conn;
 
-        protected internal DbImpl(IDbProvider provider)
+        protected internal DbImpl(IDbMeta meta)
         {
-            _conn = provider.CreateConnection();
+            DbMeta.Push(meta);
+            _conn = meta.DbProvider.CreateConnection();
             _conn.Open();
         }
 
