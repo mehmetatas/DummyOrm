@@ -16,11 +16,11 @@ namespace DummyOrm.Sql.Select
         private readonly Dictionary<string, Table> _tables = new Dictionary<string, Table>();
         private readonly Dictionary<string, IEnumerable<ColumnMeta>> _outputMappings = new Dictionary<string, IEnumerable<ColumnMeta>>();
 
-        public Table From { get; private set; }
-        public IDictionary<string, Column> SelectColumns { get; private set; }
-        public IDictionary<string, Join> Joins { get; private set; }
-        public List<IWhereExpression> WhereExpressions { get; private set; }
-        public List<OrderBy> OrderByColumns { get; private set; }
+        public Table From { get; }
+        public IDictionary<string, Column> SelectColumns { get; }
+        public IDictionary<string, Join> Joins { get; }
+        public List<IWhereExpression> WhereExpressions { get; }
+        public List<OrderBy> OrderByColumns { get; }
 
         public int Page { get; private set; }
         public int PageSize { get; private set; }
@@ -121,7 +121,7 @@ namespace DummyOrm.Sql.Select
 
         private Column AddColumn(Table table, ColumnMeta colMeta)
         {
-            var colAlias = String.Format("{0}_{1}", table.Alias, colMeta.ColumnName);
+            var colAlias = $"{table.Alias}_{colMeta.ColumnName}";
 
             if (SelectColumns.ContainsKey(colAlias))
             {
@@ -154,7 +154,7 @@ namespace DummyOrm.Sql.Select
 
                 var rightCol = leftCol.ReferencedTable.IdColumn;
 
-                key += u + String.Format("{0}{1}_{2}{3}", leftCol.Table.TableName, leftCol.ColumnName, rightCol.Table.TableName, rightCol.ColumnName);
+                key += u + $"{leftCol.Table.TableName}{leftCol.ColumnName}_{rightCol.Table.TableName}{rightCol.ColumnName}";
 
                 u = "_";
             }
@@ -193,20 +193,21 @@ namespace DummyOrm.Sql.Select
             var leftTable = From;
 
             var i = 0;
-            foreach (var leftColMeta in props)
+            var leftColMetas = props as ColumnMeta[] ?? props.ToArray();
+            foreach (var leftColMeta in leftColMetas)
             {
                 if (!leftColMeta.IsRefrence)
                 {
                     break;
                 }
 
-                var subChain = props.Take(++i).ToList();
+                var subChain = leftColMetas.Take(++i).ToList();
 
                 var rightTableMeta = leftColMeta.ReferencedTable;
                 var rightTableKey = GetTableKey(subChain);
                 var rightTable = GetOrAddTable(rightTableKey, rightTableMeta);
 
-                var joinKey = String.Format("{0}_{1}", leftTable.Alias, rightTable.Alias);
+                var joinKey = $"{leftTable.Alias}_{rightTable.Alias}";
 
                 if (!Joins.ContainsKey(joinKey))
                 {

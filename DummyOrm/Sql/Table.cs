@@ -1,4 +1,3 @@
-using System;
 using DummyOrm.Meta;
 
 namespace DummyOrm.Sql
@@ -10,7 +9,7 @@ namespace DummyOrm.Sql
 
         public override string ToString()
         {
-            return String.Format("[{0}] {1}", Meta.TableName, Alias);
+            return $"[{Meta.TableName}] {Alias}";
         }
     }
 }

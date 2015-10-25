@@ -25,7 +25,7 @@ namespace DummyOrm.Providers.SqlServer2012
             var comma = "";
             foreach (var column in columns.Where(c => !c.AutoIncrement))
             {
-                var paramName = String.Format("p{0}", parameterMeta.Count);
+                var paramName = $"p{parameterMeta.Count}";
 
                 sql.Append(comma)
                     .Append("@")
@@ -64,7 +64,7 @@ namespace DummyOrm.Providers.SqlServer2012
             var comma = "";
             foreach (var column in columns.Where(c => !c.Identity))
             {
-                var paramName = String.Format("p{0}", parameterMeta.Count);
+                var paramName = $"p{parameterMeta.Count}";
 
                 sql.Append(comma)
                     .AppendFormat("[{0}]=@{1}", column.ColumnName, paramName);
@@ -111,7 +111,7 @@ namespace DummyOrm.Providers.SqlServer2012
 
             var sql = new StringBuilder()
                 .Append("SELECT ")
-                .Append(String.Join(",", columns.Select(c => String.Format("[{0}]", c.ColumnName))))
+                .Append(String.Join(",", columns.Select(c => $"[{c.ColumnName}]")))
                 .Append(" FROM [")
                 .Append(table.TableName)
                 .Append("]");
@@ -130,7 +130,7 @@ namespace DummyOrm.Providers.SqlServer2012
             var and = " WHERE ";
             foreach (var column in columns.Where(c => c.Identity))
             {
-                var paramName = String.Format("wp{0}", parameterMeta.Count);
+                var paramName = $"wp{parameterMeta.Count}";
 
                 sql.Append(and)
                     .AppendFormat("[{0}]=@{1}", column.ColumnName, paramName);

@@ -31,18 +31,12 @@ namespace DummyOrm.Db.Impl
 
         public virtual void Commit()
         {
-            if (_tran != null)
-            {
-                _tran.Commit();
-            }
+            _tran?.Commit();
         }
 
         public virtual void Rollback()
         {
-            if (_tran != null)
-            {
-                _tran.Rollback();
-            }
+            _tran?.Rollback();
         }
 
         public virtual void Insert<T>(T entity) where T : class, new()
@@ -150,10 +144,7 @@ namespace DummyOrm.Db.Impl
         public virtual void Dispose()
         {
             _conn.Dispose();
-            if (_tran != null)
-            {
-                _tran.Dispose();
-            }
+            _tran?.Dispose();
         }
 
         IDataReader ICommandExecutor.ExecuteReader(Command cmd)

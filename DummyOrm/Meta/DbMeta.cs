@@ -17,7 +17,7 @@ namespace DummyOrm.Meta
         private readonly Hashtable _columns = new Hashtable();
         private readonly Hashtable _associations = new Hashtable();
 
-        public IDbProvider DbProvider { get; private set; }
+        public IDbProvider DbProvider { get; }
 
         public DbMeta (IDbProvider provider)
         {

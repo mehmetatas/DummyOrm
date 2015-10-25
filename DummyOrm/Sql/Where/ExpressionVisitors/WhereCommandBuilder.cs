@@ -87,7 +87,7 @@ namespace DummyOrm.Sql.Where.ExpressionVisitors
                 throw new NotSupportedException("Null values should be handled by NullExpression");
             }
 
-            var paramName = String.Format("wp{0}", _parameters.Count);
+            var paramName = $"wp{_parameters.Count}";
             _sql.AppendFormat("{0}{1}", _provider.ParameterPrefix, paramName);
             _parameters.Add(paramName, new CommandParameter
             {

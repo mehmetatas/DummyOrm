@@ -9,20 +9,11 @@ namespace DummyOrm.Providers.SqlServer2012
 {
     public abstract class SqlServer2012Provider : IDbProvider
     {
-        public virtual char QuoteOpen
-        {
-            get { return '['; }
-        }
+        public virtual char QuoteOpen => '[';
 
-        public virtual char QuoteClose
-        {
-            get { return ']'; }
-        }
+        public virtual char QuoteClose => ']';
 
-        public virtual char ParameterPrefix
-        {
-            get { return '@'; }
-        }
+        public virtual char ParameterPrefix => '@';
 
         public virtual ISelectCommandBuilder CreateSelectCommandBuilder(IDbMeta meta)
         {

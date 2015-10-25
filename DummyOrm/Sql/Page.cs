@@ -14,14 +14,11 @@ namespace DummyOrm.Sql
             Items = items.ToArray();
         }
 
-        public bool HasMore
-        {
-            get { return PageIndex < PageCount; }
-        }
+        public bool HasMore => PageIndex < PageCount;
 
-        public int PageIndex { get; private set; }
+        public int PageIndex { get; }
         public int PageSize { get; private set; }
-        public int PageCount { get; private set; }
+        public int PageCount { get; }
         public int TotalCount { get; private set; }
 
         public T[] Items { get; private set; }

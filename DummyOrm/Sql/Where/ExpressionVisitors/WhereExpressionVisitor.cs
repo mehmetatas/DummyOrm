@@ -62,7 +62,19 @@ namespace DummyOrm.Sql.Where.ExpressionVisitors
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
-            if (methodCallExpression.Method.DeclaringType == typeof(string) && methodCallExpression.Method.Name == "StartsWith")
+            var declType = methodCallExpression.Method.DeclaringType;
+
+            if (declType != null && VisitMethodCallExpression(methodCallExpression, declType))
+            {
+                return methodCallExpression;
+            }
+
+            throw new NotSupportedException($"The method '{methodCallExpression.Method.Name}' is not supported");
+        }
+
+        private bool VisitMethodCallExpression(MethodCallExpression methodCallExpression, Type declType)
+        {
+            if (declType == typeof(string) && methodCallExpression.Method.Name == "StartsWith")
             {
                 var expression = StripQuotes(methodCallExpression.Arguments[0]);
 
@@ -72,9 +84,9 @@ namespace DummyOrm.Sql.Where.ExpressionVisitors
                 Visit(expression);
                 Pop();
 
-                return methodCallExpression;
+                return true;
             }
-            if (methodCallExpression.Method.DeclaringType == typeof(string) && methodCallExpression.Method.Name == "EndsWith")
+            if (declType == typeof(string) && methodCallExpression.Method.Name == "EndsWith")
             {
                 var expression = StripQuotes(methodCallExpression.Arguments[0]);
 
@@ -84,9 +96,9 @@ namespace DummyOrm.Sql.Where.ExpressionVisitors
                 Visit(expression);
                 Pop();
 
-                return methodCallExpression;
+                return true;
             }
-            if (methodCallExpression.Method.DeclaringType == typeof(string) && methodCallExpression.Method.Name == "Contains")
+            if (declType == typeof(string) && methodCallExpression.Method.Name == "Contains")
             {
                 var expression = StripQuotes(methodCallExpression.Arguments[0]);
 
@@ -96,9 +108,9 @@ namespace DummyOrm.Sql.Where.ExpressionVisitors
                 Visit(expression);
                 Pop();
 
-                return methodCallExpression;
+                return true;
             }
-            if (methodCallExpression.Method.DeclaringType == typeof(Enumerable) && methodCallExpression.Method.Name == "Contains")
+            if (declType == typeof(Enumerable) && methodCallExpression.Method.Name == "Contains")
             {
                 var listExp = StripQuotes(methodCallExpression.Arguments[0]);
                 var propExp = StripQuotes(methodCallExpression.Arguments[1]);
@@ -109,9 +121,9 @@ namespace DummyOrm.Sql.Where.ExpressionVisitors
                 Visit(listExp);
                 Pop();
 
-                return methodCallExpression;
+                return true;
             }
-            if (methodCallExpression.Method.DeclaringType.IsGenericType && methodCallExpression.Method.DeclaringType.GetGenericTypeDefinition() == typeof(List<>) && methodCallExpression.Method.Name == "Contains")
+            if (declType.IsGenericType && declType.GetGenericTypeDefinition() == typeof(List<>) && methodCallExpression.Method.Name == "Contains")
             {
                 var expression = StripQuotes(methodCallExpression.Arguments[0]);
 
@@ -121,10 +133,9 @@ namespace DummyOrm.Sql.Where.ExpressionVisitors
                 Visit(methodCallExpression.Object);
                 Pop();
 
-                return methodCallExpression;
+                return true;
             }
-
-            throw new NotSupportedException(string.Format("The method '{0}' is not supported", methodCallExpression.Method.Name));
+            return false;
         }
 
         protected override Expression VisitUnary(UnaryExpression unaryExpression)
@@ -143,8 +154,7 @@ namespace DummyOrm.Sql.Where.ExpressionVisitors
                     Visit(unaryExpression.Operand);
                     break;
                 default:
-                    throw new NotSupportedException(string.Format("The unary operator '{0}' is not supported",
-                        unaryExpression.NodeType));
+                    throw new NotSupportedException($"The unary operator '{unaryExpression.NodeType}' is not supported");
             }
 
             return unaryExpression;
@@ -188,7 +198,7 @@ namespace DummyOrm.Sql.Where.ExpressionVisitors
                         }
                         else
                         {
-                            throw new NotSupportedException(string.Format("The constant for '{0}' is not supported", constantExpression.Value));
+                            throw new NotSupportedException($"The constant for '{constantExpression.Value}' is not supported");
                         }
                         break;
                     default:
@@ -239,7 +249,7 @@ namespace DummyOrm.Sql.Where.ExpressionVisitors
                 case ExpressionType.GreaterThanOrEqual:
                     return Operator.GreaterThanOrEquals;
                 default:
-                    throw new NotSupportedException(string.Format("The binary operator '{0}' is not supported", nodeType));
+                    throw new NotSupportedException($"The binary operator '{nodeType}' is not supported");
             }
         }
     }

@@ -40,7 +40,7 @@ namespace DummyOrm.Sql.Command
             {
                 meta = new ParameterMeta
                 {
-                    DbType = value == null ? DbType.Object : value.GetType().GetDbType()
+                    DbType = value?.GetType().GetDbType() ?? DbType.Object
                 };
             }
 

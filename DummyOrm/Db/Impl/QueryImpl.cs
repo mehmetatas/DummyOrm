@@ -18,7 +18,7 @@ namespace DummyOrm.Db.Impl
         private readonly SelectQueryImpl _query;
         private bool _autoIncludeFromColumns;
 
-        internal string FromTableAlias { get { return _query.From.Alias; } }
+        internal string FromTableAlias => _query.From.Alias;
 
         public QueryImpl(IDbMeta meta, ICommandExecutor queryExecuter)
         {

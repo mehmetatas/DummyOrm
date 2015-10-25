@@ -76,7 +76,7 @@ namespace DummyOrm.Providers.SqlServer2012
         {
             _cmd.AppendLine()
                 .AppendLine(String.Join(",\n", query.SelectColumns.Values.Select(
-                    c => String.Format("  {0}.{1} {2}", c.Table.Alias, c.Meta.ColumnName, c.Alias))))
+                    c => $"  {c.Table.Alias}.{c.Meta.ColumnName} {c.Alias}")))
                 .AppendFormat("FROM [{0}] {1}", query.From.Meta.TableName, query.From.Alias)
                 .AppendLine();
         }
@@ -152,17 +152,9 @@ namespace DummyOrm.Providers.SqlServer2012
             }
             else
             {
-                var fromCol = query.SelectColumns.Values.FirstOrDefault(c => c.Meta.Identity && c.Table == query.From);
-
-                if (fromCol == null)
-                {
-                    fromCol = query.SelectColumns.Values.FirstOrDefault(c => c.Meta.Identity);
-                }
-
-                if (fromCol == null)
-                {
-                    fromCol = query.SelectColumns.Values.FirstOrDefault();
-                }
+                var fromCol = (query.SelectColumns.Values.FirstOrDefault(c => c.Meta.Identity && c.Table == query.From) ??
+                               query.SelectColumns.Values.FirstOrDefault(c => c.Meta.Identity)) ??
+                               query.SelectColumns.Values.First();
 
                 _cmd.AppendFormat("__DATA.{0}", fromCol.Alias);
             }

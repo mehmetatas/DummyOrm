@@ -1,4 +1,3 @@
-using System;
 using System.Reflection;
 using DummyOrm.Dynamix;
 
@@ -26,7 +25,7 @@ namespace DummyOrm.Meta
 
         public override string ToString()
         {
-            return String.Format("{0}.{1}", Table, ColumnName);
+            return $"{Table}.{ColumnName}";
         }
     }
 }

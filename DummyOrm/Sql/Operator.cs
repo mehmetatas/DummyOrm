@@ -61,7 +61,7 @@ namespace DummyOrm.Sql
                 case Operator.NotLikeContains:
                     return "NOT LIKE";
                 default:
-                    throw new ArgumentOutOfRangeException("sqlOperator");
+                    throw new ArgumentOutOfRangeException(nameof(sqlOperator));
             }
         }
     }
