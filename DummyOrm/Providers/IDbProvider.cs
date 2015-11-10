@@ -1,4 +1,5 @@
 ﻿using System.Data;
+using DummyOrm.Db;
 using DummyOrm.Meta;
 using DummyOrm.Sql.Command;
 using DummyOrm.Sql.Delete;
@@ -22,6 +23,8 @@ namespace DummyOrm.Providers
         ICommandMetaBuilder CreateCommandMetaBuilder(IDbMeta meta);
 
         IDeleteManyCommandBuilder CreateDeleteManyCommandBuilder(IDbMeta meta);
+
+        ISchemaBuilder CreateSchemaBuilder(IDbMeta meta);
 
         IDbConnection CreateConnection();
     }

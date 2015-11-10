@@ -10,7 +10,7 @@ namespace DummyOrm.Meta
             return dbMeta.RegisterEntity(typeof(T));
         }
 
-        public static DbMeta RegisterModel<T>(this DbMeta dbMeta) where T : class, new()
+        public static IDbMeta RegisterModel<T>(this DbMeta dbMeta) where T : class, new()
         {
             return dbMeta.RegisterModel(typeof(T));
         }

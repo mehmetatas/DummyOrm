@@ -27,5 +27,8 @@ namespace DummyOrm.Meta
             Expression<Func<TMany, TOne>> foreignPropExp)
             where TOne : class, new()
             where TMany : class, new();
+
+        IDbMeta RegisterModel(Type type);
+        TableMeta[] GetTables();
     }
 }

@@ -24,6 +24,8 @@ namespace DummyOrm.Meta
             DbProvider = provider;
         }
 
+        public TableMeta[] GetTables() => _tables.Cast<TableMeta>().ToArray();
+
         public OneToManyMeta OneToMany<TOne, TMany>(Expression<Func<TOne, IEnumerable<TMany>>> listPropExp, Expression<Func<TMany, TOne>> foreignPropExp)
             where TOne : class, new()
             where TMany : class, new()
@@ -85,7 +87,7 @@ namespace DummyOrm.Meta
             return assoc;
         }
 
-        public DbMeta RegisterModel(Type type)
+        public IDbMeta RegisterModel(Type type)
         {
             PocoDeserializer.RegisterModel(type);
             return this;

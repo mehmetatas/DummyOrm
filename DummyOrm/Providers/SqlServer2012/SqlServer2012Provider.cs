@@ -1,4 +1,5 @@
 ﻿using System.Data;
+using DummyOrm.Db;
 using DummyOrm.Meta;
 using DummyOrm.Sql.Command;
 using DummyOrm.Sql.Delete;
@@ -30,9 +31,14 @@ namespace DummyOrm.Providers.SqlServer2012
             return new SqlServer2012CommandMetaBuilder();
         }
 
-        public IDeleteManyCommandBuilder CreateDeleteManyCommandBuilder(IDbMeta meta)
+        public virtual IDeleteManyCommandBuilder CreateDeleteManyCommandBuilder(IDbMeta meta)
         {
             return new Sql2012DeleteWhereCommandBuilder(meta);
+        }
+
+        public virtual ISchemaBuilder CreateSchemaBuilder(IDbMeta meta)
+        {
+            return new Sql2012SchemaBuilder(meta);
         }
 
         public abstract IDbConnection CreateConnection();
