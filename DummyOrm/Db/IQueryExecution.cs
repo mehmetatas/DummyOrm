@@ -7,7 +7,7 @@ namespace DummyOrm.Db
     {
         T FirstOrDefault();
 
-        IList<T> ToList();
+        List<T> ToList();
 
         Page<T> Page(int page, int pageSize);
 

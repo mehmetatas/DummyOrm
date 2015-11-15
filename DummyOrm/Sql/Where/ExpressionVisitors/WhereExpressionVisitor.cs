@@ -196,6 +196,13 @@ namespace DummyOrm.Sql.Where.ExpressionVisitors
                                 Value = constantExpression.Value
                             });
                         }
+                        else if (constantExpression.Value is Guid)
+                        {
+                            _current.Visit(new ValueExpression
+                            {
+                                Value = constantExpression.Value
+                            });
+                        }
                         else
                         {
                             throw new NotSupportedException($"The constant for '{constantExpression.Value}' is not supported");

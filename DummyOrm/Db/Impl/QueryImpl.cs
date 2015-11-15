@@ -173,7 +173,7 @@ namespace DummyOrm.Db.Impl
             }
         }
 
-        public IList<T> ToList()
+        public List<T> ToList()
         {
             using (var reader = ExecuteReader())
             {
